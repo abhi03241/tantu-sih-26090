@@ -24,16 +24,22 @@ tantu-sih-26090/
 │   │   ├── main.py               # Application entrypoint & CORS middleware
 │   │   ├── config.py             # Environment settings & MOCK_AI toggle
 │   │   ├── database.py           # SQLite database persistence layer
-│   │   ├── models.py             # Domain models (Product, User, ArtisanProfile, Buyer, OrderRequest)
 │   │   ├── schemas.py            # Pydantic validation schemas & Common Product Contract
 │   │   ├── seed_data.py          # Auto-seeding mechanism for demo products
+│   │   ├── services/             # AI Integration Layer Abstractions & Orchestration
+│   │   │   ├── __init__.py
+│   │   │   ├── nlp_service.py    # Voice/Text -> Catalog & Storyteller (Member M integration)
+│   │   │   ├── vision_service.py # Studio backdrop & Image Enhancer (Member R integration)
+│   │   │   ├── pricing_service.py# Fair wage & market pricing engine (Member S integration)
+│   │   │   └── orchestrator.py   # End-to-end Photo+Voice cataloging pipeline
 │   │   └── routers/              # API route controllers
 │   │       ├── __init__.py
 │   │       ├── products.py       # CRUD endpoints for products
-│   │       ├── ai_endpoints.py   # Voice, Vision, Catalogue, & Pricing AI hooks
+│   │       ├── ai_endpoints.py   # Voice, Vision, Catalogue, Pricing & Pipeline Orchestration
 │   │       ├── artisan.py        # Artisan dashboard endpoints
 │   │       ├── buyer.py          # Buyer marketplace feed endpoints
 │   │       └── orders.py         # B2B order request endpoints
+
 │   ├── tantu.db                  # Local SQLite database file
 │   └── requirements.txt          # Python dependencies
 ├── ai/                           # AI/ML Submodules (Integrated by Members M, R, S)

@@ -137,6 +137,26 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 ---
 
+#### 8. End-to-End AI Orchestration Pipeline (SIH Demo Endpoint)
+* **Endpoint**: `POST /api/products/{id}/process`
+* **Description**: Orchestrates the complete cataloging pipeline in a single request: Voice/Text Input -> NLP Processing -> Studio Vision Enhancement -> Dynamic Fair Pricing -> Database Persistence. Pass `{id}` as an existing product ID or `"new"` to create a new product dynamically.
+* **Request Body**:
+```json
+{
+  "audio_transcript": "Ye bamboo ki tokri hai. Isko banane mein do din lagte hain. Meri maa ne mujhe ye banana sikhaya tha.",
+  "image_url": "https://images.unsplash.com/photo-1590736969955-71cc94801759",
+  "prompt": "Clean studio background with warm lighting",
+  "raw_material_cost": 250.0,
+  "language": "hi",
+  "artisan_id": "art-001"
+}
+```
+* **Response Status**: `200 OK`
+* **Response Body**: Complete `Product` JSON Object with extracted attributes, bilingual copy, enhanced image reference, and suggested price bounds.
+
+
+---
+
 ### C. Dashboard & Marketplace Feeds
 
 #### 8. Artisan Product Feed

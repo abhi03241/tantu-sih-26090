@@ -136,3 +136,13 @@ class GenerateCatalogueRequest(BaseModel):
 class PricingRequest(BaseModel):
     raw_material_cost: Optional[float] = Field(None, example=250.0)
     labor_hours: Optional[int] = Field(None, example=16)
+
+
+class ProcessProductRequest(BaseModel):
+    audio_transcript: Optional[str] = Field(None, example="Ye bamboo ki tokri hai. Isko banane mein do din lagte hain. Meri maa ne mujhe ye banana sikhaya tha.")
+    image_url: Optional[str] = Field(None, example="https://images.unsplash.com/photo-1590736969955-71cc94801759")
+    prompt: Optional[str] = Field(None, example="Clean white studio background with soft lighting")
+    raw_material_cost: Optional[float] = Field(None, example=250.0)
+    language: Optional[str] = Field("hi", example="hi")
+    artisan_id: Optional[str] = Field("art-001", example="art-001")
+

@@ -4,15 +4,43 @@ from backend.app.schemas import (
     VoiceProcessingRequest,
     EnhanceImageRequest,
     GenerateCatalogueRequest,
-    PricingRequest
+    PricingRequest,
+    ProcessProductRequest
 )
 from backend.app.database import ProductRepository
-from backend.app.config import settings
-from ai.nlp.voice_and_story import process_voice_transcript, generate_catalogue_nlp
-from ai.vision.image_enhancer import enhance_artisan_image
-from ai.pricing.smart_pricing import calculate_smart_price
+from backend.app.services.nlp_service import NLPService
+from backend.app.services.vision_service import VisionService
+from backend.app.services.pricing_service import PricingService
+from backend.app.services.orchestrator import ProductPipelineOrchestrator
 
-router = APIRouter(prefix="/api/products", tags=["AI Endpoints (M, R, S Integration)"])
+router = APIRouter(prefix="/api/products", tags=["AI Integration Layer (Orchestration & Services)"])
+
+
+@router.post("/{id}/process", response_model=ProductResponse)
+def process_full_product_pipeline(id: str, request: ProcessProductRequest = None):
+    """
+    POST /api/products/{id}/process
+    Complete Orchestrated AI Pipeline:
+    Photo + Voice -> NLP Service -> Vision Enhancer -> Pricing Engine -> Complete Product Record.
+    Designed for seamless SIH demo execution.
+    """
+    if id != "new" and not ProductRepository.get_by_id(id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with ID '{id}' not found"
+        )
+
+    req = request or ProcessProductRequest()
+    updated_product = ProductPipelineOrchestrator.process_product_pipeline(
+        product_id=id,
+        audio_transcript=req.audio_transcript,
+        image_url=req.image_url,
+        raw_material_cost=req.raw_material_cost,
+        prompt=req.prompt,
+        language=req.language or "hi",
+        artisan_id=req.artisan_id or "art-001"
+    )
+    return updated_product
 
 
 @router.post("/{id}/voice", response_model=ProductResponse)
@@ -20,8 +48,7 @@ def process_voice_and_update_product(id: str, request: VoiceProcessingRequest):
     """
     POST /api/products/{id}/voice
     Processes artisan voice audio transcript into bilingual descriptions, tags, sentiment, and story.
-    Updates the product record in the database.
-    Integrated with Team Member M's NLP module.
+    Updates the product record in the database via NLPService.
     """
     product = ProductRepository.get_by_id(id)
     if not product:
@@ -30,13 +57,11 @@ def process_voice_and_update_product(id: str, request: VoiceProcessingRequest):
             detail=f"Product with ID '{id}' not found"
         )
 
-    ai_result = process_voice_transcript(
+    ai_result = NLPService.process_voice(
         transcript=request.audio_transcript,
-        language=request.language or "hi",
-        mock=settings.MOCK_AI
+        language=request.language or "hi"
     )
 
-    # Merge AI voice extraction result into product model
     product["title"] = ai_result.get("title", product["title"])
     product["description_english"] = ai_result.get("description_english", product["description_english"])
     product["description_hindi"] = ai_result.get("description_hindi", product["description_hindi"])
@@ -55,9 +80,7 @@ def process_voice_and_update_product(id: str, request: VoiceProcessingRequest):
 def enhance_product_image(id: str, request: EnhanceImageRequest = None):
     """
     POST /api/products/{id}/enhance-image
-    Enhances artisan raw photo by removing background noise and applying studio lighting.
-    Updates `enhanced_image_url` on product.
-    Integrated with Team Member R's Vision module.
+    Enhances artisan raw photo by removing background clutter and applying studio lighting via VisionService.
     """
     product = ProductRepository.get_by_id(id)
     if not product:
@@ -69,13 +92,12 @@ def enhance_product_image(id: str, request: EnhanceImageRequest = None):
     img_to_enhance = (request and request.image_url) or product.get("image_url")
     prompt = request.prompt if request else None
 
-    ai_result = enhance_artisan_image(
+    ai_result = VisionService.enhance_image(
         image_url=img_to_enhance,
-        prompt=prompt,
-        mock=settings.MOCK_AI
+        prompt=prompt
     )
 
-    product["enhanced_image_url"] = ai_result.get("enhanced_image_url")
+    product["enhanced_image_url"] = ai_result.get("enhanced_image_url") or img_to_enhance
     updated = ProductRepository.save(product)
     return updated
 
@@ -84,8 +106,7 @@ def enhance_product_image(id: str, request: EnhanceImageRequest = None):
 def generate_product_catalogue(id: str, request: GenerateCatalogueRequest = None):
     """
     POST /api/products/{id}/generate-catalogue
-    Generates rich marketing description, cultural story, and tags for smart cataloging.
-    Integrated with Team Member M's NLP module.
+    Generates rich marketing description, cultural story, and tags for smart cataloging via NLPService.
     """
     product = ProductRepository.get_by_id(id)
     if not product:
@@ -94,10 +115,7 @@ def generate_product_catalogue(id: str, request: GenerateCatalogueRequest = None
             detail=f"Product with ID '{id}' not found"
         )
 
-    ai_result = generate_catalogue_nlp(
-        product_info=product,
-        mock=settings.MOCK_AI
-    )
+    ai_result = NLPService.generate_catalogue(product_info=product)
 
     product["description_english"] = ai_result.get("description_english", product["description_english"])
     product["description_hindi"] = ai_result.get("description_hindi", product["description_hindi"])
@@ -114,8 +132,7 @@ def generate_product_catalogue(id: str, request: GenerateCatalogueRequest = None
 def calculate_product_price(id: str, request: PricingRequest = None):
     """
     POST /api/products/{id}/price
-    Calculates fair market value price bounds (`suggested_price_min`, `suggested_price_max`).
-    Integrated with Team Member S's Pricing module.
+    Calculates fair market value price bounds (`suggested_price_min`, `suggested_price_max`) via PricingService.
     """
     product = ProductRepository.get_by_id(id)
     if not product:
@@ -126,13 +143,12 @@ def calculate_product_price(id: str, request: PricingRequest = None):
 
     raw_cost = request.raw_material_cost if request else None
 
-    ai_result = calculate_smart_price(
+    ai_result = PricingService.calculate_price(
         category=product.get("category", "Handicraft"),
         material=product.get("material", "Natural Material"),
         production_time=product.get("production_time"),
         dimensions=product.get("dimensions"),
-        raw_material_cost=raw_cost,
-        mock=settings.MOCK_AI
+        raw_material_cost=raw_cost
     )
 
     product["suggested_price_min"] = ai_result.get("suggested_price_min")
@@ -140,3 +156,4 @@ def calculate_product_price(id: str, request: PricingRequest = None):
 
     updated = ProductRepository.save(product)
     return updated
+
