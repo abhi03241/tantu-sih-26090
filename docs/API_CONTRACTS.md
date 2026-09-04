@@ -258,3 +258,35 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 ```
 * **Response Status**: `201 Created`
 
+---
+
+### F. Artisan Workflow & Lifecycle Operations
+
+#### 15. Upload Product Image
+* **Endpoint**: `POST /api/products/{id}/upload-image`
+* **Request Type**: `multipart/form-data` (`file`: JPG, JPEG, PNG, WEBP)
+* **Response Status**: `200 OK` (or `400 Bad Request` if file format is unsupported)
+* **Response Body**: Updated Product Object containing local `image_url` path (e.g. `/uploads/prod-001_a1b2c3.png`).
+
+---
+
+#### 16. Get Processing Status
+* **Endpoint**: `GET /api/products/{id}/status`
+* **Response Status**: `200 OK`
+* **Response Body**:
+```json
+{
+  "id": "prod-001",
+  "status": "ready"
+}
+```
+*(Statuses: `draft`, `processing`, `ready`, `published`, `failed`)*
+
+---
+
+#### 17. Publish Product
+* **Endpoint**: `PATCH /api/products/{id}/publish`
+* **Response Status**: `200 OK`
+* **Response Body**: Updated Product Object with `status` set to `"published"`. Makes item visible on buyer marketplace feed `GET /api/buyer/products`.
+
+

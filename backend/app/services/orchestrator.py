@@ -66,46 +66,77 @@ class ProductPipelineOrchestrator:
         if image_url:
             product["image_url"] = image_url
 
+        product["status"] = "processing"
+        errors = {}
+
         # Step 2: Voice & Text NLP Processing
         if audio_transcript:
-            nlp_result = NLPService.process_voice(transcript=audio_transcript, language=language)
-            product["title"] = nlp_result.get("title", product["title"])
-            product["description_english"] = nlp_result.get("description_english", product["description_english"])
-            product["description_hindi"] = nlp_result.get("description_hindi", product["description_hindi"])
-            product["category"] = nlp_result.get("category", product["category"])
-            product["material"] = nlp_result.get("material", product["material"])
-            product["tags"] = nlp_result.get("tags", product.get("tags", []))
-            product["story"] = nlp_result.get("story", product.get("story"))
-            product["sentiment"] = nlp_result.get("sentiment", product.get("sentiment"))
-            product["narrative_type"] = nlp_result.get("narrative_type", product.get("narrative_type"))
+            try:
+                nlp_result = NLPService.process_voice(transcript=audio_transcript, language=language)
+                product["title"] = nlp_result.get("title", product["title"])
+                product["description_english"] = nlp_result.get("description_english", product["description_english"])
+                product["description_hindi"] = nlp_result.get("description_hindi", product["description_hindi"])
+                product["category"] = nlp_result.get("category", product["category"])
+                product["material"] = nlp_result.get("material", product["material"])
+                product["tags"] = nlp_result.get("tags", product.get("tags", []))
+                product["story"] = nlp_result.get("story", product.get("story"))
+                product["sentiment"] = nlp_result.get("sentiment", product.get("sentiment"))
+                product["narrative_type"] = nlp_result.get("narrative_type", product.get("narrative_type"))
+            except Exception as e:
+                logger.error(f"[Orchestrator] NLP Voice processing failed: {e}")
+                errors["nlp"] = str(e)
 
         # Step 3: Catalog Description Enrichment
-        catalogue_result = NLPService.generate_catalogue(product_info=product)
-        product["description_english"] = catalogue_result.get("description_english", product["description_english"])
-        product["description_hindi"] = catalogue_result.get("description_hindi", product["description_hindi"])
-        if catalogue_result.get("tags"):
-            # Merge tags uniquely
-            existing_tags = set(product.get("tags", []))
-            existing_tags.update(catalogue_result["tags"])
-            product["tags"] = list(existing_tags)
+        try:
+            catalogue_result = NLPService.generate_catalogue(product_info=product)
+            product["description_english"] = catalogue_result.get("description_english", product["description_english"])
+            product["description_hindi"] = catalogue_result.get("description_hindi", product["description_hindi"])
+            if catalogue_result.get("tags"):
+                existing_tags = set(product.get("tags", []))
+                existing_tags.update(catalogue_result["tags"])
+                product["tags"] = list(existing_tags)
+        except Exception as e:
+            logger.error(f"[Orchestrator] NLP Catalogue generation failed: {e}")
+            errors["catalogue"] = str(e)
 
         # Step 4: Vision Image Enhancement
-        img_target = product.get("image_url")
-        vision_result = VisionService.enhance_image(image_url=img_target, prompt=prompt)
-        product["enhanced_image_url"] = vision_result.get("enhanced_image_url") or product.get("image_url")
+        try:
+            img_target = product.get("image_url")
+            vision_result = VisionService.enhance_image(image_url=img_target, prompt=prompt)
+            product["enhanced_image_url"] = vision_result.get("enhanced_image_url") or product.get("image_url")
+        except Exception as e:
+            logger.error(f"[Orchestrator] Vision image enhancement failed: {e}")
+            errors["vision"] = str(e)
 
         # Step 5: Pricing Calculation Engine
-        pricing_result = PricingService.calculate_price(
-            category=product.get("category", "Handicraft"),
-            material=product.get("material", "Natural Material"),
-            production_time=product.get("production_time"),
-            dimensions=product.get("dimensions"),
-            raw_material_cost=raw_material_cost
-        )
-        product["suggested_price_min"] = pricing_result.get("suggested_price_min", product.get("suggested_price_min"))
-        product["suggested_price_max"] = pricing_result.get("suggested_price_max", product.get("suggested_price_max"))
+        try:
+            pricing_result = PricingService.calculate_price(
+                category=product.get("category", "Handicraft"),
+                material=product.get("material", "Natural Material"),
+                production_time=product.get("production_time"),
+                dimensions=product.get("dimensions"),
+                raw_material_cost=raw_material_cost
+            )
+            product["suggested_price_min"] = pricing_result.get("suggested_price_min", product.get("suggested_price_min"))
+            product["suggested_price_max"] = pricing_result.get("suggested_price_max", product.get("suggested_price_max"))
+        except Exception as e:
+            logger.error(f"[Orchestrator] Pricing calculation failed: {e}")
+            errors["pricing"] = str(e)
+
+        # Determine final status
+        if errors.get("nlp") and not product.get("title"):
+            product["status"] = "failed"
+        else:
+            product["status"] = "ready"
 
         # Step 6: Database Persistence
         saved_product = ProductRepository.save(product)
-        logger.info(f"[Orchestrator] Successfully completed product cataloging pipeline for ID '{saved_product['id']}'")
-        return saved_product
+        logger.info(f"[Orchestrator] Completed cataloging pipeline for ID '{saved_product['id']}' with status '{saved_product['status']}'")
+
+        return {
+            "id": saved_product["id"],
+            "status": saved_product["status"],
+            "product": saved_product,
+            "errors": errors if errors else None
+        }
+

@@ -41,9 +41,16 @@ def init_db():
         artisan_id TEXT,
         artisan_name TEXT,
         location TEXT,
+        status TEXT DEFAULT 'draft',
         created_at TEXT
     )
     """)
+
+    # Ensure status column exists for backwards compatibility
+    try:
+        cursor.execute("ALTER TABLE products ADD COLUMN status TEXT DEFAULT 'draft'")
+    except Exception:
+        pass  # Column already exists
 
     # Create Users table
     cursor.execute("""
@@ -115,10 +122,18 @@ class ProductRepository:
                 d["tags"] = [t.strip() for t in d["tags"].split(",") if t.strip()]
         else:
             d["tags"] = []
+        if not d.get("status"):
+            d["status"] = "draft"
         return d
 
     @classmethod
-    def get_all(cls, category: Optional[str] = None, artisan_id: Optional[str] = None, query: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_all(
+        cls,
+        category: Optional[str] = None,
+        artisan_id: Optional[str] = None,
+        query: Optional[str] = None,
+        status: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
         conn = get_db_connection()
         cursor = conn.cursor()
         sql = "SELECT * FROM products WHERE 1=1"
@@ -133,6 +148,9 @@ class ProductRepository:
         if query:
             sql += " AND (lower(title) LIKE lower(?) OR lower(description_english) LIKE lower(?) OR lower(material) LIKE lower(?))"
             params.extend([f"%{query}%", f"%{query}%", f"%{query}%"])
+        if status:
+            sql += " AND status = ?"
+            params.append(status)
 
         sql += " ORDER BY created_at DESC"
         cursor.execute(sql, params)
@@ -156,14 +174,15 @@ class ProductRepository:
         
         tags_str = json.dumps(data.get("tags", []))
         created_at = data.get("created_at") or datetime.now().isoformat()
+        prod_status = data.get("status", "draft")
 
         cursor.execute("""
         INSERT INTO products (
             id, title, description_english, description_hindi, category, material,
             dimensions, production_time, tags, story, sentiment, narrative_type,
             image_url, enhanced_image_url, suggested_price_min, suggested_price_max,
-            artisan_id, artisan_name, location, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            artisan_id, artisan_name, location, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
             title=excluded.title,
             description_english=excluded.description_english,
@@ -182,7 +201,8 @@ class ProductRepository:
             suggested_price_max=excluded.suggested_price_max,
             artisan_id=excluded.artisan_id,
             artisan_name=excluded.artisan_name,
-            location=excluded.location
+            location=excluded.location,
+            status=excluded.status
         """, (
             data["id"],
             data["title"],
@@ -203,11 +223,13 @@ class ProductRepository:
             data.get("artisan_id", "art-001"),
             data.get("artisan_name", "Artisan"),
             data.get("location", "India"),
+            prod_status,
             created_at
         ))
         conn.commit()
         conn.close()
         return cls.get_by_id(data["id"])
+
 
     @classmethod
     def delete(cls, product_id: str) -> bool:

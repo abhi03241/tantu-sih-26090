@@ -79,7 +79,16 @@ python -m backend.app.main
 The server will start at: `http://localhost:8000`  
 Interactive Swagger API documentation: `http://localhost:8000/docs`
 
-### 4. Run Automated Test Suite
+### 4. Artisan Product Processing Flow Example
+1. **Create Draft Product**: `POST /api/products` (returns generated `id`, `status: "draft"`)
+2. **Upload Product Photo**: `POST /api/products/{id}/upload-image` (multipart upload JPG/PNG)
+3. **Submit Voice Description**: `POST /api/products/{id}/voice` (natural language voice transcript)
+4. **Run AI Processing Pipeline**: `POST /api/products/{id}/process` (chains NLP, Vision, Pricing -> `status: "ready"`)
+5. **Review & Edit Catalogue**: `PUT /api/products/{id}`
+6. **Publish to Marketplace**: `PATCH /api/products/{id}/publish` (transitions `status` to `"published"`)
+7. **Buyer Feed Access**: `GET /api/buyer/products` (returns published artisan products)
+
+### 5. Run Automated Test Suite
 ```bash
 python -m unittest discover -s tests -p "test_*.py"
 ```
@@ -92,6 +101,7 @@ In `.env`, set `MOCK_AI=true` (enabled by default):
 - Ensures **100% demo uptime** during live judging.
 - All AI endpoints (Voice, Image Enhancement, Pricing) return deterministic, realistic sample data without requiring external API keys.
 - Can be set to `MOCK_AI=false` when members M, R, and S attach live model endpoints.
+
 
 ---
 

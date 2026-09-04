@@ -120,8 +120,11 @@ def seed_demo_data():
             items = json.load(f)
 
         for item in items:
+            if "status" not in item:
+                item["status"] = "published"
             ProductRepository.save(item)
         print(f"[SEED] Successfully seeded {len(items)} sample artisan products into TANTU database!")
     except Exception as e:
         print(f"[SEED] Error seeding data: {e}")
+
 

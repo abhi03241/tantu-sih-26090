@@ -43,3 +43,8 @@ yarn-debug.log*
 yarn-error.log*
 .next/
 dist/
+
+# Uploaded Media
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+

@@ -5,7 +5,8 @@ from backend.app.schemas import (
     EnhanceImageRequest,
     GenerateCatalogueRequest,
     PricingRequest,
-    ProcessProductRequest
+    ProcessProductRequest,
+    ProcessProductResponse
 )
 from backend.app.database import ProductRepository
 from backend.app.services.nlp_service import NLPService
@@ -16,7 +17,7 @@ from backend.app.services.orchestrator import ProductPipelineOrchestrator
 router = APIRouter(prefix="/api/products", tags=["AI Integration Layer (Orchestration & Services)"])
 
 
-@router.post("/{id}/process", response_model=ProductResponse)
+@router.post("/{id}/process", response_model=ProcessProductResponse)
 def process_full_product_pipeline(id: str, request: ProcessProductRequest = None):
     """
     POST /api/products/{id}/process
@@ -31,7 +32,7 @@ def process_full_product_pipeline(id: str, request: ProcessProductRequest = None
         )
 
     req = request or ProcessProductRequest()
-    updated_product = ProductPipelineOrchestrator.process_product_pipeline(
+    result = ProductPipelineOrchestrator.process_product_pipeline(
         product_id=id,
         audio_transcript=req.audio_transcript,
         image_url=req.image_url,
@@ -40,7 +41,8 @@ def process_full_product_pipeline(id: str, request: ProcessProductRequest = None
         language=req.language or "hi",
         artisan_id=req.artisan_id or "art-001"
     )
-    return updated_product
+    return result
+
 
 
 @router.post("/{id}/voice", response_model=ProductResponse)

@@ -7,8 +7,8 @@ from typing import List, Optional
 # ==========================================
 class ProductBase(BaseModel):
     title: str = Field(..., example="Handcrafted North-East Bamboo Utility Basket")
-    description_english: str = Field(..., example="Woven natural bamboo basket crafted by master artisans.")
-    description_hindi: str = Field(..., example="असम के कुशल कारीगरों द्वारा निर्मित बांस की टोकरी।")
+    description_english: Optional[str] = Field("", example="Woven natural bamboo basket crafted by master artisans.")
+    description_hindi: Optional[str] = Field("", example="असम के कुशल कारीगरों द्वारा निर्मित बांस की टोकरी।")
     category: str = Field(..., example="Bamboo & Cane Craft")
     material: str = Field(..., example="Natural Bamboo")
     dimensions: Optional[str] = Field(None, example="30cm x 30cm x 20cm")
@@ -17,19 +17,39 @@ class ProductBase(BaseModel):
     story: Optional[str] = Field(None, example="Heritage technique passed down through 4 generations.")
     sentiment: Optional[str] = Field(None, example="Authentic, heritage-focused")
     narrative_type: Optional[str] = Field(None, example="Cultural Heritage")
-    image_url: str = Field(..., example="https://images.unsplash.com/photo-1590736969955-71cc94801759")
+    image_url: Optional[str] = Field("", example="https://images.unsplash.com/photo-1590736969955-71cc94801759")
     enhanced_image_url: Optional[str] = Field(None, example="https://images.unsplash.com/photo-1590736969955-71cc94801759?w=1200")
     suggested_price_min: Optional[float] = Field(None, example=650.0)
     suggested_price_max: Optional[float] = Field(None, example=950.0)
+
 
     # Extra helper fields for artisan context
     artisan_id: Optional[str] = Field("art-001", example="art-001")
     artisan_name: Optional[str] = Field(None, example="Lakshmi Devi")
     location: Optional[str] = Field(None, example="Silchar, Assam")
+    status: Optional[str] = Field("draft", example="ready")  # draft, processing, ready, published, failed
 
 
-class ProductCreate(ProductBase):
-    pass
+class ProductCreate(BaseModel):
+    title: Optional[str] = Field("Artisan Product", example="Handcrafted North-East Bamboo Utility Basket")
+    description_english: Optional[str] = Field(None, example="Woven natural bamboo basket crafted by master artisans.")
+    description_hindi: Optional[str] = Field(None, example="असम के कुशल कारीगरों द्वारा निर्मित बांस की टोकरी।")
+    category: Optional[str] = Field("Handicraft", example="Bamboo & Cane Craft")
+    material: Optional[str] = Field("Natural Material", example="Natural Bamboo")
+    dimensions: Optional[str] = Field(None, example="30cm x 30cm x 20cm")
+    production_time: Optional[str] = Field(None, example="3 days")
+    tags: Optional[List[str]] = Field(default_factory=list, example=["bamboo", "eco-friendly"])
+    story: Optional[str] = Field(None, example="Heritage technique passed down through 4 generations.")
+    sentiment: Optional[str] = Field(None, example="Authentic, heritage-focused")
+    narrative_type: Optional[str] = Field(None, example="Cultural Heritage")
+    image_url: Optional[str] = Field(None, example="https://images.unsplash.com/photo-1590736969955-71cc94801759")
+    enhanced_image_url: Optional[str] = Field(None, example="https://images.unsplash.com/photo-1590736969955-71cc94801759?w=1200")
+    suggested_price_min: Optional[float] = Field(None, example=650.0)
+    suggested_price_max: Optional[float] = Field(None, example=950.0)
+    artisan_id: Optional[str] = Field("art-001", example="art-001")
+    artisan_name: Optional[str] = Field(None, example="Lakshmi Devi")
+    location: Optional[str] = Field(None, example="Silchar, Assam")
+    status: Optional[str] = Field("draft", example="draft")
 
 
 class ProductUpdate(BaseModel):
@@ -49,6 +69,7 @@ class ProductUpdate(BaseModel):
     suggested_price_min: Optional[float] = None
     suggested_price_max: Optional[float] = None
     artisan_id: Optional[str] = None
+    status: Optional[str] = None
 
 
 class ProductResponse(ProductBase):
@@ -117,10 +138,10 @@ class OrderRequestResponse(OrderRequestCreate):
 
 
 # ==========================================
-# AI ACTION PAYLOADS
+# AI ACTION PAYLOADS & RESPONSES
 # ==========================================
 class VoiceProcessingRequest(BaseModel):
-    audio_transcript: str = Field(..., example="यह बांस की टोकरी है जो असम में बनाई गई है। यह 3 दिन में बनती है।")
+    audio_transcript: Optional[str] = Field(None, example="यह बांस की टोकरी है जो असम में बनाई गई है। यह 3 दिन में बनती है।")
     language: Optional[str] = Field("hi", example="hi")
 
 
@@ -145,4 +166,17 @@ class ProcessProductRequest(BaseModel):
     raw_material_cost: Optional[float] = Field(None, example=250.0)
     language: Optional[str] = Field("hi", example="hi")
     artisan_id: Optional[str] = Field("art-001", example="art-001")
+
+
+class ProcessProductResponse(BaseModel):
+    id: str = Field(..., example="prod-001")
+    status: str = Field("ready", example="ready")
+    product: ProductResponse
+    errors: Optional[dict] = Field(None, example=None)
+
+
+class ProductStatusResponse(BaseModel):
+    id: str = Field(..., example="prod-001")
+    status: str = Field("ready", example="ready")
+
 
