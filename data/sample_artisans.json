@@ -1,0 +1,54 @@
+[
+  {
+    "id": "prof-art-001",
+    "user_id": "art-001",
+    "artisan_name": "Lakshmi Devi",
+    "name": "Lakshmi Devi",
+    "craft_type": "Bamboo & Cane Craft",
+    "location": "Silchar, Cachar Cluster, Assam",
+    "language": "Assamese / Hindi",
+    "bio": "Master artisan with 22 years of experience crafting eco-friendly bamboo utility items and heritage weaves from locally harvested groves.",
+    "phone": "+91-98765-43210",
+    "contact": "+91-98765-43210 (Cluster SHG Coordinator)",
+    "story_style": "Cultural Heritage"
+  },
+  {
+    "id": "prof-art-002",
+    "user_id": "art-002",
+    "artisan_name": "Ramesh Ansari",
+    "name": "Ramesh Ansari",
+    "craft_type": "Textiles & Handloom",
+    "location": "Chanderi, Ashoknagar Cluster, Madhya Pradesh",
+    "language": "Hindi / Bundelkhandi",
+    "bio": "Third-generation master weaver specializing in pure Chanderi silk and cotton dupattas with intricate royal zari borders.",
+    "phone": "+91-98765-43211",
+    "contact": "+91-98765-43211 (Chanderi Weavers Cooperative)",
+    "story_style": "Artisanal Mastery"
+  },
+  {
+    "id": "prof-art-003",
+    "user_id": "art-003",
+    "artisan_name": "Suresh Sharma",
+    "name": "Suresh Sharma",
+    "craft_type": "Woodcraft",
+    "location": "Saharanpur, Woodcraft Cluster, Uttar Pradesh",
+    "language": "Hindi",
+    "bio": "Wood sculptor preserving traditional Saharanpur floral jali engravings on sustainably seasoned Indian Sheesham wood.",
+    "phone": "+91-98765-43212",
+    "contact": "+91-98765-43212 (Saharanpur Woodcarvers Guild)",
+    "story_style": "Heritage Craftsmanship"
+  },
+  {
+    "id": "prof-art-004",
+    "user_id": "art-004",
+    "artisan_name": "Pinki Kumawat",
+    "name": "Pinki Kumawat",
+    "craft_type": "Pottery & Ceramics",
+    "location": "Kot Jewar, Jaipur Cluster, Rajasthan",
+    "language": "Rajasthani / Hindi",
+    "bio": "Pioneer woman artisan crafting authentic Persian-Mughal Jaipur Blue Pottery using lead-free quartz composite and natural cobalt glazes.",
+    "phone": "+91-98765-43213",
+    "contact": "+91-98765-43213 (Jaipur Blue Pottery Collective)",
+    "story_style": "Royal Heritage"
+  }
+]

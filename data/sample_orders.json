@@ -1,0 +1,32 @@
+[
+  {
+    "id": "ord-demo-001",
+    "product_id": "prod-bamboo-001",
+    "product_title": "Handcrafted North-East Bamboo Utility Basket",
+    "artisan_id": "art-001",
+    "buyer_id": "buyer-001",
+    "buyer_name": "FabIndia Sourcing & Merchandising Team",
+    "buyer_contact": "sourcing.crafts@fabindia.com / +91-11-40001234",
+    "quantity": 150,
+    "notes": "Bulk procurement for Diwali festive eco-friendly gift hamper packaging.",
+    "message": "Bulk procurement for Diwali festive eco-friendly gift hamper packaging.",
+    "price_offered": 750.0,
+    "status": "accepted",
+    "created_at": "2026-09-01T10:30:00.000000"
+  },
+  {
+    "id": "ord-demo-002",
+    "product_id": "prod-dupatta-002",
+    "product_title": "Chanderi Handwoven Silk Cotton Dupatta with Zari Border",
+    "artisan_id": "art-002",
+    "buyer_id": "buyer-003",
+    "buyer_name": "Kraft Emporium Global Inc.",
+    "buyer_contact": "imports@kraftemporium.com / +1-415-555-0199",
+    "quantity": 40,
+    "notes": "Export batch consignment for San Francisco Autumn Handicraft Pop-Up.",
+    "message": "Export batch consignment for San Francisco Autumn Handicraft Pop-Up.",
+    "price_offered": 2100.0,
+    "status": "pending",
+    "created_at": "2026-09-03T14:15:00.000000"
+  }
+]

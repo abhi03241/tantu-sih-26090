@@ -71,13 +71,16 @@ class UserResponse(UserBase):
 
 
 class ArtisanProfileBase(BaseModel):
-    user_id: str
-    artisan_name: str
-    craft_type: str
-    location: str
-    bio: Optional[str] = None
-    phone: Optional[str] = None
-    story_style: Optional[str] = "Cultural Heritage"
+    user_id: str = Field(..., example="art-001")
+    artisan_name: str = Field(..., example="Lakshmi Devi")
+    name: Optional[str] = Field(None, example="Lakshmi Devi")
+    craft_type: str = Field(..., example="Bamboo & Cane Craft")
+    location: str = Field(..., example="Silchar, Assam")
+    language: Optional[str] = Field("Hindi", example="Assamese / Hindi")
+    bio: Optional[str] = Field(None, example="Master artisan with 20+ years of experience.")
+    phone: Optional[str] = Field(None, example="+91-9876543210")
+    contact: Optional[str] = Field(None, example="+91-9876543210")
+    story_style: Optional[str] = Field("Cultural Heritage", example="Cultural Heritage")
 
 
 class ArtisanProfileResponse(ArtisanProfileBase):
@@ -85,11 +88,14 @@ class ArtisanProfileResponse(ArtisanProfileBase):
 
 
 class BuyerBase(BaseModel):
-    user_id: str
-    buyer_name: str
-    organization: Optional[str] = None
-    buyer_type: str = "B2B"  # B2B, B2C, Wholesaler
-    contact_email: str
+    user_id: str = Field(..., example="buyer-001")
+    buyer_name: str = Field(..., example="FabIndia Procurement Team")
+    name: Optional[str] = Field(None, example="FabIndia Procurement Team")
+    organization: Optional[str] = Field(None, example="FabIndia Overseas Pvt. Ltd.")
+    buyer_type: str = Field("B2B", example="B2B")  # B2B, B2C, Wholesaler
+    contact_email: str = Field(..., example="procurement@fabindia.com")
+    contact: Optional[str] = Field(None, example="procurement@fabindia.com / +91-11-40001234")
+    phone: Optional[str] = Field(None, example="+91-11-40001234")
 
 
 class BuyerResponse(BuyerBase):
@@ -101,10 +107,12 @@ class BuyerResponse(BuyerBase):
 # ==========================================
 class OrderRequestCreate(BaseModel):
     product_id: str = Field(..., example="prod-bamboo-001")
+    buyer_id: Optional[str] = Field(None, example="buyer-001")
     buyer_name: str = Field(..., example="Kraft Emporium Retailers")
     buyer_contact: str = Field(..., example="procurement@kraftemporium.com / +91-9988776655")
-    quantity: int = Field(..., example=50)
+    quantity: int = Field(..., gt=0, description="Quantity must be greater than 0", example=50)
     notes: Optional[str] = Field(None, example="Need custom eco-friendly packaging for export order.")
+    message: Optional[str] = Field(None, example="Need custom eco-friendly packaging for export order.")
     price_offered: Optional[float] = Field(None, example=850.0)
 
 
@@ -112,8 +120,14 @@ class OrderRequestResponse(OrderRequestCreate):
     id: str
     product_title: Optional[str] = None
     artisan_id: Optional[str] = None
-    status: str = Field("pending", example="pending")  # pending, accepted, fulfilled
+    buyer_id: Optional[str] = None
+    message: Optional[str] = None
+    status: str = Field("pending", example="pending")  # pending, accepted, fulfilled, rejected
     created_at: str
+
+
+class OrderStatusUpdate(BaseModel):
+    status: str = Field(..., example="accepted", description="Status: pending, accepted, in_production, fulfilled, rejected")
 
 
 # ==========================================

@@ -1,7 +1,7 @@
 from typing import List, Optional
-from fastapi import APIRouter, Query
-from backend.app.schemas import ProductResponse, ArtisanProfileResponse
-from backend.app.database import ProductRepository
+from fastapi import APIRouter, HTTPException, Query, status
+from backend.app.schemas import ProductResponse, ArtisanProfileBase, ArtisanProfileResponse
+from backend.app.database import ProductRepository, ArtisanRepository
 
 router = APIRouter(prefix="/api/artisan", tags=["Artisan Dashboard"])
 
@@ -19,19 +19,36 @@ def get_artisan_products(
     return products
 
 
+@router.get("/profiles", response_model=List[ArtisanProfileResponse])
+def list_artisan_profiles():
+    """
+    GET /api/artisan/profiles
+    Retrieves all registered artisan profiles.
+    """
+    profiles = ArtisanRepository.get_all()
+    return profiles
+
+
 @router.get("/profile/{artisan_id}", response_model=ArtisanProfileResponse)
 def get_artisan_profile(artisan_id: str):
     """
     GET /api/artisan/profile/{artisan_id}
     Retrieves artisan profile details and regional heritage credentials.
     """
-    return {
-        "id": f"prof-{artisan_id}",
-        "user_id": artisan_id,
-        "artisan_name": "Lakshmi Devi",
-        "craft_type": "Bamboo & Natural Fiber Crafting",
-        "location": "Silchar, Cachar District, Assam",
-        "bio": "Master artisan with 20+ years of experience crafting eco-friendly bamboo items.",
-        "phone": "+91-9876543210",
-        "story_style": "Cultural Heritage"
-    }
+    profile = ArtisanRepository.get_by_id(artisan_id)
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Artisan profile with ID '{artisan_id}' not found"
+        )
+    return profile
+
+
+@router.post("/profile", response_model=ArtisanProfileResponse, status_code=status.HTTP_201_CREATED)
+def create_or_update_artisan_profile(profile: ArtisanProfileBase):
+    """
+    POST /api/artisan/profile
+    Registers or updates an artisan's profile.
+    """
+    saved = ArtisanRepository.save(profile.model_dump())
+    return saved

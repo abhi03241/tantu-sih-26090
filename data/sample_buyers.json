@@ -1,0 +1,35 @@
+[
+  {
+    "id": "buy-001",
+    "user_id": "buyer-001",
+    "buyer_name": "FabIndia Sourcing & Merchandising Team",
+    "name": "FabIndia Sourcing & Merchandising Team",
+    "organization": "FabIndia Overseas Pvt. Ltd.",
+    "buyer_type": "B2B Retail Chain",
+    "contact_email": "sourcing.crafts@fabindia.com",
+    "contact": "sourcing.crafts@fabindia.com / +91-11-40001234",
+    "phone": "+91-11-40001234"
+  },
+  {
+    "id": "buy-002",
+    "user_id": "buyer-002",
+    "buyer_name": "Tribes India Institutional Procurement",
+    "name": "Tribes India Institutional Procurement",
+    "organization": "TRIFED (Ministry of Tribal Affairs, Govt. of India)",
+    "buyer_type": "Government Emporium / B2B",
+    "contact_email": "procurement@tribesindia.gov.in",
+    "contact": "procurement@tribesindia.gov.in / +91-11-23384950",
+    "phone": "+91-11-23384950"
+  },
+  {
+    "id": "buy-003",
+    "user_id": "buyer-003",
+    "buyer_name": "Kraft Emporium Global Inc.",
+    "name": "Kraft Emporium Global Inc.",
+    "organization": "Kraft Emporium Global Inc.",
+    "buyer_type": "International Export House",
+    "contact_email": "imports@kraftemporium.com",
+    "contact": "imports@kraftemporium.com / +1-415-555-0199",
+    "phone": "+1-415-555-0199"
+  }
+]

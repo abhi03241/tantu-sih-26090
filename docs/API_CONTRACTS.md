@@ -146,28 +146,72 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 ---
 
-#### 9. Buyer Product Feed
+#### 9. Artisan Profiles
+* **Endpoint**: `GET /api/artisan/profiles` (List all) or `GET /api/artisan/profile/{artisan_id}` (Single)
+* **Response Status**: `200 OK`
+* **Response Body**:
+```json
+{
+  "id": "prof-art-001",
+  "user_id": "art-001",
+  "artisan_name": "Lakshmi Devi",
+  "name": "Lakshmi Devi",
+  "craft_type": "Bamboo & Cane Craft",
+  "location": "Silchar, Cachar Cluster, Assam",
+  "language": "Assamese / Hindi",
+  "bio": "Master artisan with 22 years of experience.",
+  "phone": "+91-98765-43210",
+  "contact": "+91-98765-43210 (Cluster SHG Coordinator)",
+  "story_style": "Cultural Heritage"
+}
+```
+
+---
+
+#### 10. Buyer Product Feed
 * **Endpoint**: `GET /api/buyer/products?category={category}&q={search}`
 * **Response Status**: `200 OK`
 * **Response Body**: Array of products formatted for B2B/B2C marketplace showcase.
 
 ---
 
+#### 11. Buyer Profiles
+* **Endpoint**: `GET /api/buyer/profiles` (List all) or `GET /api/buyer/profile/{buyer_id}` (Single)
+* **Response Status**: `200 OK`
+* **Response Body**:
+```json
+{
+  "id": "buy-001",
+  "user_id": "buyer-001",
+  "buyer_name": "FabIndia Sourcing & Merchandising Team",
+  "organization": "FabIndia Overseas Pvt. Ltd.",
+  "buyer_type": "B2B Retail Chain",
+  "contact_email": "sourcing.crafts@fabindia.com",
+  "contact": "sourcing.crafts@fabindia.com / +91-11-40001234",
+  "phone": "+91-11-40001234"
+}
+```
+
+---
+
 ### D. B2B Order Linkage Endpoints
 
-#### 10. Create Order Request
+#### 12. Create Order Request
 * **Endpoint**: `POST /api/orders/request`
 * **Request Body**:
 ```json
 {
   "product_id": "prod-bamboo-001",
-  "buyer_name": "FabIndia Procurement Team",
-  "buyer_contact": "procurement@fabindia.com / +91-9876543210",
+  "buyer_id": "buy-001",
+  "buyer_name": "FabIndia Sourcing & Merchandising Team",
+  "buyer_contact": "sourcing.crafts@fabindia.com / +91-11-40001234",
   "quantity": 100,
   "notes": "Bulk order for festival season.",
+  "message": "Bulk order for festival season.",
   "price_offered": 850.0
 }
 ```
+* **Validation**: `quantity` must be greater than 0 (`gt: 0`). Non-existent `product_id` returns `404 Not Found`.
 * **Response Status**: `201 Created`
 * **Response Body**:
 ```json
@@ -176,10 +220,12 @@ Every product entity returned by or passed to the TANTU backend conforms to this
   "product_id": "prod-bamboo-001",
   "product_title": "Handcrafted North-East Bamboo Utility Basket",
   "artisan_id": "art-001",
-  "buyer_name": "FabIndia Procurement Team",
-  "buyer_contact": "procurement@fabindia.com / +91-9876543210",
+  "buyer_id": "buy-001",
+  "buyer_name": "FabIndia Sourcing & Merchandising Team",
+  "buyer_contact": "sourcing.crafts@fabindia.com / +91-11-40001234",
   "quantity": 100,
   "notes": "Bulk order for festival season.",
+  "message": "Bulk order for festival season.",
   "price_offered": 850.0,
   "status": "pending",
   "created_at": "2026-09-03T17:20:00.000000"
@@ -188,8 +234,30 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 ---
 
-#### 11. List Orders
+#### 13. List Orders
 * **Endpoint**: `GET /api/orders`
-* **Query Parameters**: `product_id`, `artisan_id`
+* **Query Parameters**: `product_id`, `artisan_id`, `buyer_id`
 * **Response Status**: `200 OK`
 * **Response Body**: Array of Order Request Objects.
+
+---
+
+#### 14. Get Order by ID
+* **Endpoint**: `GET /api/orders/{id}`
+* **Response Status**: `200 OK` (or `404 Not Found`)
+* **Response Body**: Single Order Request Object.
+
+---
+
+#### 15. Update Order Status
+* **Endpoint**: `PATCH /api/orders/{id}/status`
+* **Request Body**:
+```json
+{
+  "status": "accepted"
+}
+```
+* **Valid Statuses**: `pending`, `accepted`, `in_production`, `fulfilled`, `rejected`
+* **Response Status**: `200 OK` (or `400 Bad Request` if invalid status, `404 Not Found` if order missing)
+* **Response Body**: Updated Order Request Object.
+
