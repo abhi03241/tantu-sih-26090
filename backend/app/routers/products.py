@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query, status
-from backend.app.schemas import ProductCreate, ProductResponse, ProductUpdate
+from backend.app.schemas import ProductCreate, ProductResponse, ProductUpdate, ProductStatusUpdate
 from backend.app.database import ProductRepository
 
 router = APIRouter(prefix="/api/products", tags=["Products"])
@@ -28,12 +28,13 @@ def create_product(product: ProductCreate):
 def list_products(
     category: Optional[str] = Query(None, description="Filter products by category"),
     artisan_id: Optional[str] = Query(None, description="Filter products by artisan ID"),
+    status: Optional[str] = Query(None, description="Filter products by status (e.g. draft, published)"),
     q: Optional[str] = Query(None, description="Search query across title, description, material")
 ):
     """
-    Retrieves all product listings with optional category, artisan, and search filtering.
+    Retrieves all product listings with optional category, artisan, status, and search filtering.
     """
-    products = ProductRepository.get_all(category=category, artisan_id=artisan_id, query=q)
+    products = ProductRepository.get_all(category=category, artisan_id=artisan_id, query=q, status=status)
     return products
 
 
@@ -69,6 +70,42 @@ def update_product(id: str, payload: ProductUpdate):
             existing[key] = val
 
     updated = ProductRepository.save(existing)
+    return updated
+
+
+@router.post("/{id}/publish", response_model=ProductResponse)
+def publish_product(id: str):
+    """
+    Publishes a product listing, making it visible to B2B buyers in the marketplace feed.
+    """
+    existing = ProductRepository.get_by_id(id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with ID '{id}' not found"
+        )
+    updated = ProductRepository.update_status(id, "published")
+    return updated
+
+
+@router.patch("/{id}/status", response_model=ProductResponse)
+def update_product_status(id: str, payload: ProductStatusUpdate):
+    """
+    Updates product status lifecycle (e.g. draft -> published -> archived).
+    """
+    valid_statuses = ["draft", "published", "archived"]
+    if payload.status.lower() not in valid_statuses:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid product status '{payload.status}'. Allowed values: {valid_statuses}"
+        )
+    existing = ProductRepository.get_by_id(id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with ID '{id}' not found"
+        )
+    updated = ProductRepository.update_status(id, payload.status.lower())
     return updated
 
 

@@ -110,13 +110,29 @@ class TestSmokeIntegrationFlow(unittest.TestCase):
         print(f"  [OK] Smart marketing narrative: {product.get('story')[:70]}...")
 
         # ----------------------------------------------------
+        # STEP 5B: Artisan Reviews and Publishes Product to Marketplace
+        # ----------------------------------------------------
+        print("\n[STEP 5B] Verifying draft status and publishing product to B2B marketplace...")
+        # Verify draft product is NOT visible to buyers in feed
+        res_feed_draft = self.client.get("/api/buyer/products?q=handcrafted")
+        self.assertEqual(res_feed_draft.status_code, 200)
+        self.assertFalse(any(p["id"] == prod_id for p in res_feed_draft.json()), "Draft product should not appear in buyer feed")
+        
+        # Publish product
+        res_pub = self.client.post(f"/api/products/{prod_id}/publish")
+        self.assertEqual(res_pub.status_code, 200)
+        product = res_pub.json()
+        self.assertEqual(product["status"], "published")
+        print(f"  [OK] Product published to marketplace! Status: '{product['status']}'")
+
+        # ----------------------------------------------------
         # STEP 6: Urban B2B Buyer Marketplace Search (Frontend Feed)
         # ----------------------------------------------------
         print("\n[STEP 6] Urban B2B Buyer searches marketplace for handcrafted artisan products...")
         res_feed = self.client.get("/api/buyer/products?q=handcrafted")
         self.assertEqual(res_feed.status_code, 200)
         found_products = res_feed.json()
-        self.assertTrue(any(p["id"] == prod_id for p in found_products))
+        self.assertTrue(any(p["id"] == prod_id for p in found_products), "Published product must appear in buyer feed")
         print(f"  [OK] Buyer found {len(found_products)} matching products in catalogue.")
 
         # ----------------------------------------------------

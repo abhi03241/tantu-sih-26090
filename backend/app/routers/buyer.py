@@ -9,14 +9,15 @@ router = APIRouter(prefix="/api/buyer", tags=["Buyer Marketplace Feed"])
 @router.get("/products", response_model=List[ProductResponse])
 def get_buyer_products(
     category: Optional[str] = Query(None, description="Filter products by artisan category"),
-    q: Optional[str] = Query(None, description="Search query across product titles and heritage stories")
+    q: Optional[str] = Query(None, description="Search query across product titles and heritage stories"),
+    status: Optional[str] = Query("published", description="Filter products by status (defaults to published)")
 ):
     """
     GET /api/buyer/products
     Retrieves marketplace product feed tailored for urban B2B and retail buyers.
-    Integrated with Team Member P's buyer UI and Team Member S's B2B marketplace feed.
+    Only returns published products by default.
     """
-    products = ProductRepository.get_all(category=category, query=q)
+    products = ProductRepository.get_all(category=category, query=q, status=status)
     return products
 
 

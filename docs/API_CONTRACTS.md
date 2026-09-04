@@ -29,6 +29,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
   "artisan_id": "art-001",
   "artisan_name": "Lakshmi Devi",
   "location": "Silchar, Assam",
+  "status": "published",
   "created_at": "2026-09-03T17:00:00.000000"
 }
 ```
@@ -77,6 +78,27 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 * **Endpoint**: `GET /api/products/{id}`
 * **Response Status**: `200 OK` (or `404 Not Found`)
 * **Response Body**: Single Product Object.
+
+---
+
+#### 3B. Publish Product
+* **Endpoint**: `POST /api/products/{id}/publish`
+* **Response Status**: `200 OK`
+* **Response Body**: Updated Product Object with `status: "published"`. (Makes product visible in buyer marketplace).
+
+---
+
+#### 3C. Update Product Status
+* **Endpoint**: `PATCH /api/products/{id}/status`
+* **Request Body**:
+```json
+{
+  "status": "published"
+}
+```
+* **Valid Values**: `draft`, `published`, `archived`
+* **Response Status**: `200 OK` (or `400 Bad Request`)
+* **Response Body**: Updated Product Object.
 
 ---
 

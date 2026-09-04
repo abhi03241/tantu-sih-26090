@@ -374,6 +374,148 @@ class TestTantuBackendAPI(unittest.TestCase):
         self.assertEqual(buy_profile.status_code, 200)
         self.assertIn("FabIndia", buy_profile.json()["buyer_name"])
 
+    # ==========================================
+    # 8. CHECKPOINT SPECIFIC TESTS (Status, Publishing, Resilience, DB)
+    # ==========================================
+    def test_17_product_publish_and_status_transitions(self):
+        # Create a new product (defaults to draft)
+        create_res = self.client.post("/api/products", json={
+            "title": "Dokra Brass Tribal Figurine",
+            "description_english": "Ancient lost-wax cast bell metal craft from Bastar.",
+            "description_hindi": "बस्तर की प्राचीन ढोकरा धातु शिल्प कला।",
+            "category": "Metalware & Brass",
+            "material": "Brass / Bell Metal",
+            "image_url": "https://images.unsplash.com/photo-1590736969955-71cc94801759",
+            "artisan_id": "art-003"
+        })
+        self.assertEqual(create_res.status_code, 201)
+        prod = create_res.json()
+        prod_id = prod["id"]
+        self.assertEqual(prod["status"], "draft")
+
+        # Publish product
+        pub_res = self.client.post(f"/api/products/{prod_id}/publish")
+        self.assertEqual(pub_res.status_code, 200)
+        self.assertEqual(pub_res.json()["status"], "published")
+
+        # Archive product via status update
+        arch_res = self.client.patch(f"/api/products/{prod_id}/status", json={"status": "archived"})
+        self.assertEqual(arch_res.status_code, 200)
+        self.assertEqual(arch_res.json()["status"], "archived")
+
+        # Invalid status should return 400
+        inv_res = self.client.patch(f"/api/products/{prod_id}/status", json={"status": "unknown_status"})
+        self.assertEqual(inv_res.status_code, 400)
+
+        # Clean up
+        self.client.delete(f"/api/products/{prod_id}")
+
+    def test_18_buyer_marketplace_published_filtering(self):
+        # Create a draft product
+        create_res = self.client.post("/api/products", json={
+            "title": "Exclusive Draft Silk Shawl",
+            "description_english": "Unreleased prototype silk shawl.",
+            "description_hindi": "अप्रकाशित प्रोटोटाइप रेशमी शॉल।",
+            "category": "Textiles & Handloom",
+            "material": "Mulberry Silk",
+            "image_url": "https://images.unsplash.com/photo-1610030469983-98e550d6193c",
+            "artisan_id": "art-002"
+        })
+        prod_id = create_res.json()["id"]
+
+        # Buyer feed should NOT contain the draft product
+        feed_res = self.client.get("/api/buyer/products")
+        self.assertEqual(feed_res.status_code, 200)
+        feed_items = feed_res.json()
+        self.assertFalse(any(p["id"] == prod_id for p in feed_items), "Draft product must not be in buyer feed")
+
+        # Publish the product
+        self.client.post(f"/api/products/{prod_id}/publish")
+
+        # Buyer feed MUST now contain the published product
+        feed_pub_res = self.client.get("/api/buyer/products")
+        self.assertEqual(feed_pub_res.status_code, 200)
+        feed_pub_items = feed_pub_res.json()
+        self.assertTrue(any(p["id"] == prod_id for p in feed_pub_items), "Published product must appear in buyer feed")
+
+        # Clean up
+        self.client.delete(f"/api/products/{prod_id}")
+
+    def test_19_ai_partial_failure_preserves_product(self):
+        # Create product
+        res = self.client.post("/api/products", json={
+            "title": "Handcrafted Leather Jutti",
+            "description_english": "Traditional embroidered mojari jutti.",
+            "description_hindi": "पारंपरिक कशीदाकारी वाली मोजड़ी जूती।",
+            "category": "Leather Craft",
+            "material": "Vegetable Tanned Leather",
+            "image_url": "https://images.unsplash.com/photo-1544816155-12df9643f363",
+            "story": "Preserved master story line"
+        })
+        prod_id = res.json()["id"]
+
+        # Attempt invalid voice processing with empty payload
+        fail_res = self.client.post(f"/api/products/{prod_id}/voice", json={})
+        self.assertEqual(fail_res.status_code, 422)
+
+        # Verify product in database is unaffected and undamaged
+        verify_res = self.client.get(f"/api/products/{prod_id}")
+        self.assertEqual(verify_res.status_code, 200)
+        verified = verify_res.json()
+        self.assertEqual(verified["title"], "Handcrafted Leather Jutti")
+        self.assertEqual(verified["story"], "Preserved master story line")
+
+        # Clean up
+        self.client.delete(f"/api/products/{prod_id}")
+
+    def test_20_database_layer_crud_validation(self):
+        from backend.app.database import ArtisanRepository, BuyerRepository, OrderRepository
+
+        # Artisan Repository CRUD
+        artisan_data = {
+            "id": "prof-art-test-01",
+            "user_id": "art-test-01",
+            "artisan_name": "Test Artisan",
+            "craft_type": "Carpet Weaving",
+            "location": "Bhadohi, UP",
+            "language": "Hindi"
+        }
+        saved_art = ArtisanRepository.save(artisan_data)
+        self.assertEqual(saved_art["artisan_name"], "Test Artisan")
+        fetched_art = ArtisanRepository.get_by_id("art-test-01")
+        self.assertIsNotNone(fetched_art)
+        self.assertEqual(fetched_art["craft_type"], "Carpet Weaving")
+
+        # Buyer Repository CRUD
+        buyer_data = {
+            "id": "buy-test-01",
+            "user_id": "buyer-test-01",
+            "buyer_name": "Test Retailers",
+            "organization": "Test Corp",
+            "contact_email": "test@retail.com"
+        }
+        saved_buy = BuyerRepository.save(buyer_data)
+        self.assertEqual(saved_buy["buyer_name"], "Test Retailers")
+        fetched_buy = BuyerRepository.get_by_id("buyer-test-01")
+        self.assertIsNotNone(fetched_buy)
+
+        # Order Repository CRUD
+        order_data = {
+            "id": "ord-test-01",
+            "product_id": "prod-bamboo-001",
+            "product_title": "Utility Basket",
+            "artisan_id": "art-001",
+            "buyer_name": "Test Retailers",
+            "buyer_contact": "test@retail.com",
+            "quantity": 30,
+            "status": "pending"
+        }
+        saved_ord = OrderRepository.save(order_data)
+        self.assertEqual(saved_ord["quantity"], 30)
+        updated_ord = OrderRepository.update_status("ord-test-01", "fulfilled")
+        self.assertEqual(updated_ord["status"], "fulfilled")
+
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -18,7 +18,8 @@
     "suggested_price_max": 950.0,
     "artisan_id": "art-001",
     "artisan_name": "Lakshmi Devi",
-    "location": "Silchar, Assam"
+    "location": "Silchar, Assam",
+    "status": "published"
   },
   {
     "id": "prod-dupatta-002",
@@ -39,7 +40,8 @@
     "suggested_price_max": 2400.0,
     "artisan_id": "art-002",
     "artisan_name": "Ramesh Ansari",
-    "location": "Chanderi, Madhya Pradesh"
+    "location": "Chanderi, Madhya Pradesh",
+    "status": "published"
   },
   {
     "id": "prod-wooden-003",
@@ -60,7 +62,8 @@
     "suggested_price_max": 1650.0,
     "artisan_id": "art-003",
     "artisan_name": "Suresh Sharma",
-    "location": "Saharanpur, Uttar Pradesh"
+    "location": "Saharanpur, Uttar Pradesh",
+    "status": "published"
   },
   {
     "id": "prod-pottery-004",
@@ -81,6 +84,7 @@
     "suggested_price_max": 1400.0,
     "artisan_id": "art-004",
     "artisan_name": "Pinki Kumawat",
-    "location": "Jaipur, Rajasthan"
+    "location": "Jaipur, Rajasthan",
+    "status": "published"
   }
 ]

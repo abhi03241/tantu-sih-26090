@@ -42,6 +42,7 @@ def init_db():
         artisan_id TEXT,
         artisan_name TEXT,
         location TEXT,
+        status TEXT DEFAULT 'draft',
         created_at TEXT
     )
     """)
@@ -121,6 +122,9 @@ def init_db():
     ensure_column("artisan_profiles", "language", "TEXT")
     ensure_column("artisan_profiles", "contact", "TEXT")
 
+    # Migrations for products
+    ensure_column("products", "status", "TEXT DEFAULT 'draft'")
+
     # Migrations for buyers
     ensure_column("buyers", "name", "TEXT")
     ensure_column("buyers", "contact", "TEXT")
@@ -138,6 +142,8 @@ class ProductRepository:
     @staticmethod
     def _row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
         d = dict(row)
+        if not d.get("status"):
+            d["status"] = "draft"
         if d.get("tags"):
             try:
                 d["tags"] = json.loads(d["tags"])
@@ -148,7 +154,7 @@ class ProductRepository:
         return d
 
     @classmethod
-    def get_all(cls, category: Optional[str] = None, artisan_id: Optional[str] = None, query: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_all(cls, category: Optional[str] = None, artisan_id: Optional[str] = None, query: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
         conn = get_db_connection()
         cursor = conn.cursor()
         sql = "SELECT * FROM products WHERE 1=1"
@@ -160,6 +166,9 @@ class ProductRepository:
         if artisan_id:
             sql += " AND artisan_id = ?"
             params.append(artisan_id)
+        if status:
+            sql += " AND lower(status) = lower(?)"
+            params.append(status)
         if query:
             sql += " AND (lower(title) LIKE lower(?) OR lower(description_english) LIKE lower(?) OR lower(description_hindi) LIKE lower(?) OR lower(material) LIKE lower(?) OR lower(tags) LIKE lower(?))"
             params.extend([f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%", f"%{query}%"])
@@ -186,14 +195,15 @@ class ProductRepository:
         
         tags_str = json.dumps(data.get("tags", []))
         created_at = data.get("created_at") or datetime.now().isoformat()
+        prod_status = data.get("status") or "draft"
 
         cursor.execute("""
         INSERT INTO products (
             id, title, description_english, description_hindi, category, material,
             dimensions, production_time, tags, story, sentiment, narrative_type,
             image_url, enhanced_image_url, suggested_price_min, suggested_price_max,
-            artisan_id, artisan_name, location, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            artisan_id, artisan_name, location, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
             title=excluded.title,
             description_english=excluded.description_english,
@@ -212,7 +222,8 @@ class ProductRepository:
             suggested_price_max=excluded.suggested_price_max,
             artisan_id=excluded.artisan_id,
             artisan_name=excluded.artisan_name,
-            location=excluded.location
+            location=excluded.location,
+            status=excluded.status
         """, (
             data["id"],
             data["title"],
@@ -233,11 +244,22 @@ class ProductRepository:
             data.get("artisan_id", "art-001"),
             data.get("artisan_name", "Artisan"),
             data.get("location", "India"),
+            prod_status,
             created_at
         ))
         conn.commit()
         conn.close()
         return cls.get_by_id(data["id"])
+
+    @classmethod
+    def update_status(cls, product_id: str, new_status: str) -> Optional[Dict[str, Any]]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE products SET status = ? WHERE id = ?", (new_status, product_id))
+        updated = cursor.rowcount > 0
+        conn.commit()
+        conn.close()
+        return cls.get_by_id(product_id) if updated else None
 
     @classmethod
     def delete(cls, product_id: str) -> bool:
