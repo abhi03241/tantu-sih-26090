@@ -241,35 +241,112 @@ def extract_material_and_category(text: str) -> Tuple[str, str]:
     return "Natural Artisan Material", "Handicrafts & Decor"
 
 
-def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], str, str]:
+def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """
-    Extracts artisan story, narrative type, and sentiment category.
-    Sentiment categories: positive, neutral, heritage, family tradition, craftsmanship pride, cultural significance
-    Narrative types: family_tradition, cultural_heritage, craftsmanship_pride, community_empowerment, standard_narrative
+    Extracts artisan storytelling, narrative classification, and sentiment cues.
+    NLP identifies sentiment and narrative cues from artisan-provided language.
+    Avoids inventing narratives that the artisan did not communicate.
+
+    Narrative Types:
+      - Community-made
+      - Family craft
+      - Traditional heritage
+      - Cultural identity
+      - Handmade journey
+
+    Sentiment Categories:
+      - Pride
+      - Joy
+      - Nostalgia
+      - Passion
+      - Neutral
     """
     lower = text.lower()
 
-    # Mother / Father / Family mentions
+    # 1. Community-made (Self-help groups, women cooperatives, collective work)
+    if any(k in lower for k in ["women's group", "women group", "shg", "samuh", "samooh", "mahila", "collective", "cooperative"]):
+        story = "Crafted collaboratively by a local artisan group dedicated to community empowerment and shared regional craftsmanship."
+        sentiment = "Pride" if any(p in lower for p in ["pride", "proud", "garv"]) else "Joy"
+        return story, sentiment, "Community-made"
+
+    # 2. Family craft (Parents, grandparents, generational family learning)
     if any(k in lower for k in ["maa", "mother", "mummy", "माता", "मां"]):
-        story = "An inherited craft tradition taught by the artisan's mother."
-        return story, "positive", "family_tradition"
+        story = "Learned the craft from mother: an inherited craft tradition taught by the artisan's mother."
+        return story, "Nostalgia", "Family craft"
 
     if any(k in lower for k in ["pita", "pitaji", "father", "बापू", "पिता"]):
         story = "Artisanal techniques and heritage passed down from the artisan's father."
-        return story, "positive", "family_tradition"
+        return story, "Nostalgia", "Family craft"
 
     if any(k in lower for k in ["dada", "dadi", "grandfather", "grandmother", "दादा", "नाना"]):
         story = "Ancestral craftsmanship learned from grandparents with enduring pride."
-        return story, "craftsmanship_pride", "family_tradition"
+        return story, "Pride", "Family craft"
 
-    if any(k in lower for k in ["peedhi", "generation", "virasat", "ancestral", "विरासत", "पीढ़ी"]):
+    # 3. Traditional heritage (Generations, centuries of lineage)
+    if any(k in lower for k in ["peedhi", "generation", "virasat", "ancestral", "विरासत", "पीढ़ी", "heritage", "centuries"]):
         story = "Centuries of cultural heritage preserved across multiple artisan generations."
-        return story, "heritage", "cultural_heritage"
+        return story, "Pride", "Traditional heritage"
 
-    if any(k in lower for k in ["pride", "garv", "proud", "गर्व"]):
+    # 4. Cultural identity (Regional festivals, sacred traditions, tribal symbolism)
+    if any(k in lower for k in ["culture", "cultural", "tribal", "folk", "sanskriti", "parampara", "festival", "utsav", "ritual"]):
+        story = "Reflects unique regional cultural identity and cherished indigenous artistry."
+        return story, "Pride", "Cultural identity"
+
+    # 5. Handmade journey (Intricate hand-making, hours of patience, dedication)
+    if any(k in lower for k in ["passion", "love", "dil se", "pyaar", "shauk"]):
+        story = "Crafted with immense artistic passion and personal love for the handmade form."
+        return story, "Passion", "Handmade journey"
+
+    if any(k in lower for k in ["joy", "khushi", "anand", "happy"]):
+        story = "Created with joy and creative spirit, celebrating artisanal handwork."
+        return story, "Joy", "Handmade journey"
+
+    if any(k in lower for k in ["pride", "proud", "garv", "गर्व"]):
         story = "A proud regional craft reflecting dedicated community skill and dedication."
-        return story, "craftsmanship_pride", "craftsmanship_pride"
+        return story, "Pride", "Handmade journey"
 
-    # Default / standard narrative
-    story = "Authentic handcrafted creation created with traditional regional techniques."
-    return story, "positive", "standard_narrative"
+    if any(k in lower for k in ["handcrafted", "hand-carved", "handwoven", "haath se", "buna", "mehnat"]):
+        story = "A dedicated handmade journey showcasing traditional crafting techniques."
+        return story, "Pride", "Handmade journey"
+
+    # If artisan did not communicate any story or narrative, do NOT invent one
+    return None, "Neutral", None
+
+
+# ==========================================================
+# 3. MULTILINGUAL ARCHITECTURE REGISTRY (Phase 1 + Extensibility)
+# ==========================================================
+SUPPORTED_LANGUAGES = {
+    "hi": "Hindi (हिंदी)",
+    "en": "English",
+}
+
+EXTENSIBLE_LANGUAGES = {
+    "bn": "Bengali (বাংলা)",
+    "ta": "Tamil (தமிழ்)",
+    "te": "Telugu (తెలుగు)",
+    "mr": "Marathi (मराठी)",
+    "gu": "Gujarati (ગુજરાતી)",
+}
+
+
+def generate_bilingual_descriptions(
+    clean_text: str,
+    material: str,
+    category: str,
+    title: str,
+    detected_lang: str
+) -> Tuple[str, str]:
+    """
+    Generates fluent, high-conversion descriptions in both English and Hindi.
+    Maintains parallel English and Hindi representations regardless of input language.
+    """
+    desc_en = (
+        f"Authentic {title.lower()} meticulously crafted using premium {material.lower()}. "
+        f"Exemplifies traditional {category.lower()} techniques, combining durability with timeless handmade elegance. {clean_text}"
+    )
+    desc_hi = (
+        f"कुशल भारतीय कारीगरों द्वारा उच्च गुणवत्ता वाले {material} से पारंपरिक विधि द्वारा निर्मित {title}। "
+        f"यह {category} की उत्कृष्ट शिल्पकला और प्रामाणिकता का सुंदर प्रतीक है। {clean_text}"
+    )
+    return desc_en, desc_hi

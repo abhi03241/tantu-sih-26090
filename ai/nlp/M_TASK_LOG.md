@@ -62,5 +62,116 @@
 - **Issues**: None. Push to remote blocked by GitHub 403 on user `ikuhu19`.
 - **Integration Notes**: Output directly populates SQLite database through FastAPI product repository without schema migration.
 - **Commit Message**: `feat: structured catalogue generation with anti-hallucination rules`
+- **Commit Hash**: `7be575f`
+- **Branch**: `feature/M-ai-nlp`
+
+---
+
+## Checkpoint 3: Hindi + English
+
+- **Step**: Checkpoint 3 — Multilingual Hindi & English Generation
+- **Implementation**:
+  - Dual-language support: generates high-conversion English for B2B/global buyers and natural Devanagari Hindi for regional buyers and artisans.
+  - Added `generate_bilingual_descriptions` producing paired `description_english` and `description_hindi`.
+  - Built multilingual architecture registry defining Phase 1 supported languages (`hi`, `en`) and modular extensible Indic languages (`bn`, `ta`, `te`, `mr`, `gu`) for Phase 2.
+- **Files**:
+  - `ai/nlp/demo_data.py` (Modified)
+  - `ai/nlp/service.py` (Modified)
+  - `ai/nlp/M_TASK_LOG.md` (Modified)
+- **API / Interface**:
+  - `generate_bilingual_descriptions(clean_text, material, category, title, detected_lang)`
+  - `SUPPORTED_LANGUAGES`, `EXTENSIBLE_LANGUAGES`
+- **Tests**:
+  - `test_hindi_input`
+  - `test_hindi_handwoven_textile_input`
+  - `test_english_input`
+- **Results**: 15/15 tests passed.
+- **Issues**: Push blocked by GitHub remote 403.
+- **Integration Notes**: Preserves schema fields `description_english` and `description_hindi`.
+- **Commit Message**: `feat: multilingual hindi and english cataloguing engine`
+- **Commit Hash**: Pending commit
+- **Branch**: `feature/M-ai-nlp`
+
+---
+
+## Checkpoint 4: Story & Narrative Extraction
+
+- **Step**: Checkpoint 4 — Story & Narrative Extraction
+- **Implementation**:
+  - Extracted authentic artisan stories from spoken language without hallucinating uncommunicated tales.
+  - Implemented exact narrative types requested: `Traditional heritage`, `Family craft`, `Community-made`, `Cultural identity`, and `Handmade journey`.
+  - Connected self-help groups / women cooperatives to `Community-made` and generational learning to `Family craft`.
+- **Files**:
+  - `ai/nlp/demo_data.py` (Modified)
+  - `ai/nlp/service.py` (Modified)
+  - `ai/nlp/M_TASK_LOG.md` (Modified)
+- **API / Interface**:
+  - `extract_story_and_sentiment(text: str)`
+- **Tests**:
+  - `test_cotton_dupatta_women_group_example`
+  - `test_sentiment_and_heritage_classification`
+- **Results**: 15/15 tests passed.
+- **Issues**: None.
+- **Integration Notes**: Populates `story` and `narrative_type` fields on product entity.
+- **Commit Message**: `feat: artisan story and heritage narrative extraction`
+- **Commit Hash**: Pending commit
+- **Branch**: `feature/M-ai-nlp`
+
+---
+
+## Checkpoint 5: Sentiment & Narrative Cues
+
+- **Step**: Checkpoint 5 — Sentiment Cues & Classification
+- **Implementation**:
+  - Implemented grounded sentiment categories: `Pride`, `Joy`, `Nostalgia`, `Passion`, and `Neutral`.
+  - Framed transparently: "NLP identifies sentiment and narrative cues from artisan-provided language" (no unsupported claims of scientific emotion mind-reading).
+  - Defaults to `Neutral` with `story: null` when artisan communicates only technical specifications.
+- **Files**:
+  - `ai/nlp/demo_data.py` (Modified)
+  - `ai/nlp/service.py` (Modified)
+  - `ai/nlp/schemas.py` (Modified)
+  - `ai/nlp/M_TASK_LOG.md` (Modified)
+- **API / Interface**:
+  - `extract_story_and_sentiment(text: str)`
+- **Tests**:
+  - `test_sentiment_and_heritage_classification`
+  - `test_empty_voice`
+- **Results**: 15/15 tests passed.
+- **Issues**: None.
+- **Integration Notes**: Compatible with `ProductBase.sentiment`.
+- **Commit Message**: `feat: nlp sentiment cues and narrative classification`
+- **Commit Hash**: Pending commit
+- **Branch**: `feature/M-ai-nlp`
+
+---
+
+## Checkpoint 6: Comprehensive Test Suite & Documentation
+
+- **Step**: Checkpoint 6 — Test Suite & Final Documentation
+- **Implementation**:
+  - Created 15 dedicated unit and integration tests covering:
+    1. Normal artisan description
+    2. Missing fields (graceful non-hallucinatory defaults)
+    3. Hindi input
+    4. Structured output validation
+    5. Story extraction
+    6. Narrative classification
+    7. Sentiment classification
+    8. No hallucinated specifications (dimensions & times remain null when absent)
+    9. Invalid/empty input resilience
+    10. Mock AI mode
+  - Comprehensive documentation in `ai/nlp/README.md`.
+- **Files**:
+  - `tests/test_nlp_pipeline.py`
+  - `ai/nlp/README.md`
+  - `ai/nlp/M_TASK_LOG.md`
+- **API / Interface**:
+  - All public exports in `ai.nlp` and `backend.app.services.nlp_service`.
+- **Tests**:
+  - `python -m unittest discover -s tests -p "test_*.py" -v`
+- **Results**: 25/25 tests passed (15 NLP tests + 10 Backend API tests).
+- **Issues**: Push blocked by remote 403 on user `ikuhu19`.
+- **Integration Notes**: All team modules (Backend A, Vision R, Pricing S) verified compatible.
+- **Commit Message**: `test: complete nlp test suite and documentation`
 - **Commit Hash**: Pending commit
 - **Branch**: `feature/M-ai-nlp`

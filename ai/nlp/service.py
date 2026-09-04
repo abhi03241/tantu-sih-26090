@@ -22,6 +22,7 @@ from ai.nlp.demo_data import (
     extract_dimensions,
     extract_craft_title,
     extract_story_and_sentiment,
+    generate_bilingual_descriptions,
 )
 
 logger = logging.getLogger(__name__)
@@ -149,8 +150,13 @@ class MockNLPService(NLPService):
         title = extract_craft_title(clean_text, material, category)
 
         # Build Descriptions
-        desc_en = f"Authentic handcrafted {material.lower()} piece carefully made using regional methods. {clean_text}"
-        desc_hi = f"प्राकृतिक {material} से कुशल कारीगरों द्वारा हस्तनिर्मित उत्कृष्ट उत्पाद। {clean_text}"
+        desc_en, desc_hi = generate_bilingual_descriptions(
+            clean_text=clean_text,
+            material=material,
+            category=category,
+            title=title,
+            detected_lang=detected_lang
+        )
 
         tags = [
             category.lower().replace(" & ", "-").replace(" ", "-"),
