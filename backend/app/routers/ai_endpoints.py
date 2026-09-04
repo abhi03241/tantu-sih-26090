@@ -125,6 +125,10 @@ def calculate_product_price(id: str, request: PricingRequest = None):
         )
 
     raw_cost = request.raw_material_cost if request else None
+    labor_cost = request.labor_cost if request else None
+    labor_hours = request.labor_hours if request else None
+    overhead = request.overhead if request else None
+    quantity = request.quantity if request else 1
 
     ai_result = calculate_smart_price(
         category=product.get("category", "Handicraft"),
@@ -132,6 +136,11 @@ def calculate_product_price(id: str, request: PricingRequest = None):
         production_time=product.get("production_time"),
         dimensions=product.get("dimensions"),
         raw_material_cost=raw_cost,
+        labor_cost=labor_cost,
+        labor_hours=labor_hours,
+        overhead=overhead,
+        quantity=quantity,
+        region=product.get("location"),
         mock=settings.MOCK_AI
     )
 

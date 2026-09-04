@@ -10,7 +10,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 from backend.app.config import settings
 from backend.app.database import init_db
 from backend.app.seed_data import seed_demo_data
-from backend.app.routers import products, ai_endpoints, artisan, buyer, orders
+from backend.app.routers import products, ai_endpoints, artisan, buyer, orders, pricing_router
+from fastapi.staticfiles import StaticFiles
 
 
 @asynccontextmanager
@@ -51,6 +52,12 @@ app.include_router(ai_endpoints.router)
 app.include_router(artisan.router)
 app.include_router(buyer.router)
 app.include_router(orders.router)
+app.include_router(pricing_router.router)
+
+# Mount B2B Buyer Marketplace Web Portal
+frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend"))
+if os.path.exists(frontend_dir):
+    app.mount("/marketplace", StaticFiles(directory=frontend_dir, html=True), name="marketplace")
 
 
 @app.get("/", tags=["Health & Status"])
@@ -61,7 +68,8 @@ def root_status():
         "version": settings.VERSION,
         "sih_problem_statement": settings.SIH_PROBLEM_STATEMENT,
         "mock_ai": settings.MOCK_AI,
-        "documentation": "/docs"
+        "documentation": "/docs",
+        "marketplace": "/marketplace"
     }
 
 

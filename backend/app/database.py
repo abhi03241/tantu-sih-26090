@@ -94,11 +94,18 @@ def init_db():
         buyer_contact TEXT,
         quantity INTEGER,
         notes TEXT,
+        message TEXT,
         price_offered REAL,
         status TEXT,
         created_at TEXT
     )
     """)
+
+    # Safety migration for existing databases missing message column
+    try:
+        cursor.execute("ALTER TABLE orders ADD COLUMN message TEXT")
+    except Exception:
+        pass
 
     conn.commit()
     conn.close()
@@ -211,6 +218,18 @@ class ProductRepository:
 
 
 class OrderRepository:
+    @staticmethod
+    def _row_to_order_dict(row: sqlite3.Row) -> Dict[str, Any]:
+        d = dict(row)
+        msg = d.get("message")
+        notes = d.get("notes")
+        # Ensure both message and notes are synchronized for all consumers
+        if not msg and notes:
+            d["message"] = notes
+        elif not notes and msg:
+            d["notes"] = msg
+        return d
+
     @classmethod
     def get_all(cls, product_id: Optional[str] = None, artisan_id: Optional[str] = None) -> List[Dict[str, Any]]:
         conn = get_db_connection()
@@ -227,7 +246,25 @@ class OrderRepository:
         cursor.execute(sql, params)
         rows = cursor.fetchall()
         conn.close()
-        return [dict(r) for r in rows]
+        return [cls._row_to_order_dict(r) for r in rows]
+
+    @classmethod
+    def get_by_id(cls, order_id: str) -> Optional[Dict[str, Any]]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM orders WHERE id = ?", (order_id,))
+        row = cursor.fetchone()
+        conn.close()
+        return cls._row_to_order_dict(row) if row else None
+
+    @classmethod
+    def update_status(cls, order_id: str, status: str) -> Optional[Dict[str, Any]]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE orders SET status = ? WHERE id = ?", (status, order_id))
+        conn.commit()
+        conn.close()
+        return cls.get_by_id(order_id)
 
     @classmethod
     def save(cls, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -235,24 +272,28 @@ class OrderRepository:
         cursor = conn.cursor()
         created_at = data.get("created_at") or datetime.now().isoformat()
         data["created_at"] = created_at
+        msg = data.get("message") or data.get("notes")
+        notes = data.get("notes") or data.get("message")
+
         cursor.execute("""
         INSERT INTO orders (
             id, product_id, product_title, artisan_id, buyer_name, buyer_contact,
-            quantity, notes, price_offered, status, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            quantity, notes, message, price_offered, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             data["id"],
             data["product_id"],
             data.get("product_title", ""),
             data.get("artisan_id", ""),
             data["buyer_name"],
-            data["buyer_contact"],
+            data.get("buyer_contact", "procurement@buyer.com"),
             data["quantity"],
-            data.get("notes"),
+            notes,
+            msg,
             data.get("price_offered"),
             data.get("status", "pending"),
             created_at
         ))
         conn.commit()
         conn.close()
-        return dict(data)
+        return cls.get_by_id(data["id"]) or dict(data)

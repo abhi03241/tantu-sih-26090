@@ -102,8 +102,9 @@ class BuyerResponse(BuyerBase):
 class OrderRequestCreate(BaseModel):
     product_id: str = Field(..., example="prod-bamboo-001")
     buyer_name: str = Field(..., example="Kraft Emporium Retailers")
-    buyer_contact: str = Field(..., example="procurement@kraftemporium.com / +91-9988776655")
-    quantity: int = Field(..., example=50)
+    buyer_contact: Optional[str] = Field("procurement@buyer.com", example="procurement@kraftemporium.com / +91-9988776655")
+    quantity: int = Field(..., gt=0, example=50, description="Order quantity must be at least 1 unit")
+    message: Optional[str] = Field(None, example="Interested in ordering 100 pieces for our retail stores.")
     notes: Optional[str] = Field(None, example="Need custom eco-friendly packaging for export order.")
     price_offered: Optional[float] = Field(None, example=850.0)
 
@@ -112,8 +113,12 @@ class OrderRequestResponse(OrderRequestCreate):
     id: str
     product_title: Optional[str] = None
     artisan_id: Optional[str] = None
-    status: str = Field("pending", example="pending")  # pending, accepted, fulfilled
+    status: str = Field("pending", example="pending")  # pending, accepted, rejected
     created_at: str
+
+
+class OrderStatusUpdate(BaseModel):
+    status: str = Field(..., example="accepted", description="Status must be pending, accepted, or rejected")
 
 
 # ==========================================
@@ -136,3 +141,24 @@ class GenerateCatalogueRequest(BaseModel):
 class PricingRequest(BaseModel):
     raw_material_cost: Optional[float] = Field(None, example=250.0)
     labor_hours: Optional[int] = Field(None, example=16)
+    labor_cost: Optional[float] = Field(None, example=1200.0)
+    overhead: Optional[float] = Field(None, example=180.0)
+    quantity: Optional[int] = Field(1, gt=0, example=50)
+    category: Optional[str] = Field(None, example="Bamboo & Cane Craft")
+    material: Optional[str] = Field(None, example="Natural Assam Bamboo")
+    dimensions: Optional[str] = Field(None, example="30cm x 30cm x 20cm")
+    production_time: Optional[str] = Field(None, example="3 days")
+    region: Optional[str] = Field(None, example="Assam")
+    craft_type: Optional[str] = Field(None, example="Bamboo & Cane")
+
+
+class PricingCalculationResponse(BaseModel):
+    suggested_price_min: float = Field(..., example=850.0)
+    suggested_price_max: float = Field(..., example=1050.0)
+    currency: str = Field("INR", example="INR")
+    confidence: str = Field("demo", example="demo")
+    reason: str = Field(..., example="Based on material, production effort and reference market data.")
+    pricing_factors: Optional[dict] = None
+    breakdown: Optional[dict] = None
+    recommendation: Optional[str] = None
+
