@@ -42,7 +42,7 @@ DEMO_SCENARIOS: Dict[str, Dict[str, Any]] = {
             "production_time": "5 days",
             "tags": ["handloom", "silk", "chanderi", "dupatta", "traditional", "handwoven"],
             "story": "Ancestral weaving craft passed down through multiple generations, continuing a proud regional textile heritage.",
-            "sentiment": "craftsmanship pride",
+            "sentiment": "craftsmanship_pride",
             "narrative_type": "cultural_heritage",
             "detected_language": "hi",
         }
@@ -80,7 +80,7 @@ DEMO_SCENARIOS: Dict[str, Dict[str, Any]] = {
             "production_time": "3 days",
             "tags": ["terracotta", "pottery", "clay", "handmade", "eco-friendly"],
             "story": "Preserving the sacred village pottery tradition passed across generations.",
-            "sentiment": "cultural significance",
+            "sentiment": "cultural_significance",
             "narrative_type": "cultural_heritage",
             "detected_language": "hi",
         }
@@ -194,7 +194,7 @@ def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], str, str]:
 
     if any(k in lower for k in ["dada", "dadi", "grandfather", "grandmother", "दादा", "नाना"]):
         story = "Ancestral craftsmanship learned from grandparents with enduring pride."
-        return story, "craftsmanship pride", "family_tradition"
+        return story, "craftsmanship_pride", "family_tradition"
 
     if any(k in lower for k in ["peedhi", "generation", "virasat", "ancestral", "विरासत", "पीढ़ी"]):
         story = "Centuries of cultural heritage preserved across multiple artisan generations."
@@ -202,7 +202,7 @@ def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], str, str]:
 
     if any(k in lower for k in ["pride", "garv", "proud", "गर्व"]):
         story = "A proud regional craft reflecting dedicated community skill and dedication."
-        return story, "craftsmanship pride", "craftsmanship_pride"
+        return story, "craftsmanship_pride", "craftsmanship_pride"
 
     # Default / standard narrative
     story = "Authentic handcrafted creation created with traditional regional techniques."

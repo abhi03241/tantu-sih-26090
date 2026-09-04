@@ -24,12 +24,12 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.real_service = RealNLPService()
 
     # ==========================================================
-    # 1. CORE DEMO CASES REQUIRED BY SIH
+    # 1. CORE MULTILINGUAL DEMO CASES REQUIRED BY SIH
     # ==========================================================
-    def test_demo_case_1_hindi_bamboo_basket(self):
+    def test_hindi_input(self):
         """
-        Demo Case 1: Hindi Bamboo Basket
-        Artisan: "Ye bamboo ki tokri hai. Isko banane mein mujhe do din lagte hain. Meri maa ne mujhe ye banana sikhaya tha."
+        Test Hindi voice transcript input:
+        "Ye bamboo ki tokri hai. Isko banane mein mujhe do din lagte hain. Meri maa ne mujhe ye banana sikhaya tha."
         """
         input_text = "Ye bamboo ki tokri hai. Isko banane mein mujhe do din lagte hain. Meri maa ne mujhe ye banana sikhaya tha."
         res = self.mock_service.process_transcript(input_text, language="hi")
@@ -47,10 +47,10 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertTrue(any("bamboo" in tag for tag in res.tags))
         self.assertTrue(any("basket" in tag for tag in res.tags))
 
-    def test_demo_case_2_hindi_handwoven_textile(self):
+    def test_hindi_handwoven_textile_input(self):
         """
-        Demo Case 2: Hindi Handwoven Textile
-        Artisan: "Yeh haath se buna hua Chanderi silk dupatta hai. Isme paanch din lagte hain. Humari peedhiyan yeh kaam karti aa rahi hain."
+        Test Hindi handwoven textile transcript:
+        "Yeh haath se buna hua Chanderi silk dupatta hai. Isme paanch din lagte hain. Humari peedhiyan yeh kaam karti aa rahi hain."
         """
         input_text = "Yeh haath se buna hua Chanderi silk dupatta hai. Isme paanch din lagte hain. Humari peedhiyan yeh kaam karti aa rahi hain."
         res = self.mock_service.process_transcript(input_text, language="hi")
@@ -59,16 +59,16 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res.material, "Chanderi Silk")
         self.assertEqual(res.category, "Textiles & Handloom")
         self.assertEqual(res.production_time, "5 days")
-        self.assertEqual(res.sentiment, "craftsmanship pride")
+        self.assertEqual(res.sentiment, "craftsmanship_pride")
         self.assertEqual(res.narrative_type, "cultural_heritage")
         self.assertIn("generation", res.story.lower())
         self.assertTrue(any("silk" in tag for tag in res.tags))
         self.assertTrue(any("chanderi" in tag for tag in res.tags))
 
-    def test_demo_case_3_english_wooden_craft(self):
+    def test_english_input(self):
         """
-        Demo Case 3: English Wooden Craft
-        Artisan: "This is a hand-carved teak wood elephant sculpture. It takes around four days to carve and polish. I learned wood carving from my grandfather with great pride."
+        Test English voice input:
+        "This is a hand-carved teak wood elephant sculpture. It takes around four days to carve and polish. I learned wood carving from my grandfather with great pride."
         """
         input_text = "This is a hand-carved teak wood elephant sculpture. It takes around four days to carve and polish. I learned wood carving from my grandfather with great pride."
         res = self.mock_service.process_transcript(input_text, language="en")
@@ -119,7 +119,7 @@ class TestNLPVoicePipeline(unittest.TestCase):
     def test_sentiment_and_heritage_classification(self):
         """
         Checks classification into allowed, objective categories:
-        positive, neutral, heritage, family tradition, craftsmanship pride, cultural significance
+        positive, neutral, heritage, family_tradition, craftsmanship_pride, cultural_significance
         """
         # Family tradition cue
         res_fam = self.mock_service.process_transcript("Mere pitaji ne mujhe lakdi par naqashi ka kaam sikhaya tha.")
@@ -131,15 +131,15 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res_her.narrative_type, "cultural_heritage")
         self.assertEqual(res_her.sentiment, "heritage")
 
-        # Pride cue
-        res_pride = self.mock_service.process_transcript("I make these silk sarees with immense pride in our village craft.")
+        # Craftsmanship pride cue
+        res_pride = self.mock_service.process_transcript("I make these fine products with immense pride in our artisan techniques.")
         self.assertEqual(res_pride.narrative_type, "craftsmanship_pride")
-        self.assertEqual(res_pride.sentiment, "craftsmanship pride")
+        self.assertEqual(res_pride.sentiment, "craftsmanship_pride")
 
     # ==========================================================
     # 4. ERROR HANDLING & RESILIENCE (NO CRASHES)
     # ==========================================================
-    def test_empty_voice_transcript(self):
+    def test_empty_voice(self):
         """Empty voice input should return a safe structured fallback, never crash."""
         res_empty = self.mock_service.process_transcript("")
         self.assertIsInstance(res_empty, ProductCatalogNLPOutput)
@@ -150,11 +150,47 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertIsInstance(res_spaces, ProductCatalogNLPOutput)
         self.assertEqual(res_spaces.sentiment, "neutral")
 
-    def test_unsupported_language_graceful_handling(self):
-        """Regional or mixed language input without crash."""
+    def test_unsupported_language(self):
+        """Regional, mixed, or unsupported language code input without crash."""
         res = self.mock_service.process_transcript("Sundar handmade matka clay pot 1 day", language="bengali")
         self.assertIsInstance(res, ProductCatalogNLPOutput)
         self.assertEqual(res.material, "Terracotta Clay")
+
+    def test_missing_fields_graceful_defaults(self):
+        """
+        When artisan speech does not mention dimensions, production time, or story,
+        the system provides sensible non-crashing defaults.
+        """
+        res = self.mock_service.process_transcript("Simple handmade craft piece")
+        self.assertIsInstance(res, ProductCatalogNLPOutput)
+        self.assertIsNotNone(res.title)
+        self.assertIsNotNone(res.category)
+        self.assertIsNotNone(res.material)
+        self.assertIsNone(res.dimensions)  # Expected null per contract
+        self.assertIsNotNone(res.production_time)  # Default populated
+        self.assertIsInstance(res.tags, list)
+        self.assertGreaterEqual(len(res.tags), 1)
+
+    def test_malformed_response_handling(self):
+        """
+        Verifies that partial or malformed dict inputs are safely coerced
+        by ProductCatalogNLPOutput without failing schema validation.
+        """
+        partial_data = {
+            "title": "Terracotta Pot",
+            "description_english": "Natural clay pot",
+            "description_hindi": "मिट्टी का बर्तन",
+            "category": "Pottery & Ceramics",
+            "material": "Clay",
+            # dimensions omitted
+            # production_time omitted
+            # tags omitted
+        }
+        output = ProductCatalogNLPOutput(**partial_data)
+        self.assertEqual(output.title, "Terracotta Pot")
+        self.assertEqual(output.tags, [])  # default factory works
+        self.assertIsNone(output.dimensions)
+        self.assertIsNone(output.production_time)
 
     def test_real_nlp_service_fallback(self):
         """

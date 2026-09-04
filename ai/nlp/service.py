@@ -209,7 +209,7 @@ class MockNLPService(NLPService):
                 "sustainable"
             ],
             "story": f"This piece reflects generations of artisanal skill in {category}. Each handcrafted item supports rural artisan livelihoods.",
-            "sentiment": "craftsmanship pride",
+            "sentiment": "craftsmanship_pride",
             "narrative_type": "cultural_heritage"
         }
 
@@ -324,7 +324,7 @@ class RealNLPService(NLPService):
             '  "production_time": "Production duration e.g. 2 days",\n'
             '  "tags": ["list", "of", "tags"],\n'
             '  "story": "Artisan story or family craft tradition",\n'
-            '  "sentiment": "one of: positive, neutral, heritage, family tradition, craftsmanship pride, cultural significance",\n'
+            '  "sentiment": "one of: positive, neutral, heritage, family_tradition, craftsmanship_pride, cultural_significance",\n'
             '  "narrative_type": "one of: family_tradition, cultural_heritage, craftsmanship_pride, community_empowerment, standard_narrative",\n'
             '  "detected_language": "hi or en"\n'
             "}\n"
