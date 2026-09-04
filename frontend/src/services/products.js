@@ -1,5 +1,5 @@
-import { request, checkBackendHealth } from './api';
-import { getStoredProducts, setStoredProducts } from './mockData';
+import { request } from './api';
+import { getStoredProducts, setStoredProducts, PRODUCT_STATUSES } from './mockData';
 
 // Generate simulated AI processing for mock fallback
 function simulateVoiceAI(product, transcript, language = 'hi') {
@@ -47,9 +47,11 @@ function simulateVoiceAI(product, transcript, language = 'hi') {
     narrativeType = 'Royal Heritage';
   }
 
-  const title = product.title || `Handcrafted ${material} ${category}`;
-  const description_english = `${title}. Elegantly shaped and detailed by rural master artisans. ${story}`;
-  const description_hindi = `पारंपरिक कारीगरों द्वारा निर्मित सुंदर और प्रामाणिक ${category}। ${story}`;
+  const title = product.title && product.title !== 'Handcrafted Artisan Craft' 
+    ? product.title 
+    : `Handcrafted ${material} ${category.split(' ')[0]}`;
+  const description_english = `${title}. Elegantly shaped and detailed by master artisans. ${story}`;
+  const description_hindi = `कुशल कारीगरों द्वारा निर्मित सुंदर और प्रामाणिक ${category}। ${story}`;
   const tags = Array.from(new Set([
     ...(product.tags || []),
     category.toLowerCase().replace(/[^a-z0-9]/g, '-'),
@@ -70,13 +72,13 @@ function simulateVoiceAI(product, transcript, language = 'hi') {
     tags,
     story,
     sentiment,
-    narrative_type: narrativeType
+    narrative_type: narrativeType,
+    status: PRODUCT_STATUSES.READY
   };
 }
 
 function simulateEnhanceImage(product) {
   const currentImg = product.image_url;
-  // If it's unsplash, add high quality enhancement params or studio filter
   const enhanced = currentImg ? `${currentImg}${currentImg.includes('?') ? '&' : '?'}auto=format&fit=crop&w=1200&q=95&sat=10&con=5` : currentImg;
   return {
     ...product,
@@ -109,20 +111,24 @@ function simulatePricing(product) {
 export const productService = {
   // Create Product
   async createProduct(productData) {
+    const payload = {
+      ...productData,
+      status: productData.status || PRODUCT_STATUSES.PUBLISHED
+    };
     try {
       return await request('/api/products', {
         method: 'POST',
-        body: JSON.stringify(productData)
+        body: JSON.stringify(payload)
       });
     } catch (e) {
       console.warn("Backend unavailable, saving product locally", e);
       const items = getStoredProducts();
       const newProduct = {
-        ...productData,
-        id: productData.id || `prod-${Date.now().toString(16)}`,
+        ...payload,
+        id: payload.id || `prod-${Date.now().toString(16)}`,
         created_at: new Date().toISOString(),
-        suggested_price_min: productData.suggested_price_min || 500,
-        suggested_price_max: productData.suggested_price_max || 1000
+        suggested_price_min: payload.suggested_price_min || 500,
+        suggested_price_max: payload.suggested_price_max || 1000
       };
       items.unshift(newProduct);
       setStoredProducts(items);
@@ -130,15 +136,48 @@ export const productService = {
     }
   },
 
+  // Save Draft
+  async saveDraft(productData) {
+    return await this.createProduct({
+      ...productData,
+      status: PRODUCT_STATUSES.DRAFT
+    });
+  },
+
+  // Upload/Take Product Image (Checkpoint 3)
+  async uploadProductImage(id, imageDataUrlOrFile) {
+    try {
+      // Try backend upload endpoint if supported
+      return await request(`/api/products/${id}/upload-image`, {
+        method: 'POST',
+        body: JSON.stringify({ image_url: imageDataUrlOrFile })
+      });
+    } catch (e) {
+      console.warn("Backend upload endpoint offline, updating local product image", e);
+      const items = getStoredProducts();
+      const index = items.findIndex(p => p.id === id);
+      if (index !== -1) {
+        items[index].image_url = imageDataUrlOrFile;
+        setStoredProducts(items);
+        return items[index];
+      }
+      return { id, image_url: imageDataUrlOrFile };
+    }
+  },
+
   // List all products with optional filters
-  async listProducts({ category, artisan_id, q } = {}) {
+  async listProducts({ category, artisan_id, status, q } = {}) {
     const params = new URLSearchParams();
     if (category && category !== 'all') params.append('category', category);
     if (artisan_id) params.append('artisan_id', artisan_id);
     if (q) params.append('q', q);
 
     try {
-      return await request(`/api/products?${params.toString()}`);
+      let items = await request(`/api/products?${params.toString()}`);
+      if (status && status !== 'all') {
+        items = items.filter(p => (p.status || 'published').toLowerCase() === status.toLowerCase());
+      }
+      return items;
     } catch (e) {
       console.warn("Backend unavailable, using stored products", e);
       let items = getStoredProducts();
@@ -147,6 +186,9 @@ export const productService = {
       }
       if (artisan_id) {
         items = items.filter(p => p.artisan_id === artisan_id);
+      }
+      if (status && status !== 'all') {
+        items = items.filter(p => (p.status || 'published').toLowerCase() === status.toLowerCase());
       }
       if (q) {
         const query = q.toLowerCase();
@@ -193,6 +235,11 @@ export const productService = {
       }
       return updateData;
     }
+  },
+
+  // Update product status
+  async updateProductStatus(id, status) {
+    return await this.updateProduct(id, { status });
   },
 
   // Voice processing AI endpoint
@@ -298,7 +345,7 @@ export const productService = {
     try {
       return await request(`/api/buyer/products?${params.toString()}`);
     } catch (e) {
-      return await this.listProducts({ category, q });
+      return await this.listProducts({ category, q, status: 'published' });
     }
   }
 };

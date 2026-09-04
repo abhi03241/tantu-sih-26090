@@ -1,4 +1,12 @@
-// Initial mock data adhering 100% to docs/API_CONTRACTS.md
+// Initial mock data adhering 100% to docs/API_CONTRACTS.md with status lifecycle support
+
+export const PRODUCT_STATUSES = {
+  DRAFT: 'draft',
+  PROCESSING: 'processing',
+  READY: 'ready',
+  PUBLISHED: 'published',
+  FAILED: 'failed'
+};
 
 export const INITIAL_PRODUCTS = [
   {
@@ -21,6 +29,7 @@ export const INITIAL_PRODUCTS = [
     artisan_id: "art-001",
     artisan_name: "Lakshmi Devi",
     location: "Silchar, Assam",
+    status: "published",
     created_at: "2026-09-03T17:00:00.000000"
   },
   {
@@ -43,6 +52,7 @@ export const INITIAL_PRODUCTS = [
     artisan_id: "art-002",
     artisan_name: "Ramesh Ansari",
     location: "Chanderi, Madhya Pradesh",
+    status: "published",
     created_at: "2026-09-03T18:30:00.000000"
   },
   {
@@ -65,6 +75,7 @@ export const INITIAL_PRODUCTS = [
     artisan_id: "art-003",
     artisan_name: "Suresh Sharma",
     location: "Saharanpur, Uttar Pradesh",
+    status: "ready",
     created_at: "2026-09-04T09:15:00.000000"
   },
   {
@@ -87,6 +98,7 @@ export const INITIAL_PRODUCTS = [
     artisan_id: "art-004",
     artisan_name: "Pinki Kumawat",
     location: "Jaipur, Rajasthan",
+    status: "draft",
     created_at: "2026-09-04T10:00:00.000000"
   }
 ];
@@ -133,8 +145,8 @@ export const INITIAL_ORDERS = [
   }
 ];
 
-const PRODUCTS_STORAGE_KEY = 'tantu_products_db';
-const ORDERS_STORAGE_KEY = 'tantu_orders_db';
+const PRODUCTS_STORAGE_KEY = 'tantu_products_db_v2';
+const ORDERS_STORAGE_KEY = 'tantu_orders_db_v2';
 
 export const getStoredProducts = () => {
   try {

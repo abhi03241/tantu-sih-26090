@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Sparkles, Plus, MapPin, Volume2, ArrowRight, Eye, CheckCircle2, ChevronRight, Package, Inbox } from 'lucide-react';
+import { Sparkles, Plus, MapPin, Volume2, ArrowRight, CheckCircle2, ChevronRight, Clock, FileText, AlertCircle, Layers } from 'lucide-react';
 
 export default function ArtisanHome() {
   const { artisanProfile, products, orders, navigateTo, speakText, t } = useApp();
@@ -9,17 +9,37 @@ export default function ArtisanHome() {
   const myOrders = orders.filter(o => !o.artisan_id || o.artisan_id === artisanProfile.id);
   const pendingOrders = myOrders.filter(o => o.status === 'pending');
 
+  const publishedCount = myProducts.filter(p => (p.status || 'published') === 'published').length;
+  const draftCount = myProducts.filter(p => p.status === 'draft').length;
+
   const totalEarningsEst = myOrders
     .filter(o => o.status === 'accepted')
     .reduce((sum, o) => sum + (o.quantity * (o.price_offered || 800)), 0);
 
   const handleReadGuide = () => {
-    speakText(`नमस्ते ${artisanProfile.name} जी! आपके पास ${myProducts.length} शिल्प कैटलॉग में हैं, और ${pendingOrders.length} नए खरीदार अनुरोध आए हुए हैं। नया शिल्प जोड़ने के लिए बड़ा नारंगी बटन दबाएं।`);
+    speakText(`नमस्ते ${artisanProfile.name} जी! आपके पास ${publishedCount} प्रकाशित शिल्प और ${draftCount} ड्राफ्ट हैं। नया उत्पाद जोड़ने के लिए बड़ा नारंगी बटन दबाएं।`);
+  };
+
+  const getStatusBadge = (status = 'published') => {
+    switch (status.toLowerCase()) {
+      case 'published':
+        return { label: 'प्रकाशित (Live)', bg: '#D1FAE5', color: '#065F46', icon: <CheckCircle2 size={12} /> };
+      case 'ready':
+        return { label: 'तैयार (Ready)', bg: '#E0E7FF', color: '#3730A3', icon: <Sparkles size={12} /> };
+      case 'draft':
+        return { label: 'ड्राफ्ट (Draft)', bg: '#FEF3C7', color: '#92400E', icon: <FileText size={12} /> };
+      case 'processing':
+        return { label: 'प्रसंस्करण (Processing)', bg: '#FFEDD5', color: '#C2410C', icon: <Clock size={12} /> };
+      case 'failed':
+        return { label: 'त्रुटि (Failed)', bg: '#FEE2E2', color: '#991B1B', icon: <AlertCircle size={12} /> };
+      default:
+        return { label: 'सक्रिय', bg: '#D1FAE5', color: '#065F46', icon: <CheckCircle2 size={12} /> };
+    }
   };
 
   return (
     <div>
-      {/* Artisan Hero Banner */}
+      {/* Welcome Banner */}
       <div className="artisan-hero-card">
         <div className="artisan-avatar-row">
           <div className="artisan-profile-badge">
@@ -47,7 +67,7 @@ export default function ArtisanHome() {
         </p>
       </div>
 
-      {/* Giant CTA: Add Product via Voice & Photo */}
+      {/* Giant CTA: Add Product */}
       <div
         className="big-action-card"
         onClick={() => navigateTo('add-wizard')}
@@ -61,7 +81,7 @@ export default function ArtisanHome() {
           {t('addNewCraft')}
         </h2>
         <p className="big-action-sub">
-          {t('addNewCraftSub')}
+          फोटो खींचें और अपनी आवाज़ में बताएं — AI अपने आप द्विभाषी विवरण और उचित मूल्य तैयार करेगा।
         </p>
         <div className="big-action-btn-pill">
           <Sparkles size={18} color="#C84B20" />
@@ -70,7 +90,7 @@ export default function ArtisanHome() {
         </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Operational Metrics */}
       <div className="metrics-row">
         <div className="metric-card" onClick={() => navigateTo('my-products')} style={{ cursor: 'pointer' }}>
           <div className="metric-value">{myProducts.length}</div>
@@ -92,7 +112,7 @@ export default function ArtisanHome() {
         </div>
       </div>
 
-      {/* Order Inquiries Alert if any */}
+      {/* Order Alert if any */}
       {pendingOrders.length > 0 && (
         <div
           onClick={() => navigateTo('orders')}
@@ -110,7 +130,7 @@ export default function ArtisanHome() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF' }}>
-              <Inbox size={20} />
+              <Sparkles size={20} />
             </div>
             <div>
               <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#92400E' }}>
@@ -125,55 +145,89 @@ export default function ArtisanHome() {
         </div>
       )}
 
-      {/* Recent Uploads Section */}
+      {/* Recent Existing Products */}
       <div className="section-header-row">
-        <h3 className="section-title">{t('recentUploads')}</h3>
+        <h3 className="section-title">शिल्प सूची (My Listings)</h3>
         <button className="section-link" onClick={() => navigateTo('my-products')}>
           {t('viewAll')} ({myProducts.length})
         </button>
       </div>
 
-      <div className="products-grid">
-        {myProducts.slice(0, 3).map((product) => (
-          <div
-            key={product.id}
-            className="artisan-product-card"
-            onClick={() => navigateTo('product-detail', product.id)}
-          >
-            <div className="product-img-wrapper">
-              <img
-                src={product.enhanced_image_url || product.image_url}
-                alt={product.title}
-                className="product-img"
-              />
-              <span className="badge-ai-enhanced">
-                <Sparkles size={12} />
-                <span>AI Enhanced</span>
-              </span>
-              <span className="badge-category">{product.category}</span>
-            </div>
-
-            <div className="product-card-body">
-              <h4 className="product-card-title">{product.title}</h4>
-              {product.description_hindi && (
-                <p className="product-card-hindi">{product.description_hindi}</p>
-              )}
-
-              <div className="product-card-footer">
-                <div className="price-tag-wrap">
-                  <span className="price-label">{t('suggestedPrice')}</span>
-                  <span className="price-value">
-                    ₹{product.suggested_price_min || 650} - ₹{product.suggested_price_max || 950}
+      {myProducts.length === 0 ? (
+        /* Empty State */
+        <div style={{ textAlign: 'center', padding: '36px 16px', background: '#FFFFFF', borderRadius: '20px', border: '1.5px dashed var(--border-light)' }}>
+          <Layers size={40} color="#94A3B8" style={{ marginBottom: '10px' }} />
+          <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '4px' }}>कोई उत्पाद मौजूद नहीं है</h4>
+          <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
+            अपनी पहली कलाकृति जोड़ने के लिए ऊपर दिए गए नारंगी बटन को दबाएं।
+          </p>
+          <button className="btn-primary-large" onClick={() => navigateTo('add-wizard')}>
+            <Plus size={18} />
+            <span>पहला शिल्प जोड़ें</span>
+          </button>
+        </div>
+      ) : (
+        <div className="products-grid">
+          {myProducts.slice(0, 3).map((product) => {
+            const badge = getStatusBadge(product.status);
+            return (
+              <div
+                key={product.id}
+                className="artisan-product-card"
+                onClick={() => navigateTo('product-detail', product.id)}
+              >
+                <div className="product-img-wrapper">
+                  <img
+                    src={product.enhanced_image_url || product.image_url}
+                    alt={product.title}
+                    className="product-img"
+                  />
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: 12,
+                      left: 12,
+                      background: badge.bg,
+                      color: badge.color,
+                      padding: '4px 10px',
+                      borderRadius: '999px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {badge.icon}
+                    <span>{badge.label}</span>
                   </span>
+                  <span className="badge-category">{product.category}</span>
                 </div>
-                <button className="btn-card-action">
-                  <span>विवरण देखें</span>
-                </button>
+
+                <div className="product-card-body">
+                  <h4 className="product-card-title">{product.title}</h4>
+                  {product.description_hindi && (
+                    <p className="product-card-hindi">{product.description_hindi}</p>
+                  )}
+
+                  <div className="product-card-footer">
+                    <div className="price-tag-wrap">
+                      <span className="price-label">{t('suggestedPrice')}</span>
+                      <span className="price-value">
+                        ₹{product.suggested_price_min || 650} - ₹{product.suggested_price_max || 950}
+                      </span>
+                    </div>
+                    <button className="btn-card-action">
+                      <span>विवरण देखें</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
