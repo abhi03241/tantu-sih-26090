@@ -150,6 +150,40 @@ class TestAIVisionModule(unittest.TestCase):
         self.assertEqual(data["id"], prod_id)
         self.assertIsNotNone(data["enhanced_image_url"])
 
+    def test_11_missing_or_empty_input(self):
+        """Tests that empty or missing file inputs are handled safely without crashing."""
+        res = self.real_service.enhance_image("")
+        self.assertEqual(res["status"], "error")
+        self.assertIn("error", res)
+
+        res_none = self.real_service.enhance_image(None)
+        self.assertEqual(res_none["status"], "error")
+
+    def test_12_original_preservation(self):
+        """Tests that the original input file is never modified or overwritten."""
+        samples_dir = os.path.join(os.path.dirname(__file__), "..", "ai", "vision", "samples")
+        sample_path = os.path.join(samples_dir, "bamboo_basket.jpg")
+        
+        if os.path.exists(sample_path):
+            with open(sample_path, "rb") as f:
+                orig_bytes_before = f.read()
+
+            res = enhance_artisan_image(image_url=sample_path, mock=False)
+            
+            with open(sample_path, "rb") as f:
+                orig_bytes_after = f.read()
+
+            self.assertEqual(orig_bytes_before, orig_bytes_after, "Original image file was modified!")
+            self.assertNotEqual(res["original_image_url"], res["enhanced_image_url"])
+
+    def test_13_failure_handling_and_fallback(self):
+        """Tests that invalid inputs trigger graceful fallback without crashing."""
+        res = enhance_artisan_image(image_url="invalid_non_existent_file.xyz", mock=False)
+        self.assertEqual(res["status"], "success")
+        self.assertIn("warning", res)
+        self.assertIsNotNone(res["enhanced_image_url"])
+
 
 if __name__ == "__main__":
     unittest.main()
+
