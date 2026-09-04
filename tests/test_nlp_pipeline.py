@@ -83,6 +83,36 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res.detected_language, "en")
         self.assertTrue(any("woodcraft" in tag for tag in res.tags))
 
+    def test_cotton_dupatta_women_group_example(self):
+        """
+        Test the core SIH prompt example:
+        "This is a handwoven cotton dupatta made by our women’s group. It takes three days to make and uses traditional weaving patterns."
+        """
+        input_text = "This is a handwoven cotton dupatta made by our women’s group. It takes three days to make and uses traditional weaving patterns."
+        res = self.mock_service.process_transcript(input_text, language="en")
+
+        self.assertIsInstance(res, ProductCatalogNLPOutput)
+        self.assertEqual(res.title, "Handwoven Cotton Dupatta")
+        self.assertIn("Cotton", res.material)
+        self.assertEqual(res.production_time, "3 days")
+        self.assertIsNone(res.dimensions, "Must not hallucinate dimensions when unstated")
+        self.assertEqual(res.narrative_type, "Community-made")
+        self.assertEqual(res.sentiment, "Pride")
+        self.assertIn("women", res.story.lower())
+        self.assertTrue(any("cotton" in tag for tag in res.tags))
+        self.assertTrue(any("dupatta" in tag for tag in res.tags))
+
+    def test_dimensions_extraction_and_no_hallucination(self):
+        """
+        When dimensions are communicated (e.g. 120cm x 80cm), they are extracted.
+        When unstated, dimensions must remain None.
+        """
+        with_dims = self.mock_service.process_transcript("Handcrafted wood stool 40cm x 40cm x 45cm made in 2 days.")
+        self.assertEqual(with_dims.dimensions, "40cm x 40cm x 45cm")
+
+        without_dims = self.mock_service.process_transcript("Simple clay diya crafted in 1 day.")
+        self.assertIsNone(without_dims.dimensions)
+
     # ==========================================================
     # 2. OUTPUT CONTRACT & SCHEMA INTEGRITY
     # ==========================================================
@@ -166,8 +196,8 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertIsNotNone(res.title)
         self.assertIsNotNone(res.category)
         self.assertIsNotNone(res.material)
-        self.assertIsNone(res.dimensions)  # Expected null per contract
-        self.assertIsNotNone(res.production_time)  # Default populated
+        self.assertIsNone(res.dimensions)  # Expected null per contract (no hallucination)
+        self.assertIsNone(res.production_time)  # Expected null when uncommunicated (no hallucination)
         self.assertIsInstance(res.tags, list)
         self.assertGreaterEqual(len(res.tags), 1)
 

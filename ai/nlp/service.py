@@ -19,6 +19,8 @@ from ai.nlp.demo_data import (
     detect_language,
     extract_material_and_category,
     extract_production_time,
+    extract_dimensions,
+    extract_craft_title,
     extract_story_and_sentiment,
 )
 
@@ -131,17 +133,20 @@ class MockNLPService(NLPService):
                 custom_time = extract_production_time(clean_text)
                 if custom_time:
                     data["production_time"] = custom_time
+                # If dimensions are explicitly mentioned, extract them
+                custom_dim = extract_dimensions(clean_text)
+                if custom_dim:
+                    data["dimensions"] = custom_dim
                 return ProductCatalogNLPOutput(**data)
 
         # Step 2: Intelligent Heuristic Extraction for Arbitrary Artisan Input
         material, category = extract_material_and_category(clean_text)
-        prod_time = extract_production_time(clean_text) or "2-3 days"
+        prod_time = extract_production_time(clean_text)  # None if not communicated
+        dimensions = extract_dimensions(clean_text)      # None if not communicated
         story, sentiment, narrative_type = extract_story_and_sentiment(clean_text)
 
-        # Build Title
-        clean_words = clean_text.split()
-        short_snippet = " ".join(clean_words[:4])
-        title = f"Handcrafted {material} Craft" if len(clean_words) < 3 else f"Artisan Handcrafted {material} ({short_snippet})"
+        # Build Title accurately based on genuine craft attributes
+        title = extract_craft_title(clean_text, material, category)
 
         # Build Descriptions
         desc_en = f"Authentic handcrafted {material.lower()} piece carefully made using regional methods. {clean_text}"
@@ -161,7 +166,7 @@ class MockNLPService(NLPService):
             description_hindi=desc_hi,
             category=category,
             material=material,
-            dimensions=None,
+            dimensions=dimensions,
             production_time=prod_time,
             tags=tags,
             story=story,

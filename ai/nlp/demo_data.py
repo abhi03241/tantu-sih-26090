@@ -84,6 +84,25 @@ DEMO_SCENARIOS: Dict[str, Dict[str, Any]] = {
             "narrative_type": "cultural_heritage",
             "detected_language": "hi",
         }
+    },
+
+    # Demo Case 5: Handwoven Cotton Dupatta (Women's Group)
+    "cotton_dupatta_women_group": {
+        "keywords": ["cotton dupatta", "women's group", "women group", "handwoven cotton dupatta", "weaving patterns"],
+        "data": {
+            "title": "Handwoven Cotton Dupatta",
+            "description_english": "Exquisite handwoven cotton dupatta crafted by local women's artisan groups. Made using authentic traditional weaving patterns, offering pure comfort, elegance, and durability.",
+            "description_hindi": "स्थानीय महिला कारीगर समूहों द्वारा पारंपरिक बुनाई पैटर्न से तैयार हाथ से बुना सूती (कॉटन) दुपट्टा। प्रामाणिक, आरामदायक और टिकाऊ।",
+            "category": "Textiles & Handloom",
+            "material": "Handwoven Cotton",
+            "dimensions": None,
+            "production_time": "3 days",
+            "tags": ["handwoven", "cotton", "dupatta", "textiles", "traditional", "women-artisan"],
+            "story": "Handcrafted collaboratively by a local women's artisan group preserving traditional regional weaving patterns.",
+            "sentiment": "Pride",
+            "narrative_type": "Community-made",
+            "detected_language": "en",
+        }
     }
 }
 
@@ -160,6 +179,53 @@ def extract_production_time(text: str) -> Optional[str]:
             return f"{digit} {unit_clean}"
 
     return None
+
+
+def extract_dimensions(text: str) -> Optional[str]:
+    """
+    Extracts explicit dimensions ONLY if mentioned in artisan speech.
+    Returns None (null) if no dimensions are stated, avoiding hallucinated specs.
+    """
+    pattern = r'(\d+(\.\d+)?\s*(?:cm|m|mm|inches?|in|ft|feet)\s*[xX×*]\s*\d+(\.\d+)?\s*(?:cm|m|mm|inches?|in|ft|feet)(?:\s*[xX×*]\s*\d+(\.\d+)?\s*(?:cm|m|mm|inches?|in|ft|feet))?)'
+    match = re.search(pattern, text, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+    return None
+
+
+def extract_craft_title(text: str, material: str, category: str) -> str:
+    """
+    Constructs an accurate professional product title based on communicated craft attributes.
+    """
+    lower = text.lower()
+    craft_type = None
+    known_items = [
+        ("dupatta", "Dupatta"),
+        ("saree", "Saree"),
+        ("shawl", "Shawl"),
+        ("basket", "Basket"),
+        ("tokri", "Basket"),
+        ("elephant", "Elephant Sculpture"),
+        ("diya", "Festival Diya Set"),
+        ("pot", "Clay Pot"),
+        ("matka", "Earthen Pot"),
+        ("lamp", "Handcrafted Lamp"),
+        ("rug", "Handwoven Rug"),
+        ("jhula", "Hanging Swing"),
+        ("stool", "Mudda Stool"),
+    ]
+    for kw, label in known_items:
+        if kw in lower:
+            craft_type = label
+            break
+
+    prefix = "Handwoven" if "Textile" in category or "handwoven" in lower or "buna" in lower else (
+        "Hand-Carved" if "Wood" in category or "carv" in lower else "Handcrafted"
+    )
+
+    if craft_type:
+        return f"{prefix} {material} {craft_type}"
+    return f"{prefix} {material} Craft"
 
 
 def extract_material_and_category(text: str) -> Tuple[str, str]:
