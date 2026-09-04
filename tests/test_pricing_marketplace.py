@@ -51,6 +51,11 @@ class TestPricingAndMarketplace(unittest.TestCase):
         self.assertGreater(result["suggested_price_max"], result["suggested_price_min"])
         self.assertEqual(result["currency"], "INR")
         self.assertEqual(result["confidence"], "demo")
+        self.assertIn("AI-assisted suggested price range", result["reason"])
+        self.assertIn("handmade_nature", result["pricing_factors"])
+        self.assertIn("material", result["pricing_factors"])
+        self.assertIn("production_time", result["pricing_factors"])
+        self.assertIn("category", result["pricing_factors"])
         self.assertIn("breakdown", result)
         self.assertEqual(result["breakdown"]["raw_material_cost"], 250.0)
         self.assertEqual(result["breakdown"]["labor_cost"], 1200.0)
@@ -58,19 +63,24 @@ class TestPricingAndMarketplace(unittest.TestCase):
         self.assertEqual(result["breakdown"]["estimated_cost"], 1600.0)
 
     def test_02_pricing_calculation_missing_inputs(self):
-        """Test fallback to demo benchmarks when inputs are missing."""
+        """Test fallback to demo benchmarks when all optional inputs are missing."""
         service = MockPricingService()
-        # No raw material cost or labor provided
+        # All optional fields missing/None
         result = service.calculate_price(
-            category="Woodcraft",
-            material="Sheesham Wood",
+            category="",
+            material="",
             production_time=None,
+            dimensions=None,
             raw_material_cost=None,
-            labor_cost=None
+            labor_cost=None,
+            labor_hours=None,
+            overhead=None,
+            quantity=None
         )
         self.assertIsNotNone(result["suggested_price_min"])
         self.assertIsNotNone(result["suggested_price_max"])
         self.assertGreater(result["suggested_price_max"], result["suggested_price_min"])
+        self.assertIn("AI-assisted suggested price range", result["reason"])
         self.assertEqual(result["breakdown"]["raw_material_cost_source"], "demo_market_benchmark")
         self.assertEqual(result["breakdown"]["demo_market_reference"], "Demo market reference")
 
@@ -182,7 +192,7 @@ class TestPricingAndMarketplace(unittest.TestCase):
         self.order_id = data["id"]
 
     def test_11_invalid_quantity_rejection(self):
-        """Test that invalid quantities (<=0) are rejected."""
+        """Test that invalid quantities (<=0), empty buyer name, and non-existent products are rejected."""
         prod_res = self.client.get("/api/products")
         prod = prod_res.json()[0]
 
@@ -206,8 +216,28 @@ class TestPricingAndMarketplace(unittest.TestCase):
         res_neg = self.client.post("/api/orders/request", json=payload_neg)
         self.assertEqual(res_neg.status_code, 422)
 
+        # Empty buyer name
+        payload_empty_name = {
+            "product_id": prod["id"],
+            "buyer_name": "   ",
+            "quantity": 10,
+            "message": "Empty buyer test"
+        }
+        res_empty = self.client.post("/api/orders/request", json=payload_empty_name)
+        self.assertEqual(res_empty.status_code, 422)
+
+        # Non-existent product ID
+        payload_no_prod = {
+            "product_id": "prod-non-existent-999",
+            "buyer_name": "Valid Buyer",
+            "quantity": 10,
+            "message": "Non-existent product test"
+        }
+        res_no_prod = self.client.post("/api/orders/request", json=payload_no_prod)
+        self.assertEqual(res_no_prod.status_code, 404)
+
     def test_12_order_status_update(self):
-        """Test updating order status to accepted and rejected."""
+        """Test updating order status across requested, accepted, rejected, and completed."""
         prod_res = self.client.get("/api/products")
         prod = prod_res.json()[0]
 
@@ -224,10 +254,20 @@ class TestPricingAndMarketplace(unittest.TestCase):
         self.assertEqual(get_res.status_code, 200)
         self.assertEqual(get_res.json()["status"], "pending")
 
+        # Set to requested
+        patch_req = self.client.patch(f"/api/orders/{order_id}/status", json={"status": "requested"})
+        self.assertEqual(patch_req.status_code, 200)
+        self.assertEqual(patch_req.json()["status"], "requested")
+
         # Accept order
         patch_accept = self.client.patch(f"/api/orders/{order_id}/status", json={"status": "accepted"})
         self.assertEqual(patch_accept.status_code, 200)
         self.assertEqual(patch_accept.json()["status"], "accepted")
+
+        # Complete order
+        patch_complete = self.client.patch(f"/api/orders/{order_id}/status", json={"status": "completed"})
+        self.assertEqual(patch_complete.status_code, 200)
+        self.assertEqual(patch_complete.json()["status"], "completed")
 
         # Reject order
         patch_reject = self.client.patch(f"/api/orders/{order_id}/status", json={"status": "rejected"})

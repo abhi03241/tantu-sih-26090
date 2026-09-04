@@ -13,6 +13,12 @@ def create_order_request(order: OrderRequestCreate):
     POST /api/orders/request
     Submits a bulk B2B purchase or direct buyer order request to an artisan.
     """
+    if not order.buyer_name or not order.buyer_name.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Buyer name is required for order requests."
+        )
+
     if order.quantity <= 0:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -75,7 +81,7 @@ def update_order_status(id: str, status_update: OrderStatusUpdate):
     PATCH /api/orders/{id}/status
     Updates the status of a B2B order request (pending, accepted, rejected).
     """
-    allowed_statuses = ["pending", "accepted", "rejected"]
+    allowed_statuses = ["requested", "pending", "accepted", "rejected", "completed"]
     new_status = status_update.status.lower().strip()
     if new_status not in allowed_statuses:
         raise HTTPException(

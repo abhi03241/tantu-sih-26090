@@ -739,6 +739,7 @@
       text-transform: capitalize;
     }
 
+    .status-requested,
     .status-pending {
       background: rgba(245, 158, 11, 0.15);
       color: #fbbf24;
@@ -755,6 +756,12 @@
       background: rgba(239, 68, 68, 0.15);
       color: #f87171;
       border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-completed {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
     /* Toast Notification */
@@ -907,13 +914,16 @@
             <div style="margin-top: 8px; font-size: 12px; color: var(--text-dim);">
               <strong>Heritage Story:</strong> <span id="modal-product-story" style="font-style: italic;"></span>
             </div>
+            <div style="margin-top: 6px; font-size: 12px; color: var(--accent-emerald);">
+              <strong>Handmade Nature:</strong> 100% Authentic Handcrafted Rural Artisan Heritage Work
+            </div>
           </div>
         </div>
 
         <!-- Transparent Pricing Breakdown -->
         <div class="pricing-breakdown-box">
           <div class="breakdown-title">
-            <span>AI Dynamic Pricing Breakdown</span>
+            <span>AI-Assisted Suggested Price Range</span>
             <span style="font-size: 11px; text-transform: none; color: var(--accent-gold); background: rgba(245, 158, 11, 0.15); padding: 2px 8px; border-radius: 4px;">Demo market reference</span>
           </div>
           <div class="breakdown-row">
@@ -925,7 +935,7 @@
             <span id="breakdown-min-margin">₹0</span>
           </div>
           <div class="breakdown-row highlight">
-            <span>Suggested Fair Price Range (Per Unit):</span>
+            <span>AI-Assisted Suggested Price Range (Per Unit):</span>
             <span id="modal-unit-price-range" style="color: #fff; font-size: 14px;">₹0 - ₹0</span>
           </div>
         </div>
@@ -1378,6 +1388,7 @@
               <td>
                 <div style="display: flex; gap: 4px;">
                   <button class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 11px;" onclick="simulateOrderStatus('${o.id}', 'accepted')">Accept</button>
+                  <button class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 11px; color: #60a5fa;" onclick="simulateOrderStatus('${o.id}', 'completed')">Complete</button>
                   <button class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 11px; color: #f87171;" onclick="simulateOrderStatus('${o.id}', 'rejected')">Reject</button>
                 </div>
               </td>

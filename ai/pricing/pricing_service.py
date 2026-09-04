@@ -257,11 +257,16 @@ class MockPricingService(PricingService):
             final_max = round(final_min * 1.25, 2)
         final_min = max(final_min, round(estimated_cost * 1.10, 2))
 
-        # Build clean, transparent response
+        # Build clean, artisan-friendly response
+        # Using mandated wording: "AI-assisted suggested price range"
+        # Factors: material, production time, handmade nature, product category
+        prod_time_display = production_time or f"{resolved_hours} hours"
+        mat_display = material or "Artisan Grade Natural Material"
         reason = (
-            f"Based on material ({material or 'natural components'}), "
-            f"estimated production effort ({resolved_hours} hrs @ ₹{int(fair_wage_rate)}/hr), "
-            f"and demo market reference data for {matched_category_name}."
+            f"AI-assisted suggested price range based on material ({mat_display}), "
+            f"production time ({prod_time_display}), "
+            f"handmade nature (authentic rural artisan craft), "
+            f"and {matched_category_name} demo market references."
         )
 
         return {
@@ -269,10 +274,15 @@ class MockPricingService(PricingService):
             "suggested_price_max": float(int(final_max)),
             "currency": "INR",
             "confidence": "demo",
+            "pricing_label": "AI-assisted suggested price range",
             "reason": reason,
             "pricing_factors": {
+                "pricing_label": "AI-assisted suggested price range",
                 "category": matched_category_name,
-                "material_grade": material or "Artisan Grade Natural Material",
+                "material": mat_display,
+                "material_grade": mat_display,
+                "production_time": prod_time_display,
+                "handmade_nature": "100% Authentic Handcrafted Heritage Work",
                 "estimated_labor_hours": f"{resolved_hours} hrs",
                 "fair_wage_rate": f"₹{fair_wage_rate}/hr",
                 "fair_trade_margin": f"{int(margin_min * 100)}% - {int(margin_max * 100)}%",
@@ -294,9 +304,9 @@ class MockPricingService(PricingService):
                 "demo_reference_bounds": [ref_min, ref_max]
             },
             "recommendation": (
-                f"Recommended listing price is ₹{int(final_min)} - ₹{int(final_max)} "
-                f"to guarantee fair wage (₹{fair_wage_rate}/hr) while maintaining retail competitiveness "
-                f"under Demo market reference guidelines."
+                f"AI-assisted suggested price range is ₹{int(final_min)} - ₹{int(final_max)} INR. "
+                f"This reflects the piece's handmade nature, estimated {prod_time_display} craft duration, "
+                f"and fair artisan wage (₹{fair_wage_rate}/hr) under demo market reference guidelines."
             )
         }
 

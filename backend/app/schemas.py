@@ -113,12 +113,12 @@ class OrderRequestResponse(OrderRequestCreate):
     id: str
     product_title: Optional[str] = None
     artisan_id: Optional[str] = None
-    status: str = Field("pending", example="pending")  # pending, accepted, rejected
+    status: str = Field("pending", example="pending")  # requested, pending, accepted, rejected, completed
     created_at: str
 
 
 class OrderStatusUpdate(BaseModel):
-    status: str = Field(..., example="accepted", description="Status must be pending, accepted, or rejected")
+    status: str = Field(..., example="accepted", description="Status must be requested, pending, accepted, rejected, or completed")
 
 
 # ==========================================
@@ -157,8 +157,10 @@ class PricingCalculationResponse(BaseModel):
     suggested_price_max: float = Field(..., example=1050.0)
     currency: str = Field("INR", example="INR")
     confidence: str = Field("demo", example="demo")
-    reason: str = Field(..., example="Based on material, production effort and reference market data.")
+    pricing_label: Optional[str] = Field("AI-assisted suggested price range", example="AI-assisted suggested price range")
+    reason: str = Field(..., example="AI-assisted suggested price range based on material, production effort, and handmade nature.")
     pricing_factors: Optional[dict] = None
     breakdown: Optional[dict] = None
     recommendation: Optional[str] = None
+
 
