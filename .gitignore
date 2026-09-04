@@ -43,3 +43,7 @@ yarn-debug.log*
 yarn-error.log*
 .next/
 dist/
+
+# AI Vision generated demo outputs
+ai/vision/output/
+data/enhanced/
