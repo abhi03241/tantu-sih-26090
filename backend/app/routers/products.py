@@ -70,3 +70,19 @@ def update_product(id: str, payload: ProductUpdate):
 
     updated = ProductRepository.save(existing)
     return updated
+
+
+@router.delete("/{id}", status_code=status.HTTP_200_OK)
+def delete_product(id: str):
+    """
+    Deletes a product listing by ID.
+    """
+    existing = ProductRepository.get_by_id(id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with ID '{id}' not found"
+        )
+    ProductRepository.delete(id)
+    return {"status": "success", "message": f"Product '{id}' deleted successfully"}
+

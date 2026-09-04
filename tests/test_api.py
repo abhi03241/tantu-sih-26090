@@ -136,6 +136,64 @@ class TestTantuBackendAPI(unittest.TestCase):
         self.assertEqual(res_list.status_code, 200)
         self.assertGreaterEqual(len(res_list.json()), 1)
 
+        # Test single order retrieval and status patch
+        order_id = data["id"]
+        res_get_order = self.client.get(f"/api/orders/{order_id}")
+        self.assertEqual(res_get_order.status_code, 200)
+
+        res_patch = self.client.patch(f"/api/orders/{order_id}/status?new_status=accepted")
+        self.assertEqual(res_patch.status_code, 200)
+        self.assertEqual(res_patch.json()["status"], "accepted")
+
+    def test_11_profiles_and_users(self):
+        artisan_payload = {
+            "user_id": "art-099",
+            "artisan_name": "Sita Devi",
+            "craft_type": "Madhubani Painting",
+            "location": "Madhubani, Bihar",
+            "bio": "Traditional Mithila painter.",
+            "phone": "+91-9876500000"
+        }
+        res_art = self.client.post("/api/artisan/profile", json=artisan_payload)
+        self.assertEqual(res_art.status_code, 201)
+
+        res_art_get = self.client.get("/api/artisan/profile/art-099")
+        self.assertEqual(res_art_get.status_code, 200)
+        self.assertEqual(res_art_get.json()["artisan_name"], "Sita Devi")
+
+        buyer_payload = {
+            "user_id": "buyer-099",
+            "buyer_name": "Craftsvilla Retail",
+            "organization": "Craftsvilla India Pvt Ltd",
+            "buyer_type": "Wholesaler",
+            "contact_email": "procurement@craftsvilla.com"
+        }
+        res_buy = self.client.post("/api/buyer/profile", json=buyer_payload)
+        self.assertEqual(res_buy.status_code, 201)
+
+        res_buy_get = self.client.get("/api/buyer/profile/buyer-099")
+        self.assertEqual(res_buy_get.status_code, 200)
+
+    def test_12_delete_product(self):
+        # Create temporary product to delete
+        temp_payload = {
+            "title": "Temporary Product for Deletion",
+            "description_english": "Test desc",
+            "description_hindi": "विवरण",
+            "category": "Test Category",
+            "material": "Test Material",
+            "image_url": "https://example.com/test.jpg"
+        }
+        res_create = self.client.post("/api/products", json=temp_payload)
+        prod_id = res_create.json()["id"]
+
+        res_del = self.client.delete(f"/api/products/{prod_id}")
+        self.assertEqual(res_del.status_code, 200)
+
+        res_verify = self.client.get(f"/api/products/{prod_id}")
+        self.assertEqual(res_verify.status_code, 404)
+
 
 if __name__ == "__main__":
     unittest.main()
+

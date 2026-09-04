@@ -41,3 +41,36 @@ def list_orders(
     """
     orders = OrderRepository.get_all(product_id=product_id, artisan_id=artisan_id)
     return orders
+
+
+@router.get("/{id}", response_model=OrderRequestResponse)
+def get_order(id: str):
+    """
+    GET /api/orders/{id}
+    Retrieves single order request by ID.
+    """
+    order = OrderRepository.get_by_id(id)
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Order with ID '{id}' not found"
+        )
+    return order
+
+
+@router.patch("/{id}/status", response_model=OrderRequestResponse)
+def update_order_status(id: str, new_status: str = Query(..., description="New status: pending, accepted, fulfilled, rejected")):
+    """
+    PATCH /api/orders/{id}/status
+    Updates order request status (e.g. accepted by artisan, fulfilled, rejected).
+    """
+    existing = OrderRepository.get_by_id(id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Order with ID '{id}' not found"
+        )
+
+    updated = OrderRepository.update_status(id, new_status)
+    return updated
+

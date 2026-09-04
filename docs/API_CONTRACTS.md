@@ -193,3 +193,48 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 * **Query Parameters**: `product_id`, `artisan_id`
 * **Response Status**: `200 OK`
 * **Response Body**: Array of Order Request Objects.
+
+---
+
+#### 12. Update Order Status
+* **Endpoint**: `PATCH /api/orders/{id}/status?new_status={status}`
+* **Query Parameters**: `new_status` (`pending`, `accepted`, `fulfilled`, `rejected`)
+* **Response Status**: `200 OK`
+* **Response Body**: Updated Order Request Object.
+
+---
+
+### E. Profile & User Management
+
+#### 13. Create or Update Artisan Profile
+* **Endpoint**: `POST /api/artisan/profile`
+* **Request Body**:
+```json
+{
+  "user_id": "art-001",
+  "artisan_name": "Lakshmi Devi",
+  "craft_type": "Bamboo & Natural Fiber Crafting",
+  "location": "Silchar, Assam",
+  "bio": "Master artisan with 20+ years of experience.",
+  "phone": "+91-9876543210",
+  "story_style": "Cultural Heritage"
+}
+```
+* **Response Status**: `201 Created`
+
+---
+
+#### 14. Create or Update Buyer Profile
+* **Endpoint**: `POST /api/buyer/profile`
+* **Request Body**:
+```json
+{
+  "user_id": "user-buyer-001",
+  "buyer_name": "FabIndia Procurement Team",
+  "organization": "FabIndia Overseas Pvt Ltd",
+  "buyer_type": "B2B Retailer",
+  "contact_email": "procurement@fabindia.com"
+}
+```
+* **Response Status**: `201 Created`
+

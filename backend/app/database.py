@@ -209,6 +209,128 @@ class ProductRepository:
         conn.close()
         return cls.get_by_id(data["id"])
 
+    @classmethod
+    def delete(cls, product_id: str) -> bool:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM products WHERE id = ?", (product_id,))
+        count = cursor.rowcount
+        conn.commit()
+        conn.close()
+        return count > 0
+
+
+class UserRepository:
+    @classmethod
+    def save(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        created_at = data.get("created_at") or datetime.now().isoformat()
+        cursor.execute("""
+        INSERT INTO users (id, name, phone, role, region, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            name=excluded.name,
+            phone=excluded.phone,
+            role=excluded.role,
+            region=excluded.region
+        """, (
+            data["id"],
+            data["name"],
+            data.get("phone", ""),
+            data.get("role", "artisan"),
+            data.get("region", ""),
+            created_at
+        ))
+        conn.commit()
+        conn.close()
+        return cls.get_by_id(data["id"])
+
+    @classmethod
+    def get_by_id(cls, user_id: str) -> Optional[Dict[str, Any]]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+        row = cursor.fetchone()
+        conn.close()
+        return dict(row) if row else None
+
+
+class ArtisanProfileRepository:
+    @classmethod
+    def save(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO artisan_profiles (id, user_id, artisan_name, craft_type, location, bio, phone, story_style)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            user_id=excluded.user_id,
+            artisan_name=excluded.artisan_name,
+            craft_type=excluded.craft_type,
+            location=excluded.location,
+            bio=excluded.bio,
+            phone=excluded.phone,
+            story_style=excluded.story_style
+        """, (
+            data["id"],
+            data.get("user_id", data["id"]),
+            data["artisan_name"],
+            data.get("craft_type", "General Craft"),
+            data.get("location", "India"),
+            data.get("bio", ""),
+            data.get("phone", ""),
+            data.get("story_style", "Cultural Heritage")
+        ))
+        conn.commit()
+        conn.close()
+        return cls.get_by_id(data["id"])
+
+    @classmethod
+    def get_by_id(cls, profile_id: str) -> Optional[Dict[str, Any]]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM artisan_profiles WHERE id = ? OR user_id = ?", (profile_id, profile_id))
+        row = cursor.fetchone()
+        conn.close()
+        return dict(row) if row else None
+
+
+class BuyerRepository:
+    @classmethod
+    def save(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO buyers (id, user_id, buyer_name, organization, buyer_type, contact_email)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            user_id=excluded.user_id,
+            buyer_name=excluded.buyer_name,
+            organization=excluded.organization,
+            buyer_type=excluded.buyer_type,
+            contact_email=excluded.contact_email
+        """, (
+            data["id"],
+            data.get("user_id", data["id"]),
+            data["buyer_name"],
+            data.get("organization", ""),
+            data.get("buyer_type", "B2B"),
+            data.get("contact_email", "")
+        ))
+        conn.commit()
+        conn.close()
+        return cls.get_by_id(data["id"])
+
+    @classmethod
+    def get_by_id(cls, buyer_id: str) -> Optional[Dict[str, Any]]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM buyers WHERE id = ? OR user_id = ?", (buyer_id, buyer_id))
+        row = cursor.fetchone()
+        conn.close()
+        return dict(row) if row else None
+
 
 class OrderRepository:
     @classmethod
@@ -230,6 +352,15 @@ class OrderRepository:
         return [dict(r) for r in rows]
 
     @classmethod
+    def get_by_id(cls, order_id: str) -> Optional[Dict[str, Any]]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM orders WHERE id = ?", (order_id,))
+        row = cursor.fetchone()
+        conn.close()
+        return dict(row) if row else None
+
+    @classmethod
     def save(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -240,6 +371,10 @@ class OrderRepository:
             id, product_id, product_title, artisan_id, buyer_name, buyer_contact,
             quantity, notes, price_offered, status, created_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            status=excluded.status,
+            notes=excluded.notes,
+            price_offered=excluded.price_offered
         """, (
             data["id"],
             data["product_id"],
@@ -255,4 +390,14 @@ class OrderRepository:
         ))
         conn.commit()
         conn.close()
-        return dict(data)
+        return cls.get_by_id(data["id"])
+
+    @classmethod
+    def update_status(cls, order_id: str, new_status: str) -> Optional[Dict[str, Any]]:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE orders SET status = ? WHERE id = ?", (new_status, order_id))
+        conn.commit()
+        conn.close()
+        return cls.get_by_id(order_id)
+
