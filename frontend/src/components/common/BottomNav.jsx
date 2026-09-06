@@ -3,7 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { Home, Plus, Package, Inbox, ShoppingBag, Clock, Sparkles } from 'lucide-react';
 
 export default function BottomNav() {
-  const { role, currentScreen, navigateTo, orders, t } = useApp();
+  const { role, currentScreen, navigateTo, orders, switchRole, t } = useApp();
 
   const pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
 
@@ -99,7 +99,7 @@ export default function BottomNav() {
 
       <button
         className="nav-item"
-        onClick={() => navigateTo('home')}
+        onClick={() => switchRole('artisan')}
       >
         <div className="nav-icon-wrap">
           <Sparkles size={20} />

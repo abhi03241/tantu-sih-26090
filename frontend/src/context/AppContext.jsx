@@ -15,7 +15,10 @@ export function AppProvider({ children }) {
   // Navigation:
   // Artisan: 'home' | 'add-wizard' | 'my-products' | 'orders' | 'product-detail'
   // Buyer: 'marketplace' | 'buyer-product-detail' | 'buyer-orders'
-  const [currentScreen, setCurrentScreen] = useState('home');
+  // Keep the persisted persona and its entry screen in sync on a page reload.
+  const [currentScreen, setCurrentScreen] = useState(() =>
+    localStorage.getItem('tantu_role') === 'buyer' ? 'marketplace' : 'home'
+  );
   const [activeProductId, setActiveProductId] = useState(null);
 
   // App Data
