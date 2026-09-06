@@ -170,4 +170,5 @@ Actual result: **not executed** — PowerShell reports `python` is not recognize
 - The teammate branches contain overlapping, older broad rewrites of backend modules; selectively integrate their standalone AI/frontend modules rather than merging backend directories.
 
 ### Commit
-Pending test-runtime availability and final Git review.
+- `278e093c56a605a42696016696e84b471d38b13f` — `fix: harden marketplace integration contracts`
+- Push status: pending (recorded after the required Git push completes).
