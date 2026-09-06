@@ -50,7 +50,7 @@
 * **Tests**: Added negative-input coverage and numeric range validity assertions; full suite passes 26/26.
 * **Issues**: The base shell has no usable Python installation; tests run with the Codex bundled Python runtime after installing repository requirements.
 * **Integration Notes**: No request-field rename or response-shape change. Existing buyer and mobile consumers remain compatible.
-* **Commit/hash**: `49a7a83` (`fix: validate pricing estimate inputs`).
+* **Commit/hash**: `5a5927b` (`fix: validate pricing estimate inputs`).
 * **Branch**: `feature/S-pricing-marketplace`
 
 ---
