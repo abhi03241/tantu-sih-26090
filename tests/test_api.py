@@ -116,7 +116,9 @@ class TestTantuBackendAPI(unittest.TestCase):
         self.assertEqual(res_buyer.status_code, 200)
 
     def test_10_order_requests(self):
-        res = self.client.get("/api/products")
+        # Orders are only valid for marketplace-visible (published) products.
+        # Do not depend on mutable SQLite ordering, which may put a draft first.
+        res = self.client.get("/api/buyer/products")
         prod_id = res.json()[0]["id"]
 
         order_payload = {
@@ -196,4 +198,3 @@ class TestTantuBackendAPI(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

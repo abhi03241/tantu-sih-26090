@@ -195,6 +195,12 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
         self.assertGreater(pricing.json()["suggested_price_min"], 0)
         self.assertGreaterEqual(pricing.json()["suggested_price_max"], pricing.json()["suggested_price_min"])
 
+        invalid_pricing = self.client.post(
+            f"/api/products/{product_id}/price",
+            json={"raw_material_cost": -1, "labor_hours": -1},
+        )
+        self.assertEqual(invalid_pricing.status_code, 422)
+
 
 if __name__ == "__main__":
     unittest.main()

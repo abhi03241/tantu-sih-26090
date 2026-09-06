@@ -31,6 +31,14 @@ This document tracks team member status, backend readiness, and integration cont
 * **Frontend**: P's React/Vite UI is integrated. The lifecycle constant was restored for a successful build, and order status changes call the live `PATCH /api/orders/{id}/status` API before using offline fallback.
 * **Verification**: `npm ci` completed with 0 vulnerabilities; `npm run build` passed (1609 modules). `git diff --check` passed. Python backend tests remain blocked because no Python runtime, launcher, or package manager is installed on this workstation.
 
+### 2026-09-06 — Final Validation (A)
+
+* **Python**: installed and used CPython `3.12.10` with a repository-local `.venv`; dependencies were installed unchanged from `backend/requirements.txt`.
+* **Backend suite**: **17/17 passed**, 0 failed, 0 skipped (`python -m unittest discover -s tests -p "test_*.py" -v`). A first run exposed a test-data assumption: `test_10_order_requests` chose an arbitrary product, which may be unpublished in persistent SQLite state. It now deliberately selects a published buyer-catalogue product, matching the API rule.
+* **E2E coverage**: passed artisan draft → upload → voice/NLP → enhancement → catalogue → pricing → publish → buyer feed → bulk order → accepted status, plus unpublished-order rejection, JSON upload/status compatibility, and NLP/pricing persistence checks.
+* **Frontend**: `npm run build` passed again (1609 modules).
+* **Image verification**: automated upload/enhancement checks passed. A real-mode local `/uploads` image produced `/enhanced/enhanced_studio_c3fe4619f31888b1.jpg`; the mounted URL returned `200 image/jpeg`.
+
 ---
 
 ### Implemented REST APIs

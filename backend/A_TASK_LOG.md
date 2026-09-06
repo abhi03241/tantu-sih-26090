@@ -204,3 +204,30 @@ Actual result: **not executed** — PowerShell reports `python` is not recognize
 ### Commit
 - `0cb8abf0ea61596d631fbaabdfd3195822884d0d` — `feat: integrate TANTU frontend and AI modules`
 - Push status: pushed to `origin/feature/A-backend`.
+
+---
+
+## Checkpoint 6 — Final Integrated Validation
+**Status**: `PASSED`
+
+### Environment and Dependencies
+- Installed CPython `3.12.10` and created repository-local `.venv`.
+- Installed the unchanged `backend/requirements.txt` dependencies successfully.
+
+### Actual Test Results
+- Command: `.venv\\Scripts\\python.exe -m unittest discover -s tests -p "test_*.py" -v`
+- Final result: **17 run, 17 passed, 0 failed, 0 skipped** in 0.439s.
+- Initial run: 17 run, 16 passed, 1 failed. The failure was diagnosed as `test_10_order_requests` choosing an arbitrary unfiltered product; unpublished products must return `409` by contract. The test now selects `GET /api/buyer/products`, which guarantees a published product.
+- `npm run build` from `frontend/`: **PASSED**, 1609 modules transformed.
+- `git diff --check`: **PASSED**.
+
+### Journey Verified by Executed Tests
+Draft creation; multipart and JSON image upload; voice/NLP extraction; raw-notes catalogue generation; image enhancement; price generation with labor-hours inputs; update/publish; published-only buyer feed; rejected order against unpublished product; bulk order create/retrieve; query and JSON order-status update; accepted-state persistence.
+
+### Validation Notes
+- NLP test coverage verifies dimensions, production time, raw notes, and grounded artisan cues.
+- Pricing coverage verifies numeric bounds, min ≤ max, labor-hours wiring, and schema rejection of negative/invalid inputs.
+- Automated image upload/enhancement checks passed. A direct real-mode `/uploads` → `/enhanced` probe also passed: `/enhanced/enhanced_studio_c3fe4619f31888b1.jpg` returned `200 image/jpeg`.
+
+### Commit
+Pending final Git review and push.

@@ -23,6 +23,7 @@ wheels/
 
 # Virtual Environment
 venv/
+.venv/
 ENV/
 .env
 
@@ -47,4 +48,3 @@ dist/
 # Uploaded Media
 backend/app/uploads/*
 !backend/app/uploads/.gitkeep
-
