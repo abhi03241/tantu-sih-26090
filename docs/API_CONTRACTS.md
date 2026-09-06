@@ -107,6 +107,9 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 ```
 * **Response Status**: `200 OK`
 * **Response Body**: Updated Product Object containing generated `enhanced_image_url`.
+  - Real local processing returns a frontend-renderable path such as
+    `/enhanced/enhanced_studio_<content-hash>.jpg`; the backend serves it as a
+    static asset. The original `image_url` is not changed.
 
 ---
 

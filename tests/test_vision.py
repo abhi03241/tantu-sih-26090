@@ -6,6 +6,7 @@ Maintained by Team Member R (AI Image Enhancement).
 import io
 import os
 import sys
+import tempfile
 import unittest
 from PIL import Image
 
@@ -16,6 +17,7 @@ from ai.vision.pipeline import (
     ImagePipeline,
     ImageValidationError,
     validate_image_bytes,
+    fix_exif_orientation,
     DEFAULT_TARGET_SIZE,
 )
 from ai.vision.services import (
@@ -127,7 +129,8 @@ class TestAIVisionModule(unittest.TestCase):
             res = enhance_artisan_image(image_url=sample_path, mock=False)
             self.assertEqual(res["status"], "success")
             self.assertIsNotNone(res["enhanced_image_url"])
-            self.assertTrue(os.path.exists(res["enhanced_image_url"]))
+            self.assertTrue(res["enhanced_image_url"].startswith("/enhanced/"))
+            self.assertTrue(os.path.exists(res["metadata"]["output_file"]))
 
     def test_10_api_integration_endpoint(self):
         """Tests integration with FastAPI /api/products/{id}/enhance-image endpoint."""
@@ -183,7 +186,35 @@ class TestAIVisionModule(unittest.TestCase):
         self.assertIn("warning", res)
         self.assertIsNotNone(res["enhanced_image_url"])
 
+    def test_14_exif_orientation_is_normalized(self):
+        """Phone-camera EXIF orientation is applied before catalogue cropping."""
+        image = Image.new("RGB", (80, 160), (180, 120, 80))
+        exif = Image.Exif()
+        exif[274] = 6  # Rotate 90 degrees clockwise.
+        buffer = io.BytesIO()
+        image.save(buffer, format="JPEG", exif=exif)
+
+        oriented = fix_exif_orientation(validate_image_bytes(buffer.getvalue()))
+        self.assertEqual(oriented.size, (160, 80))
+
+    def test_15_full_content_hash_prevents_output_collisions(self):
+        """Files with matching headers still produce distinct enhanced assets."""
+        first = Image.new("RGB", (100, 100), (100, 100, 100))
+        second = first.copy()
+        second.putpixel((99, 99), (101, 100, 100))
+        first_buffer, second_buffer = io.BytesIO(), io.BytesIO()
+        first.save(first_buffer, format="BMP")
+        second.save(second_buffer, format="BMP")
+        self.assertEqual(first_buffer.getvalue()[:1024], second_buffer.getvalue()[:1024])
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            first_result = self.real_service.enhance_image(first_buffer.getvalue(), output_dir=output_dir)
+            second_result = self.real_service.enhance_image(second_buffer.getvalue(), output_dir=output_dir)
+
+        self.assertEqual(first_result["status"], "success")
+        self.assertEqual(second_result["status"], "success")
+        self.assertNotEqual(first_result["enhanced_image_url"], second_result["enhanced_image_url"])
+
 
 if __name__ == "__main__":
     unittest.main()
-

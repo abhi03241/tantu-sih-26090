@@ -3,6 +3,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 # Ensure root workspace is in python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
@@ -44,6 +45,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Local vision outputs are deliberately separate from source uploads.  Mounting
+# this directory makes ``enhanced_image_url`` usable by the mobile/web client.
+enhanced_images_dir = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "data", "enhanced")
+)
+os.makedirs(enhanced_images_dir, exist_ok=True)
+app.mount("/enhanced", StaticFiles(directory=enhanced_images_dir), name="enhanced-images")
 
 # Register routers
 app.include_router(products.router)

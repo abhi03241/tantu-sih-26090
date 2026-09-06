@@ -19,6 +19,9 @@ from ai.vision.pipeline import (
 )
 
 
+ENHANCED_IMAGE_ROUTE = "/enhanced"
+
+
 class BaseImageService(abc.ABC):
     """
     Abstract Service Interface for image enhancement in TANTU.
@@ -171,7 +174,10 @@ class RealImageService(BaseImageService):
 
             # Determine output destination
             orig_ref = image_input if isinstance(image_input, str) else "upload"
-            input_hash = hashlib.md5(image_bytes[:1024]).hexdigest()[:10]
+            # Hash all source bytes: two different camera files can share their
+            # first kilobyte (headers/metadata), so hashing only that prefix can
+            # overwrite an existing enhanced catalogue asset.
+            input_hash = hashlib.sha256(image_bytes).hexdigest()[:16]
             filename = f"enhanced_studio_{input_hash}.jpg"
 
             if output_dir:
@@ -186,11 +192,9 @@ class RealImageService(BaseImageService):
                 output_path = os.path.join(default_static, filename)
                 enhanced_pil.save(output_path, format="JPEG", quality=92, optimize=True)
                 
-                # If the input was a web URL, we can return the path or formatted URL
-                if isinstance(image_input, str) and (image_input.startswith("http://") or image_input.startswith("https://")):
-                    enhanced_url = output_path
-                else:
-                    enhanced_url = output_path
+                # The backend mounts this directory at /enhanced so API clients
+                # receive a renderable URL rather than a server-local path.
+                enhanced_url = f"{ENHANCED_IMAGE_ROUTE}/{filename}"
 
             metadata["output_file"] = output_path
             metadata["prompt"] = prompt

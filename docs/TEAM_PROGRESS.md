@@ -33,6 +33,7 @@
   8. **Zero-Crash Resilience**: Resilient `MockImageService` fallback when `MOCK_AI=true` or offline.
 - **Contract Compatibility**:
   - Updates `enhanced_image_url` while preserving raw `image_url`.
+  - Real-mode assets are now served at `/enhanced/...`; frontend clients should resolve this relative path against the API base URL. Mock mode continues to return remote demo URLs.
   - Conforms to standard product schema and REST contract.
 - **Test Coverage**: 13 unit/integration tests in `tests/test_vision.py` passing ($100\%$).
 - **Visual Demo**: Run `python ai/vision/demo.py` to see side-by-side Before/After transformations on 4 sample artisan crafts (Bamboo, Terracotta, Silk Handloom, Wood Carving).

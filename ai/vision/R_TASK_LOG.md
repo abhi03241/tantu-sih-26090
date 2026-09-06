@@ -129,3 +129,19 @@
   - `test_13_failure_handling_and_fallback`: PASSED
   - Full suite (`python -m unittest discover tests`): 20/20 PASSED.
 * **Results**: All 20 tests in repository passing in $<2.0\text{s}$.
+
+---
+
+## Checkpoint 7: Renderable Enhanced-Asset URLs & Collision-Safe Storage
+
+* **What Changed**:
+  - Real pipeline output now returns `/enhanced/enhanced_studio_<content-hash>.jpg` instead of a server-local absolute path.
+  - Mounted `data/enhanced/` at `/enhanced` in the FastAPI app; the absolute output path remains available in response metadata for local diagnostics.
+  - Replaced the first-1KB MD5 filename key with a 16-character SHA-256 digest of all source bytes to prevent different images with matching headers from overwriting one another.
+* **Files**: `ai/vision/services.py`, `backend/app/main.py`, `tests/test_vision.py`, `docs/API_CONTRACTS.md`.
+* **Image Processing**: No processing stages changed; only non-destructive output addressing and asset identity were hardened.
+* **API / Interface**: `enhanced_image_url` remains a string and is now directly renderable by a client at the backend origin; `metadata.output_file` retains the local artifact path.
+* **Tests Performed**: Added EXIF-orientation regression coverage and a BMP pair with identical first 1KB but different final pixels to verify separate output names.
+* **Results**: Test execution is pending because this workstation has the Python launcher but no installed Python runtime (`py -3` reports “No installed Python found”).
+* **Issues / Integration Notes**: Backend consumers should prepend their API base URL when rendering relative `/enhanced/...` paths. `MOCK_AI=true` continues to return its existing remote demo URLs.
+* **Commit / Branch**: Pending commit on `feature/R-image-ai`.
