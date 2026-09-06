@@ -203,5 +203,5 @@
 - **Actual results**: 26/26 tests passed (16 NLP + 10 backend API). Includes Hindi, English, empty/missing fields, mock fallback, structured output, anti-hallucination, narrative/sentiment cues, explicit dimensions/time persistence, and `raw_notes` integration.
 - **Issues**: The system Python launcher was unavailable and the workspace runtime initially lacked project packages. Installed the declared `backend/requirements.txt` into the workspace runtime before testing. Test output includes a non-failing Starlette/httpx deprecation warning.
 - **Integration notes**: `POST /api/products/{id}/voice` retains existing optional values unless the transcript explicitly supplies replacements. `POST /api/products/{id}/generate-catalogue` now passes request `raw_notes` through to the NLP service.
-- **Commit / hash**: Pending checkpoint commit.
+- **Commit / hash**: `fix: ground NLP output in artisan cues` / `a78a4ce`.
 - **Branch**: `feature/M-ai-nlp`
