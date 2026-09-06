@@ -230,4 +230,5 @@ Draft creation; multipart and JSON image upload; voice/NLP extraction; raw-notes
 - Automated image upload/enhancement checks passed. A direct real-mode `/uploads` → `/enhanced` probe also passed: `/enhanced/enhanced_studio_c3fe4619f31888b1.jpg` returned `200 image/jpeg`.
 
 ### Commit
-Pending final Git review and push.
+- `3bb68f930d8af226c342b3fa20c03359b52d6baf` — `test: validate integrated TANTU workflow`
+- Push status: pushed to `origin/feature/A-backend`.
