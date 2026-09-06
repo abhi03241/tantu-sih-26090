@@ -171,4 +171,5 @@ Actual result: **not executed** — PowerShell reports `python` is not recognize
 
 ### Commit
 - `278e093c56a605a42696016696e84b471d38b13f` — `fix: harden marketplace integration contracts`
-- Push status: pending (recorded after the required Git push completes).
+- `dd2d66a84aa45322a1cfe46fe3be8679fd601ceb` — `docs: record backend integration checkpoint`
+- Push status: pushed to `origin/feature/A-backend` after verification.
