@@ -295,10 +295,25 @@ class TestPricingAndMarketplace(unittest.TestCase):
         data = res.json()
         self.assertIn("suggested_price_min", data)
         self.assertIn("suggested_price_max", data)
+        self.assertIsInstance(data["suggested_price_min"], (int, float))
+        self.assertIsInstance(data["suggested_price_max"], (int, float))
+        self.assertGreater(data["suggested_price_max"], data["suggested_price_min"])
         self.assertEqual(data["currency"], "INR")
         self.assertEqual(data["confidence"], "demo")
 
-    def test_14_pricing_reference_data_endpoint(self):
+    def test_14_pricing_estimate_rejects_negative_cost_inputs(self):
+        """Negative amounts are invalid inputs, not missing pricing information."""
+        base_payload = {
+            "category": "Bamboo & Cane Craft",
+            "material": "Natural Bamboo"
+        }
+        for field in ("raw_material_cost", "labor_hours", "labor_cost", "overhead"):
+            with self.subTest(field=field):
+                payload = {**base_payload, field: -1}
+                res = self.client.post("/api/pricing/estimate", json=payload)
+                self.assertEqual(res.status_code, 422)
+
+    def test_15_pricing_reference_data_endpoint(self):
         """Test GET /api/pricing/reference-data."""
         res = self.client.get("/api/pricing/reference-data")
         self.assertEqual(res.status_code, 200)
@@ -308,7 +323,7 @@ class TestPricingAndMarketplace(unittest.TestCase):
     # ==========================================
     # 5. FULL ARTISAN -> BUYER WORKFLOW
     # ==========================================
-    def test_15_artisan_to_buyer_end_to_end_flow(self):
+    def test_16_artisan_to_buyer_end_to_end_flow(self):
         """
         Complete flow test:
         1. Artisan creates product

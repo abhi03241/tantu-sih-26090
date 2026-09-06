@@ -38,6 +38,23 @@
 
 ---
 
+## 📌 Checkpoint 7: Pricing Contract Hardening
+
+* **Task**: Audit the delivered pricing and B2B workflow, then close the pricing request-validation gap without changing the existing catalogue or order implementations.
+* **Implementation**:
+  - Added non-negative validation for optional `raw_material_cost`, `labor_hours`, `labor_cost`, and `overhead` in the standalone pricing request contract.
+  - Preserved optional-field fallbacks, so incomplete artisan inputs still receive an explainable AI-assisted suggested price range.
+  - Documented standalone pricing response semantics and single-order/status endpoints in the shared API contract.
+* **Files**: `backend/app/schemas.py`, `tests/test_pricing_marketplace.py`, `docs/API_CONTRACTS.md`, `docs/TEAM_PROGRESS.md`.
+* **APIs**: `POST /api/pricing/estimate` returns `422` for negative numeric inputs; omitted fields remain valid.
+* **Tests**: Added negative-input coverage and numeric range validity assertions; full suite passes 26/26.
+* **Issues**: The base shell has no usable Python installation; tests run with the Codex bundled Python runtime after installing repository requirements.
+* **Integration Notes**: No request-field rename or response-shape change. Existing buyer and mobile consumers remain compatible.
+* **Commit/hash**: `49a7a83` (`fix: validate pricing estimate inputs`).
+* **Branch**: `feature/S-pricing-marketplace`
+
+---
+
 ## 📌 Checkpoint 2: Pricing Factors
 
 * **Task**: Provide simple, artisan-friendly explanations covering **Material**, **Production time**, **Handmade nature**, and **Product category**. Avoid exposing complex math to artisans. Test missing optional fields.

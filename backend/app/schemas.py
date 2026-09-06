@@ -139,10 +139,10 @@ class GenerateCatalogueRequest(BaseModel):
 
 
 class PricingRequest(BaseModel):
-    raw_material_cost: Optional[float] = Field(None, example=250.0)
-    labor_hours: Optional[int] = Field(None, example=16)
-    labor_cost: Optional[float] = Field(None, example=1200.0)
-    overhead: Optional[float] = Field(None, example=180.0)
+    raw_material_cost: Optional[float] = Field(None, ge=0, example=250.0)
+    labor_hours: Optional[int] = Field(None, ge=0, example=16)
+    labor_cost: Optional[float] = Field(None, ge=0, example=1200.0)
+    overhead: Optional[float] = Field(None, ge=0, example=180.0)
     quantity: Optional[int] = Field(1, gt=0, example=50)
     category: Optional[str] = Field(None, example="Bamboo & Cane Craft")
     material: Optional[str] = Field(None, example="Natural Assam Bamboo")

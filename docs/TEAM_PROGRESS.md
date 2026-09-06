@@ -54,7 +54,12 @@
 - Available locally at `http://localhost:8000/marketplace`.
 - Serves `frontend/index.html` with product browse, search, category filter, bulk inquiry, and order tracking.
 
+### 4. Pricing Input Validation (Member S, 2026-09-06)
+- `POST /api/pricing/estimate` now rejects negative raw-material cost, labor hours, labor cost, and overhead with `422 Unprocessable Entity`.
+- Optional pricing fields remain optional: omitted values use explainable demo-reference fallbacks.
+- Consumers should present pricing only as **AI-assisted suggested price range**, never as exact market truth.
+
 ---
 
 ## 🧪 Shared Test Suite Status
-- Total automated tests passing: **25 / 25** (`tests/test_api.py` and `tests/test_pricing_marketplace.py`).
+- Total automated tests passing: **26 / 26** (`tests/test_api.py` and `tests/test_pricing_marketplace.py`).

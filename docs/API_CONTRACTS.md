@@ -135,18 +135,31 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 * **Response Status**: `200 OK`
 * **Response Body**: Updated Product Object with calculated `suggested_price_min` and `suggested_price_max`.
 
+#### 8. AI-assisted Suggested Price Range (Pricing Module - Team Member S)
+* **Endpoint**: `POST /api/pricing/estimate`
+* **Request Body**: Category and material may be omitted. Cost and labor fields are optional, but when supplied must be non-negative; `quantity` must be greater than zero.
+* **Response Status**: `200 OK` (or `422 Unprocessable Entity` for invalid numeric inputs)
+* **Compatible Price Fields**:
+```json
+{
+  "suggested_price_min": 850.0,
+  "suggested_price_max": 1050.0
+}
+```
+* **Interpretation**: This is an **AI-assisted suggested price range**, calculated from available category, material, production time, dimensions, handmade nature, and demo reference information. It is not an exact market-price claim.
+
 ---
 
 ### C. Dashboard & Marketplace Feeds
 
-#### 8. Artisan Product Feed
+#### 9. Artisan Product Feed
 * **Endpoint**: `GET /api/artisan/products?artisan_id={artisan_id}`
 * **Response Status**: `200 OK`
 * **Response Body**: Array of products cataloged by the given artisan.
 
 ---
 
-#### 9. Buyer Product Feed
+#### 10. Buyer Product Feed
 * **Endpoint**: `GET /api/buyer/products?category={category}&q={search}`
 * **Response Status**: `200 OK`
 * **Response Body**: Array of products formatted for B2B/B2C marketplace showcase.
@@ -155,7 +168,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 ### D. B2B Order Linkage Endpoints
 
-#### 10. Create Order Request
+#### 11. Create Order Request
 * **Endpoint**: `POST /api/orders/request`
 * **Request Body**:
 ```json
@@ -188,8 +201,22 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 ---
 
-#### 11. List Orders
+#### 12. List Orders
 * **Endpoint**: `GET /api/orders`
 * **Query Parameters**: `product_id`, `artisan_id`
 * **Response Status**: `200 OK`
 * **Response Body**: Array of Order Request Objects.
+
+#### 13. Get Order Status
+* **Endpoint**: `GET /api/orders/{id}`
+* **Response Status**: `200 OK` (or `404 Not Found`)
+* **Response Body**: A single order request, including its current `status`.
+
+#### 14. Update Order Status
+* **Endpoint**: `PATCH /api/orders/{id}/status`
+* **Request Body**:
+```json
+{ "status": "accepted" }
+```
+* **Allowed statuses**: `requested`, `pending`, `accepted`, `rejected`, `completed`.
+* **Response Status**: `200 OK` (or `400 Bad Request` for an unsupported status, `404 Not Found` for an unknown order).
