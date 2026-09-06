@@ -220,4 +220,4 @@
 - **Problems / Integration Notes**:
   - The local backend could not be launched in this workspace because the available Python launcher/runtime did not provide the project server dependencies. Offline mock fallbacks were exercised instead.
   - Live backend must add persisted product `status` to its create/update/response schema and an order-status update endpoint before the corresponding frontend controls can persist those states online. Details are in `docs/TEAM_PROGRESS.md`.
-- **Commit / Branch**: Pending commit on `feature/P-frontend`.
+- **Commit / Branch**: `74c8c97` on `feature/P-frontend` (amended below to include this final task-log reference).
