@@ -9,6 +9,7 @@ export default function BuyerHome() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filtered = products.filter(p => {
+    const isPublished = (p.status || 'published').toLowerCase() === 'published';
     const matchesCat = selectedCategory === 'all' || p.category?.toLowerCase() === selectedCategory.toLowerCase();
     const matchesSearch = !searchQuery ||
       p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -17,7 +18,7 @@ export default function BuyerHome() {
       p.material?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.artisan_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.location?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
+    return isPublished && matchesCat && matchesSearch;
   });
 
   return (

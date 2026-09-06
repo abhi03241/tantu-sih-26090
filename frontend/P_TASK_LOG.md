@@ -186,3 +186,38 @@
 | **Checkpoint 5** | AI Processing Screen with 4 Friendly Stages | Completed ✓ | `feat: add ai processing screen` |
 | **Checkpoint 6** | Catalogue Review, Save Draft & Publish | Completed ✓ | `feat: add catalogue review and publish` |
 | **Checkpoint 7** | Artisan Product List, Search & Status Badges | Completed ✓ | `feat: complete artisan product list and cataloging flow` |
+
+---
+
+## Checkpoint 8 — Frontend Handoff Audit & Live-flow Repairs
+- **Step Name**: Preserve Existing UI, Repair Navigation and Backend AI Hand-off
+- **What Was Implemented**:
+  - Audited the clean `feature/P-frontend` branch, routes, shared services, mock data, product contract, project documentation, and existing artisan/buyer screens before changing code.
+  - Fixed the persisted buyer persona opening on its correct marketplace entry screen after a browser reload; previously it initialized to the artisan `home` route and rendered a blank content area.
+  - Fixed the buyer bottom-navigation Artisan action to switch persona properly instead of navigating to an artisan-only route while remaining in buyer mode.
+  - Restricted marketplace cards to products with `published` lifecycle status, keeping drafts and in-progress catalogue work private to the artisan.
+  - Repaired the live AI workflow: it now creates a contract-complete processing product first, passes the returned product ID to Voice, Enhancement, and Pricing APIs, and updates that same record for Draft/Publish. This replaces calls using the non-existent `new-draft` ID and prevents duplicate final products.
+  - Recorded backend contract gaps in the team integration document; no shared API contract was silently changed.
+- **Files Created / Modified**:
+  - `frontend/src/context/AppContext.jsx`
+  - `frontend/src/components/common/BottomNav.jsx`
+  - `frontend/src/components/buyer/BuyerHome.jsx`
+  - `frontend/src/components/artisan/AddProductWizard.jsx`
+  - `docs/TEAM_PROGRESS.md`
+  - `frontend/P_TASK_LOG.md`
+- **APIs / Interfaces Affected**:
+  - `POST /api/products`
+  - `POST /api/products/{id}/voice`
+  - `POST /api/products/{id}/enhance-image`
+  - `POST /api/products/{id}/price`
+  - `PUT /api/products/{id}`
+- **Tests Run**:
+  - `npm run build` (outside the workspace sandbox; Vite cannot read its own configuration within the sandbox).
+  - Browser smoke test: language selection → artisan home; role switch → buyer marketplace; buyer Artisan tab → artisan home; buyer-mode reload → marketplace.
+- **Actual Results**:
+  - Production build passed: 1609 modules transformed; output generated successfully.
+  - Navigation smoke checks passed. Buyer mode remained on the marketplace after reload and no blank route was rendered.
+- **Problems / Integration Notes**:
+  - The local backend could not be launched in this workspace because the available Python launcher/runtime did not provide the project server dependencies. Offline mock fallbacks were exercised instead.
+  - Live backend must add persisted product `status` to its create/update/response schema and an order-status update endpoint before the corresponding frontend controls can persist those states online. Details are in `docs/TEAM_PROGRESS.md`.
+- **Commit / Branch**: Pending commit on `feature/P-frontend`.

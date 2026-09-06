@@ -199,6 +199,14 @@ export default function AddProductWizard() {
 
     const baseProduct = {
       title: 'Handcrafted Artisan Craft',
+      description_english: effectiveNarrative,
+      description_hindi: effectiveNarrative,
+      category: 'Handicraft',
+      material: 'Natural Fiber',
+      dimensions: null,
+      production_time: null,
+      tags: [],
+      story: null,
       image_url: photoUrl,
       artisan_id: artisanProfile.id,
       artisan_name: artisanProfile.name,
@@ -207,6 +215,11 @@ export default function AddProductWizard() {
     };
 
     try {
+      // The AI API updates a product in place, so create a contract-complete
+      // processing record first. This also gives the offline mock a real ID.
+      const processingProduct = await productService.createProduct(baseProduct);
+      const productId = processingProduct.id;
+
       // Stage 1: Understanding your product...
       updateStage(1, 'in-progress');
       await delay(900);
@@ -215,7 +228,7 @@ export default function AddProductWizard() {
 
       // Stage 2: Creating your catalogue...
       updateStage(2, 'in-progress');
-      const voiceProcessed = await productService.processVoice('new-draft', {
+      const voiceProcessed = await productService.processVoice(productId, {
         audio_transcript: effectiveNarrative,
         language: language
       });
@@ -225,7 +238,7 @@ export default function AddProductWizard() {
 
       // Stage 3: Improving your product photo...
       updateStage(3, 'in-progress');
-      const enhanced = await productService.enhanceImage('new-draft', {
+      const enhanced = await productService.enhanceImage(productId, {
         image_url: photoUrl,
         prompt: 'Clean studio backdrop with soft warm lighting'
       });
@@ -235,7 +248,7 @@ export default function AddProductWizard() {
 
       // Stage 4: Preparing your price suggestion...
       updateStage(4, 'in-progress');
-      const priced = await productService.calculatePrice('new-draft', {
+      const priced = await productService.calculatePrice(productId, {
         raw_material_cost: 300,
         labor_hours: 16
       });
@@ -251,7 +264,7 @@ export default function AddProductWizard() {
         ...priced,
         image_url: photoUrl,
         enhanced_image_url: enhanced.enhanced_image_url || photoUrl,
-        id: `prod-${Date.now().toString(16).slice(-6)}`,
+        id: productId,
         status: PRODUCT_STATUSES.READY,
         created_at: new Date().toISOString()
       };
@@ -283,7 +296,7 @@ export default function AddProductWizard() {
         ...generatedProduct,
         status: PRODUCT_STATUSES.PUBLISHED
       };
-      await productService.createProduct(payload);
+      await productService.updateProduct(payload.id, payload);
       refreshData();
       setLastAction('publish');
       setCurrentStep(5);
@@ -305,7 +318,7 @@ export default function AddProductWizard() {
         ...generatedProduct,
         status: PRODUCT_STATUSES.DRAFT
       };
-      await productService.saveDraft(payload);
+      await productService.updateProduct(payload.id, payload);
       refreshData();
       setLastAction('draft');
       setCurrentStep(5);

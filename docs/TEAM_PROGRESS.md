@@ -47,3 +47,9 @@
   - The frontend dynamically pings `/api/health`.
   - When backend is active, live API endpoints are utilized.
   - When backend is inactive, a transparent `localStorage` mock database powers the complete demonstration without crashing.
+
+## 3. Integration Note — P Frontend Audit (2026-09-06)
+
+- The frontend now creates a contract-complete processing product before calling the AI endpoints, then updates that same product for draft/publish. This matches the existing AI endpoint shape (`/api/products/{id}/...`) and prevents live-backend calls against a placeholder ID.
+- **Backend contract gap:** `POST /api/orders/request` and `GET /api/orders` are available, but no endpoint exists to accept or otherwise update an order request. The artisan "Accept" control therefore only persists in offline mock mode; a backend order-status update endpoint is needed for live persistence.
+- **Backend contract gap:** product lifecycle `status` is used by the frontend, but it is not present in `ProductCreate`, `ProductUpdate`, or `ProductResponse`. Live backend responses consequently cannot preserve draft/ready/published state until the backend schema and persistence layer adopt it.
