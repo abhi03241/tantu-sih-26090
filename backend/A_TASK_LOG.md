@@ -202,4 +202,5 @@ Actual result: **not executed** — PowerShell reports `python` is not recognize
 - Added backend regression coverage for NLP duration/dimensions, raw notes, and labor-hours pricing. It has not been executed in this environment.
 
 ### Commit
-Pending final review and push.
+- `0cb8abf0ea61596d631fbaabdfd3195822884d0d` — `feat: integrate TANTU frontend and AI modules`
+- Push status: pushed to `origin/feature/A-backend`.
