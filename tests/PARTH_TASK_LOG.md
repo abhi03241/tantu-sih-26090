@@ -121,3 +121,39 @@
 * **Working Branch**: `feature/Parth-db-testing`
 * **Commit Status**: All working files verified with `git status` and `git diff`.
 * **Push Status**: Remote push attempt to `abhi03241/tantu-sih-26090.git` returned HTTP 403 Forbidden due to repository collaborator permissions for `Parth10850`. Awaiting collaborator invitation from repository owner (`abhi03241`).
+
+---
+
+## Log Entry — September 6, 2026 Repository-State Regression Audit
+
+### Test / validation task
+
+Audited the existing `feature/Parth-db-testing` branch after Antigravity's prior commits; validated database-backed products, artisan and buyer profiles, order retrieval/status flows, API contracts, and the complete artisan-to-buyer journey.
+
+### Files reviewed
+
+* `backend/app/database.py`, `schemas.py`, `routers/*.py`, and `seed_data.py`
+* `ai/nlp/voice_and_story.py`, `ai/pricing/smart_pricing.py`
+* `tests/test_api.py`, `tests/test_smoke_integration.py`
+* `docs/API_CONTRACTS.md`, `docs/ARCHITECTURE.md`, `docs/TEAM_PROGRESS.md`
+
+### Actual results
+
+* Command: `C:\\Users\\parth\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m unittest discover -s tests -v`
+* Result: **21 tests passed in 2.003s**.
+* End-to-end smoke result: product draft creation → voice → enhancement → pricing → catalogue → publish → buyer retrieval → bulk-order request → accepted order all passed. The smoke run reported a price range of INR 5500.0–8000.0 and found the newly published product in the buyer feed.
+* Database persistence was exercised through product CRUD/status, dynamic artisan/buyer profile lookup, order creation/retrieval, and order status persistence.
+
+### Integration findings (not rewritten)
+
+1. **Pricing owner (S) / backend review (A):** the public `labor_hours` field is validated but ignored by the endpoint and pricing service. It cannot affect price output.
+2. **NLP owner (M) / backend review (A):** the public `raw_notes` field is validated but never supplied to catalogue generation. It cannot affect generated copy.
+
+Both are recorded in `docs/TEAM_PROGRESS.md` with evidence and expected behavior. No database code changed because the audited persistence behavior passed.
+
+### Git checkpoint
+
+* Branch: `feature/Parth-db-testing`
+* Change in this audit: documentation of actual regression evidence and the two owner-routed integration findings.
+* Commit/hash: pending the required status/diff review and commit.
+* Push status: pending commit; remote authorization will be verified after commit.

@@ -60,6 +60,19 @@
 
 ## 3. 🤝 Recommendations for Next Steps
 
+## 4. September 6, 2026 Regression Audit (Parth)
+
+**Evidence:** `C:\\Users\\parth\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m unittest discover -s tests -v` completed successfully: **21 tests passed in 2.003s**. The included end-to-end smoke test completed the draft-product, voice, image enhancement, pricing, catalogue, publish, buyer search, bulk-order, and order-acceptance flow.
+
+### Open integration findings
+
+| Problem | Evidence | Expected behavior | Affected module / suggested owner |
+|---|---|---|---|
+| `labor_hours` is accepted by `POST /api/products/{id}/price` but is discarded by `ai_endpoints.calculate_product_price`; `calculate_smart_price` has no labor-hours parameter. | Requests with `labor_hours` reach Pydantic validation, but only `raw_material_cost` is passed to the pricing service. | Labor hours should influence the fair-price range, or the field should be removed from the API contract. | `ai/pricing/smart_pricing.py` and `backend/app/routers/ai_endpoints.py` — Pricing owner (S), with backend review (A). |
+| `raw_notes` is accepted by `POST /api/products/{id}/generate-catalogue` but is not passed to `generate_catalogue_nlp`. | The route accepts `GenerateCatalogueRequest` yet calls the NLP service only with stored `product_info`. | Supplied catalogue notes should affect generated copy, or the field should be removed from the API contract. | `ai/nlp/voice_and_story.py` and `backend/app/routers/ai_endpoints.py` — NLP owner (M), with backend review (A). |
+
+These findings do not block the tested mock-AI journey, but they prevent the documented optional inputs from affecting their respective AI operations.
+
 1. **For Tech Lead (A)**:
    * Review and merge `feature/Parth-db-testing` into `feature/A-backend`.
    * Add GitHub collaborator write permissions for user `Parth10850` to enable direct branch pushing.
