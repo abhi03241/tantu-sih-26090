@@ -23,7 +23,12 @@ class PricingService:
         material: str,
         production_time: Optional[str] = None,
         dimensions: Optional[str] = None,
-        raw_material_cost: Optional[float] = None
+        raw_material_cost: Optional[float] = None,
+        labor_cost: Optional[float] = None,
+        labor_hours: Optional[int] = None,
+        overhead: Optional[float] = None,
+        quantity: Optional[int] = 1,
+        region: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Calculates suggested price bounds (suggested_price_min, suggested_price_max).
@@ -35,6 +40,11 @@ class PricingService:
                 production_time=production_time,
                 dimensions=dimensions,
                 raw_material_cost=raw_material_cost,
+                labor_cost=labor_cost,
+                labor_hours=labor_hours,
+                overhead=overhead,
+                quantity=quantity,
+                region=region,
                 mock=settings.MOCK_AI
             )
             return result
@@ -46,5 +56,10 @@ class PricingService:
                 production_time=production_time,
                 dimensions=dimensions,
                 raw_material_cost=raw_material_cost,
+                labor_cost=labor_cost,
+                labor_hours=labor_hours,
+                overhead=overhead,
+                quantity=quantity,
+                region=region,
                 mock=True
             )

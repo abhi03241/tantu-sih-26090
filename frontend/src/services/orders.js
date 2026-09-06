@@ -58,6 +58,15 @@ export const orderService = {
 
   // Update order status (accept/fulfill)
   async updateOrderStatus(orderId, status) {
+    try {
+      return await request(`/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status })
+      });
+    } catch (e) {
+      console.warn("Backend unavailable, updating order locally", e);
+    }
+
     const orders = getStoredOrders();
     const index = orders.findIndex(o => o.id === orderId);
     if (index !== -1) {

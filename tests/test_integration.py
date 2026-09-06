@@ -166,6 +166,35 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
         self.assertIn("product", result)
         self.assertEqual(result["status"], "ready")
 
+    def test_05_nlp_notes_and_pricing_inputs_persist(self):
+        """Verify M and S inputs are carried through A's product lifecycle endpoints."""
+        created = self.client.post("/api/products", json={"title": "Integration inputs test"})
+        self.assertEqual(created.status_code, 201)
+        product_id = created.json()["id"]
+
+        voice = self.client.post(
+            f"/api/products/{product_id}/voice",
+            json={"audio_transcript": "Bamboo basket takes 3 days and measures 30cm x 20cm.", "language": "en"},
+        )
+        self.assertEqual(voice.status_code, 200)
+        self.assertEqual(voice.json()["production_time"], "3 days")
+        self.assertEqual(voice.json()["dimensions"], "30cm x 20cm")
+
+        catalogue = self.client.post(
+            f"/api/products/{product_id}/generate-catalogue",
+            json={"raw_notes": "Learned this weaving from my grandmother."},
+        )
+        self.assertEqual(catalogue.status_code, 200)
+        self.assertIn("grandmother", catalogue.json()["description_english"].lower())
+
+        pricing = self.client.post(
+            f"/api/products/{product_id}/price",
+            json={"raw_material_cost": 200, "labor_hours": 20},
+        )
+        self.assertEqual(pricing.status_code, 200)
+        self.assertGreater(pricing.json()["suggested_price_min"], 0)
+        self.assertGreaterEqual(pricing.json()["suggested_price_max"], pricing.json()["suggested_price_min"])
+
 
 if __name__ == "__main__":
     unittest.main()

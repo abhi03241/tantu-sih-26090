@@ -169,8 +169,29 @@ class GenerateCatalogueRequest(BaseModel):
 
 
 class PricingRequest(BaseModel):
-    raw_material_cost: Optional[float] = Field(None, example=250.0)
-    labor_hours: Optional[int] = Field(None, example=16)
+    raw_material_cost: Optional[float] = Field(None, ge=0, example=250.0)
+    labor_hours: Optional[int] = Field(None, ge=0, example=16)
+    labor_cost: Optional[float] = Field(None, ge=0, example=1200.0)
+    overhead: Optional[float] = Field(None, ge=0, example=180.0)
+    quantity: Optional[int] = Field(1, gt=0, example=50)
+    category: Optional[str] = None
+    material: Optional[str] = None
+    dimensions: Optional[str] = None
+    production_time: Optional[str] = None
+    region: Optional[str] = None
+    craft_type: Optional[str] = None
+
+
+class PricingCalculationResponse(BaseModel):
+    suggested_price_min: float
+    suggested_price_max: float
+    currency: str = "INR"
+    confidence: str = "demo"
+    pricing_label: Optional[str] = "AI-assisted suggested price range"
+    reason: str
+    pricing_factors: Optional[dict] = None
+    breakdown: Optional[dict] = None
+    recommendation: Optional[str] = None
 
 
 class ProcessProductRequest(BaseModel):
@@ -192,4 +213,3 @@ class ProcessProductResponse(BaseModel):
 class ProductStatusResponse(BaseModel):
     id: str = Field(..., example="prod-001")
     status: str = Field("ready", example="ready")
-

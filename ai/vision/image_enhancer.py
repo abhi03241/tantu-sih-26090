@@ -2,39 +2,61 @@
 AI Vision & Image Enhancement Module
 Maintained by Team Member R (AI Image Enhancement)
 Integrated into TANTU Backend core workflow.
+
+Transforms raw artisan phone photos into professional studio-grade catalog photos.
+Removes clutter, adjusts lighting, centers product, and enhances color contrast for high buyer conversion.
 """
-from typing import Dict, Any
+
+import os
+from typing import Dict, Any, Optional, Union
+from ai.vision.services import (
+    BaseImageService,
+    RealImageService,
+    MockImageService,
+    get_image_enhancement_service,
+)
+from ai.vision.pipeline import (
+    ImagePipeline,
+    ImageValidationError,
+    validate_image_bytes,
+    DEFAULT_TARGET_SIZE,
+    SUPPORTED_FORMATS
+)
+
+# Export alias for convenience
+ImageEnhancementService = get_image_enhancement_service
 
 
-def enhance_artisan_image(image_url: str, prompt: str = None, mock: bool = True) -> Dict[str, Any]:
+def enhance_artisan_image(
+    image_url: str,
+    prompt: Optional[str] = None,
+    mock: Optional[bool] = None,
+    output_dir: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Transforms raw artisan phone photos into professional studio-grade catalog photos.
-    Removes clutter, adjusts lighting, and enhances color contrast for high buyer conversion.
-    """
-    if mock or not image_url:
-        # High quality studio backdrop mock URL for SIH demo
-        enhanced_url = image_url if image_url and "enhanced" in image_url else (
-            image_url + "&auto=format&fit=crop&w=1200&q=90" if image_url and "?" in image_url
-            else (image_url + "?auto=format&fit=crop&w=1200&q=90" if image_url else "https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=1200&q=90")
-        )
-        return {
-            "original_image_url": image_url,
-            "enhanced_image_url": enhanced_url,
-            "status": "success",
-            "enhancements_applied": [
-                "Background clutter removal",
-                "Studio light normalization",
-                "Color vibrancy auto-correction",
-                "High-resolution upscaling (2x)"
-            ],
-            "confidence_score": 0.96
-        }
+    Main entry point for TANTU artisan photo enhancement.
 
-    # Placeholder for Team Member R's real Stable Diffusion / Background Removal model API
-    return {
-        "original_image_url": image_url,
-        "enhanced_image_url": image_url,
-        "status": "processed",
-        "enhancements_applied": ["Basic contrast enhancement"],
-        "confidence_score": 0.85
-    }
+    Parameters:
+    - image_url: URL or local filepath to artisan's photograph.
+    - prompt: Optional studio lighting/backdrop description (e.g., 'Warm studio lighting').
+    - mock: If True, uses instant high-res mock response. If False, runs real local CV pipeline.
+            If None, defaults to MOCK_AI environment variable.
+    - output_dir: Optional directory to store enhanced images.
+
+    Returns:
+    Standardized dictionary conforming to TANTU API contract.
+    """
+    if mock is None:
+        mock = os.getenv("MOCK_AI", "true").lower() == "true"
+
+    service = get_image_enhancement_service(mock=mock)
+    result = service.enhance_image(image_input=image_url, prompt=prompt, output_dir=output_dir)
+
+    # Fallback safety: If real mode failed (e.g. invalid URL during demo), fallback gracefully to mock
+    if result.get("status") == "error" and not mock:
+        fallback_service = MockImageService()
+        fallback_result = fallback_service.enhance_image(image_input=image_url, prompt=prompt, output_dir=output_dir)
+        fallback_result["warning"] = f"Real pipeline encountered an issue ({result.get('error')}); recovered via mock studio."
+        return fallback_result
+
+    return result

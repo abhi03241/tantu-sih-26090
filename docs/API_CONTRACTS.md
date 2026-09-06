@@ -106,7 +106,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 }
 ```
 * **Response Status**: `200 OK`
-* **Response Body**: Updated Product Object containing generated `enhanced_image_url`.
+* **Response Body**: Updated Product Object containing generated `enhanced_image_url`. Real local enhancements are served as frontend-renderable `/enhanced/{filename}` URLs.
 
 ---
 
@@ -134,6 +134,15 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 ```
 * **Response Status**: `200 OK`
 * **Response Body**: Updated Product Object with calculated `suggested_price_min` and `suggested_price_max`.
+* **Validation**: `raw_material_cost`, `labor_hours`, `labor_cost`, and `overhead` must be non-negative; `quantity` must be greater than zero.
+
+#### 7a. Standalone Price Estimate
+* **Endpoint**: `POST /api/pricing/estimate`
+* **Purpose**: Returns an AI-assisted suggested range and transparent demo-reference breakdown without changing a product record.
+
+#### 7b. Demo Price Reference Data
+* **Endpoint**: `GET /api/pricing/reference-data`
+* **Purpose**: Returns the prototype's clearly-labelled demo market reference dataset.
 
 ---
 
@@ -290,4 +299,3 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 * **Endpoint**: `PATCH /api/products/{id}/publish`
 * **Response Status**: `200 OK`
 * **Response Body**: Updated Product Object with `status` set to `"published"`. Makes item visible on buyer marketplace feed `GET /api/buyer/products`.
-

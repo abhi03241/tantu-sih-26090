@@ -298,7 +298,10 @@ export const productService = {
     try {
       return await request(`/api/buyer/products?${params.toString()}`);
     } catch (e) {
-      return await this.listProducts({ category, q });
+      const items = await this.listProducts({ category, q });
+      // Seed records predate lifecycle status and represent public catalogue
+      // items; newly created drafts/processing records must remain private.
+      return items.filter(product => !product.status || product.status === 'published');
     }
   }
 };

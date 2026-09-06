@@ -69,6 +69,10 @@ def process_voice_and_update_product(id: str, request: VoiceProcessingRequest):
     product["description_hindi"] = ai_result.get("description_hindi", product["description_hindi"])
     product["category"] = ai_result.get("category", product["category"])
     product["material"] = ai_result.get("material", product["material"])
+    if ai_result.get("dimensions") is not None:
+        product["dimensions"] = ai_result["dimensions"]
+    if ai_result.get("production_time") is not None:
+        product["production_time"] = ai_result["production_time"]
     product["tags"] = ai_result.get("tags", product.get("tags", []))
     product["story"] = ai_result.get("story", product.get("story"))
     product["sentiment"] = ai_result.get("sentiment", product.get("sentiment"))
@@ -117,7 +121,10 @@ def generate_product_catalogue(id: str, request: GenerateCatalogueRequest = None
             detail=f"Product with ID '{id}' not found"
         )
 
-    ai_result = NLPService.generate_catalogue(product_info=product)
+    catalogue_source = product.copy()
+    if request and request.raw_notes:
+        catalogue_source["raw_notes"] = request.raw_notes
+    ai_result = NLPService.generate_catalogue(product_info=catalogue_source)
 
     product["description_english"] = ai_result.get("description_english", product["description_english"])
     product["description_hindi"] = ai_result.get("description_hindi", product["description_hindi"])
@@ -146,11 +153,16 @@ def calculate_product_price(id: str, request: PricingRequest = None):
     raw_cost = request.raw_material_cost if request else None
 
     ai_result = PricingService.calculate_price(
-        category=product.get("category", "Handicraft"),
-        material=product.get("material", "Natural Material"),
-        production_time=product.get("production_time"),
-        dimensions=product.get("dimensions"),
-        raw_material_cost=raw_cost
+        category=(request.category if request and request.category else product.get("category", "Handicraft")),
+        material=(request.material if request and request.material else product.get("material", "Natural Material")),
+        production_time=(request.production_time if request and request.production_time else product.get("production_time")),
+        dimensions=(request.dimensions if request and request.dimensions else product.get("dimensions")),
+        raw_material_cost=raw_cost,
+        labor_cost=request.labor_cost if request else None,
+        labor_hours=request.labor_hours if request else None,
+        overhead=request.overhead if request else None,
+        quantity=request.quantity if request else 1,
+        region=(request.region if request and request.region else product.get("location")),
     )
 
     product["suggested_price_min"] = ai_result.get("suggested_price_min")
@@ -158,4 +170,3 @@ def calculate_product_price(id: str, request: PricingRequest = None):
 
     updated = ProductRepository.save(product)
     return updated
-

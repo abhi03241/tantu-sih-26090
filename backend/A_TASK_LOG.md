@@ -173,3 +173,33 @@ Actual result: **not executed** — PowerShell reports `python` is not recognize
 - `278e093c56a605a42696016696e84b471d38b13f` — `fix: harden marketplace integration contracts`
 - `dd2d66a84aa45322a1cfe46fe3be8679fd601ceb` — `docs: record backend integration checkpoint`
 - Push status: pushed to `origin/feature/A-backend` after verification.
+
+---
+
+## Checkpoint 5 — Controlled Cross-Branch Integration
+**Status**: `PARTIAL — FRONTEND VERIFIED; PYTHON EXECUTION BLOCKED`
+**Branch**: `feature/A-backend`
+
+### Branches and Selected Work
+- P: cherry-picked `0d2c1d4` (frontend) and `74c8c97` (navigation/real-product flow). Resolved the shared-log conflict in favor of A's current record and retained P's current wizard.
+- M: selectively integrated the standalone NLP package through `a78a4ce`; retained A's service/orchestrator architecture.
+- R: selectively integrated the standalone vision package through `b473655`; added `/enhanced` static serving and local `/uploads` path resolution.
+- S: selectively integrated the standalone pricing package through `5a5927b`; added standalone price estimation routes and richer product-price inputs.
+- Parth: did not merge overlapping database/router rewrites. Incorporated the confirmed raw-notes, labor-hours, lifecycle, and persistence concerns into A-side integration coverage.
+
+### Contract Changes
+1. Voice processing now persists supplied `dimensions` and `production_time`.
+2. Catalogue generation sends `raw_notes` to M's NLP service.
+3. Pricing consumes `labor_hours`, labor cost, overhead, quantity, and region; negative values and invalid quantities are schema-rejected.
+4. R's real enhanced images are returned under frontend-renderable `/enhanced/...` URLs.
+5. P's order acceptance now calls the live JSON order-status endpoint, with its existing local fallback preserved.
+
+### Tests and Validation
+- `npm ci`: completed; 0 vulnerabilities reported.
+- `npm run build` from `frontend/`: **PASSED** — 1609 modules transformed.
+- `git diff --check`: **PASSED**.
+- `python -m unittest discover -s tests -p "test_*.py" -v`: **BLOCKED**. `python`, `py`, and `python3` are unavailable; `winget`, `choco`, `scoop`, and `uv` are also unavailable, so no valid Python environment can be installed or located here.
+- Added backend regression coverage for NLP duration/dimensions, raw notes, and labor-hours pricing. It has not been executed in this environment.
+
+### Commit
+Pending final review and push.

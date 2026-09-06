@@ -1,5 +1,13 @@
 // Initial mock data adhering 100% to docs/API_CONTRACTS.md
 
+export const PRODUCT_STATUSES = Object.freeze({
+  DRAFT: 'draft',
+  PROCESSING: 'processing',
+  READY: 'ready',
+  PUBLISHED: 'published',
+  FAILED: 'failed',
+});
+
 export const INITIAL_PRODUCTS = [
   {
     id: "prod-bamboo-001",

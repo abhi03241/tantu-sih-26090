@@ -21,6 +21,16 @@ This document tracks team member status, backend readiness, and integration cont
 * **Branch review finding**: M, R, S, P, and Parth branches each include broad edits to shared backend files, including removals of the current orchestration layer in some branches. Do not merge those backend paths wholesale; integrate their AI/frontend modules selectively against this API contract.
 * **Environment note**: the current handoff workstation has no Python executable or launcher on PATH, so the backend test suite cannot be executed here until Python 3.10+ is installed/available.
 
+### 2026-09-06 — Controlled Six-Branch Integration (A)
+
+* **Integrated commits**: P `0d2c1d4`, `74c8c97`; M package through `a78a4ce`; R package through `b473655`; S package through `5a5927b`. Parth's regression findings were incorporated as test coverage; its overlapping backend/database rewrites were not merged.
+* **Conflict resolution**: P's shared-log conflict was resolved in favor of this up-to-date integration log; P's latest wizard and task log were retained. Shared backend files from M/R/S/Parth were intentionally not merged wholesale.
+* **NLP**: the A wrapper now uses M's grounded bilingual pipeline. Voice extraction persists stated dimensions and production time; catalogue requests pass `raw_notes` to NLP.
+* **Vision**: R's validation/enhancement pipeline is integrated. `/enhanced` serves collision-safe real-mode output, and A maps stored `/uploads/...` URLs to local files for real processing.
+* **Pricing**: S's fair-wage, demo-reference pricing package is integrated. Product pricing now receives `labor_hours`, cost, overhead, quantity, and region; `POST /api/pricing/estimate` and `/reference-data` are available.
+* **Frontend**: P's React/Vite UI is integrated. The lifecycle constant was restored for a successful build, and order status changes call the live `PATCH /api/orders/{id}/status` API before using offline fallback.
+* **Verification**: `npm ci` completed with 0 vulnerabilities; `npm run build` passed (1609 modules). `git diff --check` passed. Python backend tests remain blocked because no Python runtime, launcher, or package manager is installed on this workstation.
+
 ---
 
 ### Implemented REST APIs

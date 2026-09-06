@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 from backend.app.config import settings
 from backend.app.database import init_db
 from backend.app.seed_data import seed_demo_data
-from backend.app.routers import products, ai_endpoints, artisan, buyer, orders
+from backend.app.routers import products, ai_endpoints, artisan, buyer, orders, pricing
 
 # Ensure uploads directory exists for prototype local file storage
 UPLOADS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "uploads"))
@@ -53,6 +53,11 @@ app.add_middleware(
 # Mount local uploads directory for prototype static file access
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
+# Serve R's locally generated, collision-safe enhanced catalogue images.
+ENHANCED_IMAGES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "enhanced"))
+os.makedirs(ENHANCED_IMAGES_DIR, exist_ok=True)
+app.mount("/enhanced", StaticFiles(directory=ENHANCED_IMAGES_DIR), name="enhanced-images")
+
 
 # Register routers
 app.include_router(products.router)
@@ -60,6 +65,7 @@ app.include_router(ai_endpoints.router)
 app.include_router(artisan.router)
 app.include_router(buyer.router)
 app.include_router(orders.router)
+app.include_router(pricing.router)
 
 
 @app.get("/", tags=["Health & Status"])
