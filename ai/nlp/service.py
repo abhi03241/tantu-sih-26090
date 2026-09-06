@@ -111,11 +111,11 @@ class MockNLPService(NLPService):
                 category="Handicrafts & Decor",
                 material="Natural Artisan Material",
                 dimensions=None,
-                production_time="1-2 days",
+                production_time=None,
                 tags=["handcrafted", "artisanal", "authentic", "regional-art", "eco-friendly"],
-                story="Crafted with generational dedication in rural artisan clusters.",
-                sentiment="neutral",
-                narrative_type="standard_narrative",
+                story=None,
+                sentiment="Neutral",
+                narrative_type=None,
                 detected_language="hi",
                 raw_transcript="",
             )
@@ -130,14 +130,23 @@ class MockNLPService(NLPService):
             if any(kw in lower for kw in keywords):
                 data = scenario["data"].copy()
                 data["raw_transcript"] = clean_text
+                data["detected_language"] = language or detect_language(clean_text)
                 # If production time is explicitly mentioned differently, extract it
                 custom_time = extract_production_time(clean_text)
-                if custom_time:
-                    data["production_time"] = custom_time
+                data["production_time"] = custom_time
                 # If dimensions are explicitly mentioned, extract them
                 custom_dim = extract_dimensions(clean_text)
                 if custom_dim:
                     data["dimensions"] = custom_dim
+                # Narrative and sentiment must come from the current transcript,
+                # not from a similarly named demo scenario.
+                story, sentiment, narrative_type = extract_story_and_sentiment(clean_text)
+                data["story"] = story
+                data["sentiment"] = sentiment
+                data["narrative_type"] = narrative_type
+                data["description_english"], data["description_hindi"] = generate_bilingual_descriptions(
+                    clean_text, data["material"], data["category"], data["title"], data["detected_language"]
+                )
                 return ProductCatalogNLPOutput(**data)
 
         # Step 2: Intelligent Heuristic Extraction for Arbitrary Artisan Input
@@ -205,23 +214,22 @@ class MockNLPService(NLPService):
         title = product_info.get("title", "Handcrafted Artisan Item")
         category = product_info.get("category", "Handicrafts & Decor")
         material = product_info.get("material", "Natural Material")
-        raw_notes = product_info.get("description_english", "")
+        raw_notes = product_info.get("raw_notes") or product_info.get("description_english", "")
+        story, sentiment, narrative_type = extract_story_and_sentiment(raw_notes)
 
         return {
-            "description_english": f"Premium {title} meticulously handcrafted from high-grade {material}. Combining timeless rural heritage with contemporary aesthetic utility. {raw_notes}".strip(),
-            "description_hindi": f"उच्च गुणवत्ता वाले {material} से कुशल भारतीय कारीगरों द्वारा हस्तनिर्मित {title}। यह पारंपरिक विरासत और आधुनिक उपयोगिता का सुंदर संगम है।",
+            "description_english": f"{title} made from {material}. {raw_notes}".strip(),
+            "description_hindi": f"{material} से निर्मित {title}। {raw_notes}".strip(),
             "category": category,
             "material": material,
             "tags": [
                 category.lower().replace(" & ", "-").replace(" ", "-"),
                 material.lower().replace(" ", "-"),
-                "make-in-india",
-                "authentic-craft",
-                "sustainable"
+                "handcrafted"
             ],
-            "story": f"This piece reflects generations of artisanal skill in {category}. Each handcrafted item supports rural artisan livelihoods.",
-            "sentiment": "craftsmanship_pride",
-            "narrative_type": "cultural_heritage"
+            "story": story,
+            "sentiment": sentiment,
+            "narrative_type": narrative_type,
         }
 
 

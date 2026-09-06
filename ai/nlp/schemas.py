@@ -22,11 +22,11 @@ class ProductCatalogNLPOutput(BaseModel):
     story: Optional[str] = Field(None, description="Personal or generational narrative behind the handcrafted piece")
     sentiment: Optional[str] = Field(
         None,
-        description="Sentiment classification: positive, neutral, heritage, family tradition, craftsmanship pride, cultural significance"
+        description="Cue-based sentiment classification: Pride, Joy, Nostalgia, Passion, or Neutral"
     )
     narrative_type: Optional[str] = Field(
         None,
-        description="Narrative type: family_tradition, cultural_heritage, craftsmanship_pride, community_empowerment, standard_narrative"
+        description="Narrative type: Family craft, Traditional heritage, Community-made, Cultural identity, Handmade journey, or null"
     )
 
     # Contextual metadata (non-breaking helpers)

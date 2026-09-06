@@ -175,3 +175,33 @@
 - **Commit Message**: `feat: complete multilingual voice catalogue checkpoints 1 to 6`
 - **Commit Hash**: `c878fa5`
 - **Branch**: `feature/M-ai-nlp`
+
+---
+
+## Checkpoint 7: Grounded Extraction and Backend Field Persistence
+
+- **Task**: Audit Antigravity's completed NLP work, correct unsupported catalogue claims, and verify backend integration.
+- **What changed**:
+  - Empty input now returns `null` for production time, story, and narrative type rather than invented defaults.
+  - Mock scenarios derive production time, story, sentiment, narrative type, and bilingual descriptions from the current transcript; a matching demo name alone no longer injects those facts.
+  - Added Devanagari duration-unit parsing (for example, `3 दिन` → `3 days`).
+  - Narratives are phrased as reported artisan cues, with explicit sentiment categories: `Pride`, `Joy`, `Nostalgia`, `Passion`, and `Neutral`.
+  - Catalogue generation no longer invents heritage, sustainability, or artisan-livelihood claims. It uses supplied notes and leaves story/narrative empty without a cue.
+  - Voice processing now persists explicitly extracted dimensions and production time; catalogue generation honors the existing `raw_notes` request field.
+- **Files**:
+  - `ai/nlp/service.py`
+  - `ai/nlp/demo_data.py`
+  - `ai/nlp/schemas.py`
+  - `ai/nlp/README.md`
+  - `backend/app/routers/ai_endpoints.py`
+  - `tests/test_nlp_pipeline.py`
+  - `tests/test_api.py`
+  - `ai/nlp/M_TASK_LOG.md`
+- **Interface / schema**: The shared catalogue output contract is unchanged. `sentiment` and `narrative_type` descriptions now document the implemented cue-based values. No API/schema dependency change required a `docs/TEAM_PROGRESS.md` update (that file is not present in this branch).
+- **Tests**:
+  - `C:\Users\maany\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m unittest discover -s tests -p "test_*.py" -v`
+- **Actual results**: 26/26 tests passed (16 NLP + 10 backend API). Includes Hindi, English, empty/missing fields, mock fallback, structured output, anti-hallucination, narrative/sentiment cues, explicit dimensions/time persistence, and `raw_notes` integration.
+- **Issues**: The system Python launcher was unavailable and the workspace runtime initially lacked project packages. Installed the declared `backend/requirements.txt` into the workspace runtime before testing. Test output includes a non-failing Starlette/httpx deprecation warning.
+- **Integration notes**: `POST /api/products/{id}/voice` retains existing optional values unless the transcript explicitly supplies replacements. `POST /api/products/{id}/generate-catalogue` now passes request `raw_notes` through to the NLP service.
+- **Commit / hash**: Pending checkpoint commit.
+- **Branch**: `feature/M-ai-nlp`

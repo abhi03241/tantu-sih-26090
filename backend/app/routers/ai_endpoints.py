@@ -42,10 +42,19 @@ def process_voice_and_update_product(id: str, request: VoiceProcessingRequest):
     product["description_hindi"] = ai_result.get("description_hindi", product["description_hindi"])
     product["category"] = ai_result.get("category", product["category"])
     product["material"] = ai_result.get("material", product["material"])
+    # Optional specifications are only updated when the new transcript states them.
+    # This preserves known product data and never writes fabricated null/default values.
+    if ai_result.get("dimensions") is not None:
+        product["dimensions"] = ai_result["dimensions"]
+    if ai_result.get("production_time") is not None:
+        product["production_time"] = ai_result["production_time"]
     product["tags"] = ai_result.get("tags", product.get("tags", []))
-    product["story"] = ai_result.get("story", product.get("story"))
-    product["sentiment"] = ai_result.get("sentiment", product.get("sentiment"))
-    product["narrative_type"] = ai_result.get("narrative_type", product.get("narrative_type"))
+    if ai_result.get("story") is not None:
+        product["story"] = ai_result["story"]
+    if ai_result.get("sentiment") is not None:
+        product["sentiment"] = ai_result["sentiment"]
+    if ai_result.get("narrative_type") is not None:
+        product["narrative_type"] = ai_result["narrative_type"]
 
     updated = ProductRepository.save(product)
     return updated
@@ -94,17 +103,24 @@ def generate_product_catalogue(id: str, request: GenerateCatalogueRequest = None
             detail=f"Product with ID '{id}' not found"
         )
 
+    catalogue_source = product.copy()
+    if request and request.raw_notes:
+        catalogue_source["raw_notes"] = request.raw_notes
+
     ai_result = generate_catalogue_nlp(
-        product_info=product,
+        product_info=catalogue_source,
         mock=settings.MOCK_AI
     )
 
     product["description_english"] = ai_result.get("description_english", product["description_english"])
     product["description_hindi"] = ai_result.get("description_hindi", product["description_hindi"])
     product["tags"] = ai_result.get("tags", product.get("tags", []))
-    product["story"] = ai_result.get("story", product.get("story"))
-    product["sentiment"] = ai_result.get("sentiment", product.get("sentiment"))
-    product["narrative_type"] = ai_result.get("narrative_type", product.get("narrative_type"))
+    if ai_result.get("story") is not None:
+        product["story"] = ai_result["story"]
+    if ai_result.get("sentiment") is not None:
+        product["sentiment"] = ai_result["sentiment"]
+    if ai_result.get("narrative_type") is not None:
+        product["narrative_type"] = ai_result["narrative_type"]
 
     updated = ProductRepository.save(product)
     return updated

@@ -77,11 +77,11 @@ DEMO_SCENARIOS: Dict[str, Dict[str, Any]] = {
             "category": "Pottery & Ceramics",
             "material": "Terracotta Clay",
             "dimensions": None,
-            "production_time": "3 days",
+            "production_time": None,
             "tags": ["terracotta", "pottery", "clay", "handmade", "eco-friendly"],
-            "story": "Preserving the sacred village pottery tradition passed across generations.",
-            "sentiment": "cultural_significance",
-            "narrative_type": "cultural_heritage",
+            "story": None,
+            "sentiment": "Neutral",
+            "narrative_type": None,
             "detected_language": "hi",
         }
     },
@@ -163,11 +163,15 @@ def extract_production_time(text: str) -> Optional[str]:
     lower = text.lower()
 
     # Pattern: Digit + unit
-    match = re.search(r'(\d+)\s*(din|days?|ghante|hours?|hafte|weeks?)', lower)
+    match = re.search(r'(\d+)\s*(din|days?|दिन|ghante|hours?|घंटे|घंटा|hafte|weeks?|हफ्ते|सप्ताह)', lower)
     if match:
         num = match.group(1)
         unit = match.group(2)
-        unit_clean = "days" if "d" in unit else ("hours" if "h" in unit else "weeks")
+        unit_clean = (
+            "days" if unit in {"din", "day", "days", "दिन"}
+            else "hours" if unit in {"ghante", "hour", "hours", "घंटे", "घंटा"}
+            else "weeks"
+        )
         return f"{num} {unit_clean}"
 
     # Pattern: Word number + unit
@@ -261,36 +265,37 @@ def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], Optional[str]
       - Passion
       - Neutral
     """
-    lower = text.lower()
+    lower = text.lower().replace("’", "'")
+    has_pride = any(k in lower for k in ["pride", "proud", "garv", "गर्व"])
 
     # 1. Community-made (Self-help groups, women cooperatives, collective work)
     if any(k in lower for k in ["women's group", "women group", "shg", "samuh", "samooh", "mahila", "collective", "cooperative"]):
-        story = "Crafted collaboratively by a local artisan group dedicated to community empowerment and shared regional craftsmanship."
-        sentiment = "Pride" if any(p in lower for p in ["pride", "proud", "garv"]) else "Joy"
+        story = "The artisan states that this piece is made by a local women's artisan group."
+        sentiment = "Pride" if has_pride else "Neutral"
         return story, sentiment, "Community-made"
 
     # 2. Family craft (Parents, grandparents, generational family learning)
     if any(k in lower for k in ["maa", "mother", "mummy", "माता", "मां"]):
         story = "Learned the craft from mother: an inherited craft tradition taught by the artisan's mother."
-        return story, "Nostalgia", "Family craft"
+        return story, "Pride" if has_pride else "Nostalgia", "Family craft"
+
+    if any(k in lower for k in ["dada", "dadi", "grandfather", "grandmother", "दादा", "नाना"]):
+        story = "The artisan mentions learning this craft from a grandfather or grandmother."
+        return story, "Pride" if has_pride else "Nostalgia", "Family craft"
 
     if any(k in lower for k in ["pita", "pitaji", "father", "बापू", "पिता"]):
         story = "Artisanal techniques and heritage passed down from the artisan's father."
-        return story, "Nostalgia", "Family craft"
-
-    if any(k in lower for k in ["dada", "dadi", "grandfather", "grandmother", "दादा", "नाना"]):
-        story = "Ancestral craftsmanship learned from grandparents with enduring pride."
-        return story, "Pride", "Family craft"
+        return story, "Pride" if has_pride else "Nostalgia", "Family craft"
 
     # 3. Traditional heritage (Generations, centuries of lineage)
     if any(k in lower for k in ["peedhi", "generation", "virasat", "ancestral", "विरासत", "पीढ़ी", "heritage", "centuries"]):
-        story = "Centuries of cultural heritage preserved across multiple artisan generations."
-        return story, "Pride", "Traditional heritage"
+        story = "The artisan describes this craft as continuing across generations."
+        return story, "Nostalgia", "Traditional heritage"
 
     # 4. Cultural identity (Regional festivals, sacred traditions, tribal symbolism)
     if any(k in lower for k in ["culture", "cultural", "tribal", "folk", "sanskriti", "parampara", "festival", "utsav", "ritual"]):
-        story = "Reflects unique regional cultural identity and cherished indigenous artistry."
-        return story, "Pride", "Cultural identity"
+        story = "The artisan references a cultural, festival, ritual, or regional context for this craft."
+        return story, "Neutral", "Cultural identity"
 
     # 5. Handmade journey (Intricate hand-making, hours of patience, dedication)
     if any(k in lower for k in ["passion", "love", "dil se", "pyaar", "shauk"]):
@@ -302,12 +307,12 @@ def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], Optional[str]
         return story, "Joy", "Handmade journey"
 
     if any(k in lower for k in ["pride", "proud", "garv", "गर्व"]):
-        story = "A proud regional craft reflecting dedicated community skill and dedication."
+        story = "The artisan expresses pride in this craft."
         return story, "Pride", "Handmade journey"
 
     if any(k in lower for k in ["handcrafted", "hand-carved", "handwoven", "haath se", "buna", "mehnat"]):
-        story = "A dedicated handmade journey showcasing traditional crafting techniques."
-        return story, "Pride", "Handmade journey"
+        story = "The artisan describes a handmade making process."
+        return story, "Neutral", "Handmade journey"
 
     # If artisan did not communicate any story or narrative, do NOT invent one
     return None, "Neutral", None
@@ -341,12 +346,6 @@ def generate_bilingual_descriptions(
     Generates fluent, high-conversion descriptions in both English and Hindi.
     Maintains parallel English and Hindi representations regardless of input language.
     """
-    desc_en = (
-        f"Authentic {title.lower()} meticulously crafted using premium {material.lower()}. "
-        f"Exemplifies traditional {category.lower()} techniques, combining durability with timeless handmade elegance. {clean_text}"
-    )
-    desc_hi = (
-        f"कुशल भारतीय कारीगरों द्वारा उच्च गुणवत्ता वाले {material} से पारंपरिक विधि द्वारा निर्मित {title}। "
-        f"यह {category} की उत्कृष्ट शिल्पकला और प्रामाणिकता का सुंदर प्रतीक है। {clean_text}"
-    )
+    desc_en = f"{title} made from {material}. Artisan-provided details: {clean_text}"
+    desc_hi = f"{material} से बना {title}। कारीगर द्वारा दी गई जानकारी: {clean_text}"
     return desc_en, desc_hi

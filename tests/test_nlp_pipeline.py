@@ -39,8 +39,8 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res.material, "Bamboo")
         self.assertEqual(res.category, "Bamboo & Cane Craft")
         self.assertEqual(res.production_time, "2 days")
-        self.assertEqual(res.sentiment, "positive")
-        self.assertEqual(res.narrative_type, "family_tradition")
+        self.assertEqual(res.sentiment, "Nostalgia")
+        self.assertEqual(res.narrative_type, "Family craft")
         self.assertIn("mother", res.story.lower())
         self.assertTrue(len(res.description_english) > 20)
         self.assertTrue(len(res.description_hindi) > 20)
@@ -59,8 +59,8 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res.material, "Chanderi Silk")
         self.assertEqual(res.category, "Textiles & Handloom")
         self.assertEqual(res.production_time, "5 days")
-        self.assertEqual(res.sentiment, "craftsmanship_pride")
-        self.assertEqual(res.narrative_type, "cultural_heritage")
+        self.assertEqual(res.sentiment, "Nostalgia")
+        self.assertEqual(res.narrative_type, "Traditional heritage")
         self.assertIn("generation", res.story.lower())
         self.assertTrue(any("silk" in tag for tag in res.tags))
         self.assertTrue(any("chanderi" in tag for tag in res.tags))
@@ -77,8 +77,8 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res.material, "Teak Wood")
         self.assertEqual(res.category, "Woodcraft")
         self.assertEqual(res.production_time, "4 days")
-        self.assertEqual(res.sentiment, "positive")
-        self.assertEqual(res.narrative_type, "craftsmanship_pride")
+        self.assertEqual(res.sentiment, "Pride")
+        self.assertEqual(res.narrative_type, "Family craft")
         self.assertIn("grandfather", res.story.lower())
         self.assertEqual(res.detected_language, "en")
         self.assertTrue(any("woodcraft" in tag for tag in res.tags))
@@ -97,7 +97,7 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res.production_time, "3 days")
         self.assertIsNone(res.dimensions, "Must not hallucinate dimensions when unstated")
         self.assertEqual(res.narrative_type, "Community-made")
-        self.assertEqual(res.sentiment, "Pride")
+        self.assertEqual(res.sentiment, "Neutral")
         self.assertIn("women", res.story.lower())
         self.assertTrue(any("cotton" in tag for tag in res.tags))
         self.assertTrue(any("dupatta" in tag for tag in res.tags))
@@ -159,7 +159,7 @@ class TestNLPVoicePipeline(unittest.TestCase):
         # Traditional heritage / Generations cue
         res_her = self.mock_service.process_transcript("Hamare gaon mein pichli kayi peedhiyon se peetal ke bartan banaye jaate hain.")
         self.assertIn(res_her.narrative_type, ["Traditional heritage", "cultural_heritage"])
-        self.assertIn(res_her.sentiment, ["Pride", "heritage"])
+        self.assertEqual(res_her.sentiment, "Nostalgia")
 
         # Craftsmanship pride / Handmade journey cue
         res_pride = self.mock_service.process_transcript("I make these fine products with immense pride in our artisan techniques.")
@@ -174,11 +174,13 @@ class TestNLPVoicePipeline(unittest.TestCase):
         res_empty = self.mock_service.process_transcript("")
         self.assertIsInstance(res_empty, ProductCatalogNLPOutput)
         self.assertIsNotNone(res_empty.title)
-        self.assertEqual(res_empty.sentiment, "neutral")
+        self.assertEqual(res_empty.sentiment, "Neutral")
+        self.assertIsNone(res_empty.production_time)
+        self.assertIsNone(res_empty.story)
 
         res_spaces = self.mock_service.process_transcript("    ")
         self.assertIsInstance(res_spaces, ProductCatalogNLPOutput)
-        self.assertEqual(res_spaces.sentiment, "neutral")
+        self.assertEqual(res_spaces.sentiment, "Neutral")
 
     def test_unsupported_language(self):
         """Regional, mixed, or unsupported language code input without crash."""
@@ -265,6 +267,18 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertIn("story", res)
         self.assertIn("tags", res)
         self.assertIsInstance(res["tags"], list)
+
+    def test_catalogue_generation_does_not_invent_story(self):
+        """Catalogue generation keeps story/narrative null when notes contain no cues."""
+        res = generate_catalogue_nlp({
+            "title": "Bamboo Basket",
+            "category": "Bamboo & Cane Craft",
+            "material": "Bamboo",
+            "description_english": "A bamboo basket for storage."
+        }, mock=True)
+        self.assertIsNone(res["story"])
+        self.assertEqual(res["sentiment"], "Neutral")
+        self.assertIsNone(res["narrative_type"])
 
 
 if __name__ == "__main__":

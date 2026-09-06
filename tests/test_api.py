@@ -72,13 +72,15 @@ class TestTantuBackendAPI(unittest.TestCase):
         prod_id = res.json()[0]["id"]
 
         voice_payload = {
-            "audio_transcript": "यह हाथ से बना बांस का झूला है जो मजबूत प्राकृतिक बांस से बना है।",
+            "audio_transcript": "यह हाथ से बना बांस का झूला है जो मजबूत प्राकृतिक बांस से बना है। इसका आकार 120cm x 80cm है और इसे बनाने में 3 दिन लगते हैं।",
             "language": "hi"
         }
         res_voice = self.client.post(f"/api/products/{prod_id}/voice", json=voice_payload)
         self.assertEqual(res_voice.status_code, 200)
         data = res_voice.json()
         self.assertIsNotNone(data["description_hindi"])
+        self.assertEqual(data["dimensions"], "120cm x 80cm")
+        self.assertEqual(data["production_time"], "3 days")
 
     def test_06_enhance_image(self):
         res = self.client.get("/api/products")
@@ -93,10 +95,16 @@ class TestTantuBackendAPI(unittest.TestCase):
         res = self.client.get("/api/products")
         prod_id = res.json()[0]["id"]
 
-        res_cat = self.client.post(f"/api/products/{prod_id}/generate-catalogue")
+        raw_notes = "This basket is made by our women's group with pride."
+        res_cat = self.client.post(
+            f"/api/products/{prod_id}/generate-catalogue",
+            json={"raw_notes": raw_notes}
+        )
         self.assertEqual(res_cat.status_code, 200)
         data = res_cat.json()
         self.assertIsNotNone(data["description_english"])
+        self.assertIn(raw_notes, data["description_english"])
+        self.assertEqual(data["narrative_type"], "Community-made")
 
     def test_08_smart_pricing(self):
         res = self.client.get("/api/products")

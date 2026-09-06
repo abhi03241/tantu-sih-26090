@@ -56,20 +56,21 @@ Sentiment analysis in TANTU is an **innovation layer** for cultural preservation
 
 Instead, we classify artisan stories into pragmatic, authentic categories:
 
+NLP identifies sentiment and narrative cues from artisan-provided language; it does not claim scientific emotion recognition.
+
 ### Sentiment Categories:
-- `positive`: Genuine enthusiasm and creative pride.
-- `neutral`: Objective, matter-of-fact product description.
-- `heritage`: Longstanding ancestral craft background.
-- `family tradition`: Craft learned from parents, grandparents, or elders.
-- `craftsmanship pride`: High dedication to precision, fine technique, and handiwork.
-- `cultural significance`: Rooted in regional festivals, rituals, or tribal motifs.
+- `Pride`: an explicit pride cue.
+- `Joy`: an explicit joy cue.
+- `Nostalgia`: a family-learning or generational cue.
+- `Passion`: an explicit passion or love-for-craft cue.
+- `Neutral`: factual language without an emotion cue.
 
 ### Narrative Types:
-- `family_tradition`
-- `cultural_heritage`
-- `craftsmanship_pride`
-- `community_empowerment`
-- `standard_narrative`
+- `Family craft`
+- `Traditional heritage`
+- `Community-made`
+- `Cultural identity`
+- `Handmade journey`
 
 ---
 
@@ -182,9 +183,9 @@ If `MOCK_AI=false` is selected but:
 
 | Scenario | System Behavior |
 |---|---|
-| **Empty Voice / Whitespace** | Returns safe default handcrafted draft with `"neutral"` sentiment and helpful guidance prompts. |
+| **Empty Voice / Whitespace** | Returns a safe draft with `"Neutral"` sentiment; no production time, story, or narrative is invented. |
 | **Unsupported Language** | Gracefully identifies closest linguistic family (defaults to Hindi/English) without crashing. |
-| **Missing Production Time** | Defaults to standard artisan baseline (`"2-3 days"`) or leaves null. |
+| **Missing Production Time** | Leaves the field `null`; the prototype never estimates an unstated duration. |
 | **Transcription Failure** | Trapped safely; returns diagnostic notification in response payload. |
 | **Malformed AI Provider JSON** | Pydantic validation interceptor catches format issues and fills default fields. |
 
