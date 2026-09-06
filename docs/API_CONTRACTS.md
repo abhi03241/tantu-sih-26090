@@ -177,6 +177,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 #### 10. Create Order Request
 * **Endpoint**: `POST /api/orders/request`
+* **Availability rule**: the target product must be in `published` status. Draft and processing records return `409 Conflict`.
 * **Request Body**:
 ```json
 {
@@ -219,6 +220,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 #### 12. Update Order Status
 * **Endpoint**: `PATCH /api/orders/{id}/status?new_status={status}`
 * **Query Parameters**: `new_status` (`pending`, `accepted`, `fulfilled`, `rejected`)
+* **JSON compatibility**: clients may instead send `{ "status": "accepted" }` in the request body. Invalid status values return `422 Unprocessable Entity`.
 * **Response Status**: `200 OK`
 * **Response Body**: Updated Order Request Object.
 
@@ -264,7 +266,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 #### 15. Upload Product Image
 * **Endpoint**: `POST /api/products/{id}/upload-image`
-* **Request Type**: `multipart/form-data` (`file`: JPG, JPEG, PNG, WEBP)
+* **Request Type**: `multipart/form-data` (`file`: JPG, JPEG, PNG, WEBP), or JSON `{ "image_url": "https://..." }` / a `data:image/...` URL for browser-captured images.
 * **Response Status**: `200 OK` (or `400 Bad Request` if file format is unsupported)
 * **Response Body**: Updated Product Object containing local `image_url` path (e.g. `/uploads/prod-001_a1b2c3.png`).
 
@@ -288,5 +290,4 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 * **Endpoint**: `PATCH /api/products/{id}/publish`
 * **Response Status**: `200 OK`
 * **Response Body**: Updated Product Object with `status` set to `"published"`. Makes item visible on buyer marketplace feed `GET /api/buyer/products`.
-
 

@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query, status
-from backend.app.schemas import OrderRequestCreate, OrderRequestResponse
+from backend.app.schemas import OrderRequestCreate, OrderRequestResponse, OrderStatus, OrderStatusUpdateRequest
 from backend.app.database import OrderRepository, ProductRepository
 
 router = APIRouter(prefix="/api/orders", tags=["Order Requests (B2B Linkage)"])
@@ -18,6 +18,11 @@ def create_order_request(order: OrderRequestCreate):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Product with ID '{order.product_id}' not found"
+        )
+    if product.get("status") != "published":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Bulk orders can only be requested for published products"
         )
 
     order_dict = order.model_dump()
@@ -59,7 +64,11 @@ def get_order(id: str):
 
 
 @router.patch("/{id}/status", response_model=OrderRequestResponse)
-def update_order_status(id: str, new_status: str = Query(..., description="New status: pending, accepted, fulfilled, rejected")):
+def update_order_status(
+    id: str,
+    new_status: Optional[OrderStatus] = Query(None, description="New status: pending, accepted, fulfilled, rejected"),
+    payload: Optional[OrderStatusUpdateRequest] = None,
+):
     """
     PATCH /api/orders/{id}/status
     Updates order request status (e.g. accepted by artisan, fulfilled, rejected).
@@ -71,6 +80,12 @@ def update_order_status(id: str, new_status: str = Query(..., description="New s
             detail=f"Order with ID '{id}' not found"
         )
 
-    updated = OrderRepository.update_status(id, new_status)
-    return updated
+    requested_status = payload.status if payload else new_status
+    if requested_status is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Provide a valid status in JSON body or as the 'new_status' query parameter"
+        )
 
+    updated = OrderRepository.update_status(id, requested_status)
+    return updated

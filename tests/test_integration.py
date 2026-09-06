@@ -114,7 +114,45 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
         self.assertEqual(res_invalid.status_code, 400)
         self.assertIn("Unsupported file format", res_invalid.json()["detail"])
 
-    def test_03_partial_failure_resilience(self):
+    def test_03_json_image_upload_and_marketplace_order_guards(self):
+        """Web clients may submit an already-captured image URL; only published items can receive orders."""
+        created = self.client.post("/api/products", json={"title": "Browser upload compatibility test"})
+        self.assertEqual(created.status_code, 201)
+        product_id = created.json()["id"]
+
+        uploaded = self.client.post(
+            f"/api/products/{product_id}/upload-image",
+            json={"image_url": "data:image/png;base64,aGVsbG8="},
+        )
+        self.assertEqual(uploaded.status_code, 200)
+        self.assertEqual(uploaded.json()["image_url"], "data:image/png;base64,aGVsbG8=")
+
+        order_payload = {
+            "product_id": product_id,
+            "buyer_name": "Compatibility Buyer",
+            "buyer_contact": "buyer@example.test",
+            "quantity": 25,
+        }
+        self.assertEqual(self.client.post("/api/orders/request", json=order_payload).status_code, 409)
+
+        self.assertEqual(self.client.patch(f"/api/products/{product_id}/publish").status_code, 200)
+        order = self.client.post("/api/orders/request", json=order_payload)
+        self.assertEqual(order.status_code, 201)
+
+        updated = self.client.patch(f"/api/orders/{order.json()['id']}/status", json={"status": "accepted"})
+        self.assertEqual(updated.status_code, 200)
+        self.assertEqual(updated.json()["status"], "accepted")
+
+        invalid_status = self.client.patch(f"/api/orders/{order.json()['id']}/status?new_status=unknown")
+        self.assertEqual(invalid_status.status_code, 422)
+
+        invalid_quantity = self.client.post(
+            "/api/orders/request",
+            json={**order_payload, "quantity": 0},
+        )
+        self.assertEqual(invalid_quantity.status_code, 422)
+
+    def test_04_partial_failure_resilience(self):
         """
         Verifies AI pipeline does not crash when partial steps experience warnings/errors.
         """

@@ -1,5 +1,9 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Literal, Optional
+
+
+ProductStatus = Literal["draft", "processing", "ready", "published", "failed"]
+OrderStatus = Literal["pending", "accepted", "fulfilled", "rejected"]
 
 
 # ==========================================
@@ -27,7 +31,7 @@ class ProductBase(BaseModel):
     artisan_id: Optional[str] = Field("art-001", example="art-001")
     artisan_name: Optional[str] = Field(None, example="Lakshmi Devi")
     location: Optional[str] = Field(None, example="Silchar, Assam")
-    status: Optional[str] = Field("draft", example="ready")  # draft, processing, ready, published, failed
+    status: Optional[ProductStatus] = Field("draft", example="ready")
 
 
 class ProductCreate(BaseModel):
@@ -49,7 +53,7 @@ class ProductCreate(BaseModel):
     artisan_id: Optional[str] = Field("art-001", example="art-001")
     artisan_name: Optional[str] = Field(None, example="Lakshmi Devi")
     location: Optional[str] = Field(None, example="Silchar, Assam")
-    status: Optional[str] = Field("draft", example="draft")
+    status: Optional[ProductStatus] = Field("draft", example="draft")
 
 
 class ProductUpdate(BaseModel):
@@ -69,7 +73,7 @@ class ProductUpdate(BaseModel):
     suggested_price_min: Optional[float] = None
     suggested_price_max: Optional[float] = None
     artisan_id: Optional[str] = None
-    status: Optional[str] = None
+    status: Optional[ProductStatus] = None
 
 
 class ProductResponse(ProductBase):
@@ -124,7 +128,7 @@ class OrderRequestCreate(BaseModel):
     product_id: str = Field(..., example="prod-bamboo-001")
     buyer_name: str = Field(..., example="Kraft Emporium Retailers")
     buyer_contact: str = Field(..., example="procurement@kraftemporium.com / +91-9988776655")
-    quantity: int = Field(..., example=50)
+    quantity: int = Field(..., gt=0, example=50)
     notes: Optional[str] = Field(None, example="Need custom eco-friendly packaging for export order.")
     price_offered: Optional[float] = Field(None, example=850.0)
 
@@ -133,7 +137,7 @@ class OrderRequestResponse(OrderRequestCreate):
     id: str
     product_title: Optional[str] = None
     artisan_id: Optional[str] = None
-    status: str = Field("pending", example="pending")  # pending, accepted, fulfilled
+    status: OrderStatus = Field("pending", example="pending")
     created_at: str
 
 
@@ -148,6 +152,16 @@ class VoiceProcessingRequest(BaseModel):
 class EnhanceImageRequest(BaseModel):
     image_url: Optional[str] = Field(None, example="https://images.unsplash.com/photo-1590736969955-71cc94801759")
     prompt: Optional[str] = Field(None, example="Clean white studio background with soft lighting")
+
+
+class ImageUrlUploadRequest(BaseModel):
+    """Compatibility payload for web clients that submit an already-hosted or data-URL image."""
+    image_url: str = Field(..., min_length=1, example="data:image/jpeg;base64,...")
+
+
+class OrderStatusUpdateRequest(BaseModel):
+    """Optional JSON alternative to the legacy `new_status` query parameter."""
+    status: OrderStatus
 
 
 class GenerateCatalogueRequest(BaseModel):
@@ -178,5 +192,4 @@ class ProcessProductResponse(BaseModel):
 class ProductStatusResponse(BaseModel):
     id: str = Field(..., example="prod-001")
     status: str = Field("ready", example="ready")
-
 

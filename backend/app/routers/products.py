@@ -1,12 +1,14 @@
 import os
 import uuid
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File, status
+from fastapi import APIRouter, HTTPException, Query, Request, status
+from pydantic import ValidationError
 from backend.app.schemas import (
     ProductCreate,
     ProductResponse,
     ProductUpdate,
-    ProductStatusResponse
+    ProductStatusResponse,
+    ImageUrlUploadRequest,
 )
 from backend.app.database import ProductRepository
 
@@ -79,11 +81,12 @@ def get_product_status(id: str):
 
 
 @router.post("/{id}/upload-image", response_model=ProductResponse)
-async def upload_product_image(id: str, file: UploadFile = File(...)):
+async def upload_product_image(id: str, request: Request):
     """
     POST /api/products/{id}/upload-image
-    Uploads a product photograph locally (JPG, JPEG, PNG).
-    Updates `image_url` on the product record.
+    Uploads a product photograph locally (JPG, JPEG, PNG, WEBP), or accepts an
+    already available image/data URL from web clients. Both forms update
+    ``image_url`` on the product record.
     """
     product = ProductRepository.get_by_id(id)
     if not product:
@@ -92,7 +95,27 @@ async def upload_product_image(id: str, file: UploadFile = File(...)):
             detail=f"Product with ID '{id}' not found"
         )
 
-    filename = file.filename or ""
+    content_type = request.headers.get("content-type", "").lower()
+    if not content_type.startswith("multipart/form-data"):
+        try:
+            payload = ImageUrlUploadRequest.model_validate(await request.json())
+        except (ValidationError, ValueError):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Provide multipart field 'file' or a JSON body with a non-empty 'image_url'."
+            )
+        product["image_url"] = payload.image_url
+        return ProductRepository.save(product)
+
+    form = await request.form()
+    file = form.get("file")
+    if file is None or not getattr(file, "filename", None):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Multipart requests require a 'file' field."
+        )
+
+    filename = file.filename
     ext = os.path.splitext(filename)[1].lower()
     if ext not in ALLOWED_IMAGE_EXTENSIONS:
         raise HTTPException(
@@ -168,5 +191,4 @@ def delete_product(id: str):
         )
     ProductRepository.delete(id)
     return {"status": "success", "message": f"Product '{id}' deleted successfully"}
-
 
