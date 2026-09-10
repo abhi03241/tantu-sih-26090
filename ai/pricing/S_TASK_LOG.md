@@ -200,5 +200,5 @@
 * **Tests/results**: `python -m unittest discover -s tests -p "test_*.py" -v` using the bundled runtime: **26/26 passed**.
 * **Issue / integration blocker**: This checkout does not contain the stated validated `bbdaea3` React/Vite/Capacitor baseline (the revision and corresponding remote branch are unavailable). It is a FastAPI + static HTML implementation with no product publication-state field or publish endpoint. Consequently, published-only visibility and exclusion of draft/processing products cannot be verified here without a schema/API change, which is out of scope under the safety rules.
 * **Required integration**: Provide the validated integrated branch/commit containing the publication lifecycle and React/Capacitor frontend, then rerun this verification there. No workaround or schema change was applied.
-* **Commit/hash**: Pending.
+* **Commit/hash**: `7fb2bb9` (`docs: record mobile pricing flow verification`).
 * **Branch**: `feature/S-pricing-marketplace`
