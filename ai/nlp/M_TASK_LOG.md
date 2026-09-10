@@ -205,3 +205,21 @@
 - **Integration notes**: `POST /api/products/{id}/voice` retains existing optional values unless the transcript explicitly supplies replacements. `POST /api/products/{id}/generate-catalogue` now passes request `raw_notes` through to the NLP service.
 - **Commit / hash**: `fix: ground NLP output in artisan cues` / `a78a4ce`.
 - **Branch**: `feature/M-ai-nlp`
+
+---
+
+## Checkpoint 8: Mobile/APK Voice and NLP Verification
+
+- **Task**: Verify the existing mobile voice/text path without changing the NLP service, product JSON contract, or unrelated modules.
+- **Inspected**:
+  - `VoiceProcessingRequest` continues to accept the mobile-pretranscribed `audio_transcript` and optional `language` fields.
+  - `POST /api/products/{id}/voice` passes those values directly to the existing NLP service and only updates dimensions or production time when explicitly extracted.
+  - The available frontend voice UI sends `{ audio_transcript, language }` and falls back to text input when browser speech recognition is unavailable.
+  - Existing duration parsing recognizes Devanagari units, including `3 दिन` as `3 days`.
+- **What changed**: No NLP, API, schema, database, Vision, Pricing, marketplace, or frontend code change was needed.
+- **Tests actually executed**:
+  - `C:\Users\maany\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m unittest discover -s tests -p "test_*.py" -v`
+  - Focused `MockNLPService` checks for English input, Hindi input with `3 दिन`, raw narrative notes, dimensions with production time, and underspecified input.
+- **Results**: 26/26 tests passed. Focused checks returned `3 days` for Hindi `3 दिन`, extracted only stated dimensions/time, preserved narrative cues where supplied, and returned `null` for unstated dimensions/time/story.
+- **Remaining issue**: Native Capacitor speech-recognition support cannot be verified from this branch because its active `frontend/` directory lacks the React/Vite source; the available frontend ref uses the compatible pretranscribed-text API contract and text fallback.
+- **Documentation**: `docs/TEAM_PROGRESS.md` did not exist on this branch, so a concise M verification record was added without importing frontend code or its broader documentation.
