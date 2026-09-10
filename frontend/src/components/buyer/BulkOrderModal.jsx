@@ -182,7 +182,7 @@ export default function BulkOrderModal({ product, onClose }) {
           </div>
 
           {/* Buyer Name & Contact */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div className="buyer-contact-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
               <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>
                 Buyer / Organization

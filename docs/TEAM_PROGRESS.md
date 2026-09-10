@@ -53,3 +53,9 @@
 - The frontend now creates a contract-complete processing product before calling the AI endpoints, then updates that same product for draft/publish. This matches the existing AI endpoint shape (`/api/products/{id}/...`) and prevents live-backend calls against a placeholder ID.
 - **Backend contract gap:** `POST /api/orders/request` and `GET /api/orders` are available, but no endpoint exists to accept or otherwise update an order request. The artisan "Accept" control therefore only persists in offline mock mode; a backend order-status update endpoint is needed for live persistence.
 - **Backend contract gap:** product lifecycle `status` is used by the frontend, but it is not present in `ProductCreate`, `ProductUpdate`, or `ProductResponse`. Live backend responses consequently cannot preserve draft/ready/published state until the backend schema and persistence layer adopt it.
+
+## 4. Mobile / APK Readiness — P (2026-09-10)
+
+- No Capacitor configuration, Android project, or Capacitor dependency is currently committed; no native scaffolding was added to avoid an unvalidated platform change.
+- The frontend now detects a Capacitor shell and requires `VITE_BACKEND_URL` for native API access, avoiding a hardcoded device-local `localhost` target. Browser development behavior and offline mock fallback are unchanged.
+- Small-screen safeguards now cover safe-area insets, dynamic viewport modal height, touch scrolling, iOS input zoom prevention, compact header actions, and stacked buyer/catalogue modal fields at narrow widths.

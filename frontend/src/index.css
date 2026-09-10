@@ -74,6 +74,11 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+#root {
+  min-height: 100%;
 }
 
 /* Button & Interactive Resets */
@@ -89,8 +94,9 @@ button {
 
 input, textarea, select {
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 16px; /* Prevent iOS from zooming when a form field receives focus. */
   outline: none;
+  max-width: 100%;
 }
 
 a {
@@ -118,6 +124,7 @@ a {
   width: 100%;
   max-width: 480px; /* Mobile first standard */
   min-height: 100vh;
+  min-height: 100dvh;
   background: #FFFFFF;
   position: relative;
   display: flex;
@@ -138,8 +145,9 @@ a {
 /* App Body Content Area */
 .app-main-content {
   flex: 1;
-  padding: 16px 18px 90px 18px; /* Bottom padding for bottom navigation bar */
+  padding: 16px 18px calc(90px + env(safe-area-inset-bottom)) 18px; /* Bottom padding for bottom navigation bar */
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Top App Header */
@@ -245,7 +253,7 @@ a {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 12px 14px 12px;
+  padding: 8px 12px calc(14px + env(safe-area-inset-bottom)) 12px;
   z-index: 40;
 }
 
@@ -1284,6 +1292,7 @@ a {
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  padding-top: env(safe-area-inset-top);
 }
 
 .modal-content-sheet {
@@ -1291,9 +1300,11 @@ a {
   max-width: 480px;
   background: #FFFFFF;
   border-radius: 28px 28px 0 0;
-  padding: 24px 20px 34px 20px;
-  max-height: 90vh;
+  padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+  max-height: calc(100dvh - env(safe-area-inset-top) - 12px);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
   animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1314,14 +1325,61 @@ a {
 }
 
 .modal-close-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   border-radius: var(--radius-full);
   background: var(--bg-sand);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
+}
+
+/* Keep compact Android phones usable without compromising the desktop layout. */
+@media (max-width: 390px) {
+  .app-header {
+    padding: 10px 12px;
+  }
+
+  .app-main-content {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .brand-title span:last-child,
+  .header-actions .pill-btn span {
+    display: none;
+  }
+
+  .header-actions {
+    gap: 4px;
+  }
+
+  .header-actions .pill-btn {
+    min-width: 38px;
+    padding: 7px 9px;
+    justify-content: center;
+  }
+
+  .metrics-row {
+    gap: 8px;
+  }
+
+  .metric-card {
+    padding: 12px 6px;
+  }
+
+  .buyer-contact-grid,
+  .catalogue-edit-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .product-card-footer {
+    align-items: flex-start;
+    gap: 10px;
+  }
 }
 
 /* Toast Component */
