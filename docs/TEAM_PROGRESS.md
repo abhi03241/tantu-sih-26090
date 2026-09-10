@@ -37,3 +37,9 @@
   - Conforms to standard product schema and REST contract.
 - **Test Coverage**: 13 unit/integration tests in `tests/test_vision.py` passing ($100\%$).
 - **Visual Demo**: Run `python ai/vision/demo.py` to see side-by-side Before/After transformations on 4 sample artisan crafts (Bamboo, Terracotta, Silk Handloom, Wood Carving).
+
+### Mobile / APK Verification Note (R)
+
+- The existing vision service returns real-mode catalogue assets as `/enhanced/...`; a Capacitor/WebView client must resolve this against its API base URL to display the enhanced image.
+- Added regression coverage for a 4032 × 3024 mobile-camera JPEG and static retrieval of the returned enhanced JPEG URL. Runtime execution is pending because the current workstation has no Python installation; this is not reported as a test pass.
+- No vision behavior, product schema, NLP, pricing, or frontend components were changed during this verification.

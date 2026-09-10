@@ -145,3 +145,22 @@
 * **Results**: Test execution is pending because this workstation has the Python launcher but no installed Python runtime (`py -3` reports “No installed Python found”).
 * **Issues / Integration Notes**: Backend consumers should prepend their API base URL when rendering relative `/enhanced/...` paths. `MOCK_AI=true` continues to return its existing remote demo URLs.
 * **Commit / Branch**: Pending commit on `feature/R-image-ai`.
+
+---
+
+## Checkpoint 8: Mobile / APK Image-Pipeline Verification
+
+* **Task**: Audited the existing mobile photo to catalogue flow without changing image-processing behavior.
+* **Files Reviewed**: `ai/vision/pipeline.py`, `ai/vision/services.py`, `backend/app/main.py`, `tests/test_vision.py`.
+* **Verified Implementation**:
+  - JPEG and PNG payloads are validated with Pillow and passed into the same enhancement pipeline.
+  - Phone-camera EXIF orientation is applied with `ImageOps.exif_transpose` before crop; alpha and non-RGB inputs are flattened/normalized to `RGB`.
+  - Images through 8000 × 8000 pixels are accepted; catalogue output is consistently resized to 1024 × 1024.
+  - Original source files are read only; enhanced files are separately written under `data/enhanced/`.
+  - Real-mode responses return a relative `/enhanced/enhanced_studio_<hash>.jpg` URL, and FastAPI mounts that directory at `/enhanced` for client retrieval.
+  - Invalid, missing, and corrupted input receives structured failure handling (with the existing demo fallback facade retained unchanged).
+* **Tests Added**: `test_16_mobile_camera_sized_jpeg` (4032 × 3024 camera image) and `test_17_enhanced_asset_is_retrievable_from_static_route` (returned URL serves JPEG bytes). Existing tests already cover JPEG, PNG, invalid input, EXIF orientation, enhancement, and original preservation.
+* **Test Results**: Not executable on this workstation: `py -0p` and `where python` confirm that no Python runtime is installed. No passing test result is claimed.
+* **Frontend / APK Integration Note**: The returned relative image URL is appropriate for a Capacitor/WebView client when resolved against its configured API base URL. This checkout contains no React/Vite/Capacitor source files (only `frontend/README.md`), so an actual frontend render could not be inspected here.
+* **Changes**: Test coverage and documentation only; the vision pipeline, product schema, NLP, pricing, and frontend were not modified.
+* **Commit / Branch**: Pending commit on `feature/R-image-ai`.

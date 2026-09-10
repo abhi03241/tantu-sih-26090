@@ -215,6 +215,28 @@ class TestAIVisionModule(unittest.TestCase):
         self.assertEqual(second_result["status"], "success")
         self.assertNotEqual(first_result["enhanced_image_url"], second_result["enhanced_image_url"])
 
+    def test_16_mobile_camera_sized_jpeg(self):
+        """A common 12 MP phone resolution remains within the supported limits."""
+        camera_bytes = self._create_dummy_image_bytes(
+            size=(4032, 3024), format="JPEG", color=(125, 95, 70)
+        )
+        enhanced, _, metadata = self.pipeline.process(camera_bytes)
+
+        self.assertEqual(metadata["original_size"], [4032, 3024])
+        self.assertEqual(enhanced.size, DEFAULT_TARGET_SIZE)
+
+    def test_17_enhanced_asset_is_retrievable_from_static_route(self):
+        """The relative enhanced URL returned to a mobile client resolves to JPEG bytes."""
+        image_bytes = self._create_dummy_image_bytes(size=(400, 300), format="JPEG")
+        result = self.real_service.enhance_image(image_bytes)
+
+        self.assertEqual(result["status"], "success")
+        self.assertTrue(result["enhanced_image_url"].startswith("/enhanced/"))
+
+        response = TestClient(app).get(result["enhanced_image_url"])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["content-type"], "image/jpeg")
+
 
 if __name__ == "__main__":
     unittest.main()
