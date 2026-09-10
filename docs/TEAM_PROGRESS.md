@@ -59,6 +59,11 @@
 - Optional pricing fields remain optional: omitted values use explainable demo-reference fallbacks.
 - Consumers should present pricing only as **AI-assisted suggested price range**, never as exact market truth.
 
+### 5. Mobile/APK Pricing-to-Order Verification (Member S, 2026-09-10)
+- Existing pricing, product detail, buyer feed, bulk-order, and status persistence tests pass **26/26** on `feature/S-pricing-marketplace`.
+- The requested `bbdaea3` React/Vite/Capacitor baseline is not present in this checkout or configured remotes. This branch has a static marketplace and no `published`/`draft`/`processing` product lifecycle field or publish endpoint.
+- Published-only visibility cannot be verified safely on this branch. The integrated baseline/branch is required; no schema, API, pricing, NLP, or Vision code was changed.
+
 ---
 
 ## 🧪 Shared Test Suite Status
