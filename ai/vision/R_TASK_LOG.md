@@ -213,3 +213,28 @@
   - Existing pipeline preserved with 100% backwards and forwards compatibility.
 * **Status**: Complete & Verified.
 
+---
+
+## Checkpoint 11: Final Image Pipeline Compatibility & Static Serving Verification (Team Member R)
+
+* **Task**: Final comprehensive end-to-end verification of the image/vision pipeline (`Camera/Gallery -> Image Upload -> Image Processing -> Enhancement -> Enhanced Image URL -> Display`).
+* **Verification Scope & Results**:
+  1. **JPEG / PNG Support**: Full validation and ingestion of JPEG and PNG (with RGBA alpha flattening against clean studio backdrop).
+  2. **Large Phone Images**: Standard phone camera resolutions (12MP, $4032\times 3024$) and large images up to $8000\times 8000$ safely processed without memory bloat.
+  3. **EXIF Orientation**: Smartphone rotation tags auto-transposed via `ImageOps.exif_transpose`.
+  4. **RGB Conversion**: Automatic normalization across `RGBA`, `LA`, `P`, and `CMYK` modes.
+  5. **Image Dimensions**: Strict dimension enforcement ($50\times 50$ to $8000\times 8000$) with Lanczos catalog output resizing ($1024\times 1024$).
+  6. **Invalid Image Handling**: Corrupted payloads, tiny files, unsupported binaries gracefully caught via `ImageValidationError` with zero crashes.
+  7. **Enhancement Output**: High-resolution studio lighting, contrast recovery, vegetable dye vibrancy lift (+15%), and clutter reduction vignette applied cleanly.
+  8. **Enhanced Image URL**: Deterministic, collision-resistant SHA-256 asset hash generating relative route `/enhanced/enhanced_studio_<hash>.jpg`.
+  9. **Backend Serving**: FastAPI static mount `/enhanced` serves JPEG bytes with correct `image/jpeg` content headers.
+  10. **Frontend Display**: Frontend clients resolve relative `/enhanced/...` paths against backend origin seamlessly for render in web and mobile views.
+* **Regression & Test Verification**:
+  - `python -m unittest -v tests/test_vision.py`: **18/18 tests PASSED**.
+  - `python -m unittest -v tests/test_api.py`: **10/10 tests PASSED**.
+  - Total test suite: **28/28 tests PASSED (100% OK)** in 2.59s.
+  - Visual demo (`python ai/vision/demo.py`): All 4 artisan handicraft transformations generated successfully.
+* **Code Scope Integrity**:
+  - Zero unnecessary code changes made (all components working as intended).
+  - No changes to NLP, languages, pricing, marketplace, orders, or database.
+* **Status**: Fully Verified & Finalized.
