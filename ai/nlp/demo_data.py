@@ -110,21 +110,29 @@ DEMO_SCENARIOS: Dict[str, Dict[str, Any]] = {
 # ==========================================================
 # 2. HEURISTIC PARSERS & REGEX EXTRACTORS
 # ==========================================================
+INDIC_DIGITS = {
+    '०': '0', '१': '1', '२': '2', '३': '3', '४': '4', '५': '5', '६': '6', '७': '7', '८': '8', '९': '9',
+    '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4', '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9',
+    '௦': '0', '௧': '1', '௨': '2', '௩': '3', '௪': '4', '௫': '5', '௬': '6', '௭': '7', '௮': '8', '௯': '9',
+    '౦': '0', '౧': '1', '౨': '2', '౩': '3', '౪': '4', '౫': '5', '౬': '6', '౭': '7', '౮': '8', '౯': '9',
+}
+
 HINDI_NUMBER_WORDS = {
     "ek": "1", "do": "2", "teen": "3", "chaar": "4", "char": "4",
     "paanch": "5", "panch": "5", "chhe": "6", "che": "6", "saat": "7", "sat": "7",
     "aath": "8", "nau": "9", "das": "10",
     "एक": "1", "दो": "2", "तीन": "3", "चार": "4", "पांच": "5", "छह": "6", "सात": "7",
     "आठ": "8", "नौ": "9", "दस": "10",
+    "दोन": "2",
     "one": "1", "two": "2", "three": "3", "four": "4", "five": "5",
     "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10"
 }
 
 MATERIAL_CATALOG = [
-    ("Bamboo", "Bamboo & Cane Craft", ["bamboo", "bans", "बांस", "cane", "वेत", "cane"]),
-    ("Chanderi Silk", "Textiles & Handloom", ["chanderi", "silk", "सिल्क", "रेशम"]),
+    ("Bamboo", "Bamboo & Cane Craft", ["bamboo", "bans", "बांस", "cane", "वेत", "বাঁশ", "বাঁশের", "বাঁহ", "বাঁহৰ", "बांबू", "बांबूची"]),
+    ("Chanderi Silk", "Textiles & Handloom", ["chanderi", "silk", "सिल्क", "रेशम", "పట్టు", "పట్టు చీర", "సరి", "चंदेरी"]),
     ("Khadi Cotton", "Textiles & Handloom", ["cotton", "khadi", "सूती", "खादी"]),
-    ("Teak Wood", "Woodcraft", ["teak", "sagwan", "सागवान", "सागौन"]),
+    ("Teak Wood", "Woodcraft", ["teak", "sagwan", "सागवान", "सागौन", "தேக்கு", "தேக்கு மர", "सागवानी"]),
     ("Sheesham Wood", "Woodcraft", ["sheesham", "rosewood", "शीशम"]),
     ("Natural Wood", "Woodcraft", ["wood", "wooden", "lakdi", "लकड़ी"]),
     ("Terracotta Clay", "Pottery & Ceramics", ["terracotta", "clay", "mitti", "मिट्टी"]),
@@ -135,14 +143,31 @@ MATERIAL_CATALOG = [
 
 def detect_language(text: str) -> str:
     """
-    Detects if input is Hindi (Devanagari script), Hinglish transliteration, or English.
+    Detects if input is Devanagari (Hindi/Marathi), Bengali/Assamese, Tamil, Telugu, Hinglish, or English.
     """
     if not text or not text.strip():
         return "hi"
 
-    # Check for Devanagari Unicode range
-    devanagari_count = len(re.findall(r'[\u0900-\u097F]', text))
-    if devanagari_count > 3:
+    # Tamil script range: \u0B80-\u0BFF
+    if len(re.findall(r'[\u0B80-\u0BFF]', text)) > 2:
+        return "ta"
+
+    # Telugu script range: \u0C00-\u0C7F
+    if len(re.findall(r'[\u0C00-\u0C7F]', text)) > 2:
+        return "te"
+
+    # Bengali / Assamese script range: \u0980-\u09FF
+    if len(re.findall(r'[\u0980-\u09FF]', text)) > 2:
+        assamese_cues = ["এইটো", "খৰাহী", "বনাবলৈ", "শিকাইছিল", "মোক", "আমাৰ", "তৈয়াৰ", "মায়ে"]
+        if any(cue in text for cue in assamese_cues):
+            return "as"
+        return "bn"
+
+    # Devanagari script range: \u0900-\u097F
+    if len(re.findall(r'[\u0900-\u097F]', text)) > 2:
+        marathi_cues = ["टोपली", "लागतात", "माझ्या", "आईने", "शिकवले", "आहे", "बचत", "पिढ्या", "वारसा", "सण", "दोन", "दिवस"]
+        if any(cue in text for cue in marathi_cues):
+            return "mr"
         return "hi"
 
     # Check for Hinglish cue words
@@ -158,29 +183,43 @@ def detect_language(text: str) -> str:
 
 def extract_production_time(text: str) -> Optional[str]:
     """
-    Extracts crafting duration from phrases like 'do din', '2 days', 'paanch din', '3 weeks'.
+    Extracts crafting duration from phrases across all 7 supported languages.
     """
-    lower = text.lower()
+    if not text:
+        return None
 
-    # Pattern: Digit + unit
-    match = re.search(r'(\d+)\s*(din|days?|दिन|ghante|hours?|घंटे|घंटा|hafte|weeks?|हफ्ते|सप्ताह)', lower)
-    if match:
-        num = match.group(1)
-        unit = match.group(2)
-        unit_clean = (
-            "days" if unit in {"din", "day", "days", "दिन"}
-            else "hours" if unit in {"ghante", "hour", "hours", "घंटे", "घंटा"}
-            else "weeks"
-        )
-        return f"{num} {unit_clean}"
+    normalized = text
+    for ind, asc in INDIC_DIGITS.items():
+        normalized = normalized.replace(ind, asc)
 
-    # Pattern: Word number + unit
+    lower = normalized.lower()
+
+    # Pattern 1: Digit + unit across languages
+    days_patterns = r'(\d+)\s*(?:din|days?|दिन|দিন|দিৱস|दिवस|நாட்கள்(?:\s*ஆகும்)?|రోజులు(?:\s*పడుతుంది)?|দিন\s*সময়\s*লাগে|দিন\s*লাগে)'
+    hours_patterns = r'(\d+)\s*(?:ghante|hours?|घंटे|घंटा|ঘণ্টা|तास|மணி|గంటలు)'
+    weeks_patterns = r'(\d+)\s*(?:hafte|weeks?|हफ्ते|सप्ताह|সপ্তাহ|আঠৱডে|వారాలు)'
+
+    m_day = re.search(days_patterns, lower)
+    if m_day:
+        return f"{m_day.group(1)} days"
+
+    m_hr = re.search(hours_patterns, lower)
+    if m_hr:
+        return f"{m_hr.group(1)} hours"
+
+    m_wk = re.search(weeks_patterns, lower)
+    if m_wk:
+        return f"{m_wk.group(1)} weeks"
+
+    # Pattern 2: Word number + unit
     for word, digit in HINDI_NUMBER_WORDS.items():
-        if re.search(rf'\b{word}\s+(din|days?|hafte|weeks?|ghante|hours?)\b', lower):
-            match_unit = re.search(rf'\b{word}\s+([a-zA-Z]+)\b', lower)
-            raw_unit = match_unit.group(1) if match_unit else "days"
-            unit_clean = "days" if "d" in raw_unit else ("hours" if "h" in raw_unit else "weeks")
-            return f"{digit} {unit_clean}"
+        if re.search(rf'\b{re.escape(word)}\s+(?:din|days?|hafte|weeks?|ghante|hours?|दिवस|दिन|दिनों)\b', lower) or (word in lower and ("दिवस" in lower or "दिन" in lower or "days" in lower)):
+            if "घंटे" in lower or "hours" in lower or "ghante" in lower:
+                return f"{digit} hours"
+            elif "hafte" in lower or "weeks" in lower:
+                return f"{digit} weeks"
+            else:
+                return f"{digit} days"
 
     return None
 
