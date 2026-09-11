@@ -26,6 +26,7 @@ class ProductBase(BaseModel):
     artisan_id: Optional[str] = Field("art-001", example="art-001")
     artisan_name: Optional[str] = Field(None, example="Lakshmi Devi")
     location: Optional[str] = Field(None, example="Silchar, Assam")
+    status: Optional[str] = Field("published", example="published")
 
 
 class ProductCreate(ProductBase):
@@ -49,11 +50,17 @@ class ProductUpdate(BaseModel):
     suggested_price_min: Optional[float] = None
     suggested_price_max: Optional[float] = None
     artisan_id: Optional[str] = None
+    status: Optional[str] = None
 
 
 class ProductResponse(ProductBase):
     id: str = Field(..., example="prod-bamboo-001")
     created_at: Optional[str] = None
+
+
+class ProductStatusResponse(BaseModel):
+    id: str
+    status: str
 
 
 # ==========================================

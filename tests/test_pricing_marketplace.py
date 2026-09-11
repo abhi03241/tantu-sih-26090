@@ -392,6 +392,205 @@ class TestPricingAndMarketplace(unittest.TestCase):
         self.assertEqual(accept_res.status_code, 200)
         self.assertEqual(accept_res.json()["status"], "accepted")
 
+    # ==========================================
+    # 6. MARKETPLACE PUBLICATION GUARDS & BULK ORDER LIFECYCLE
+    # ==========================================
+    def test_17_draft_and_processing_products_excluded_from_buyer_marketplace(self):
+        """Confirm draft and processing products are excluded from buyer marketplace, while published appear."""
+        # 1. Create a draft product
+        draft_payload = {
+            "title": "Unpublished Draft Bamboo Lamp",
+            "description_english": "Handmade bamboo bedside lamp currently in draft review.",
+            "description_hindi": "हाथ से बना बांस का लैंप ड्राफ्ट स्थिति में।",
+            "category": "Bamboo & Cane Craft",
+            "material": "Assam Bamboo",
+            "image_url": "https://example.com/draft_lamp.jpg",
+            "status": "draft"
+        }
+        res_draft = self.client.post("/api/products", json=draft_payload)
+        self.assertEqual(res_draft.status_code, 201)
+        draft_id = res_draft.json()["id"]
+
+        # 2. Create a processing product
+        proc_payload = {
+            "title": "AI Processing Madhubani Scarf",
+            "description_english": "Madhubani painted handwoven scarf undergoing AI enhancement.",
+            "description_hindi": "मधुबनी चित्रकला स्कार्फ एआई संवर्द्धन प्रक्रिया में।",
+            "category": "Textiles & Handloom",
+            "material": "Tussar Silk",
+            "image_url": "https://example.com/proc_scarf.jpg",
+            "status": "processing"
+        }
+        res_proc = self.client.post("/api/products", json=proc_payload)
+        self.assertEqual(res_proc.status_code, 201)
+        proc_id = res_proc.json()["id"]
+
+        # 3. Create a published product
+        pub_payload = {
+            "title": "Published Heritage Wooden Coaster Set",
+            "description_english": "Set of 4 hand-carved Sheesham wood coasters with brass inlay.",
+            "description_hindi": "शीशम की लकड़ी के ४ नक्काशीदार कोस्टर का सेट।",
+            "category": "Woodcraft",
+            "material": "Sheesham Wood",
+            "image_url": "https://example.com/pub_coasters.jpg",
+            "status": "published"
+        }
+        res_pub = self.client.post("/api/products", json=pub_payload)
+        self.assertEqual(res_pub.status_code, 201)
+        pub_id = res_pub.json()["id"]
+
+        # Verify buyer marketplace feed excludes draft and processing
+        buyer_feed = self.client.get("/api/buyer/products").json()
+        buyer_ids = [p["id"] for p in buyer_feed]
+        self.assertNotIn(draft_id, buyer_ids, "Draft product must NOT be visible in buyer marketplace")
+        self.assertNotIn(proc_id, buyer_ids, "Processing product must NOT be visible in buyer marketplace")
+        self.assertIn(pub_id, buyer_ids, "Published product MUST appear in buyer marketplace")
+
+        # Product detail works for all
+        detail_res = self.client.get(f"/api/products/{pub_id}")
+        self.assertEqual(detail_res.status_code, 200)
+        detail = detail_res.json()
+        self.assertEqual(detail["title"], pub_payload["title"])
+        self.assertEqual(detail["image_url"], pub_payload["image_url"])
+        self.assertIsNotNone(detail["suggested_price_min"])
+        self.assertIsNotNone(detail["suggested_price_max"])
+
+    def test_18_unpublished_product_order_rejection_and_publish_flow(self):
+        """Confirm unpublished product cannot receive order, quantity is validated, and order/status persist."""
+        # 1. Create a draft product
+        draft_res = self.client.post("/api/products", json={
+            "title": "Experimental Terracotta Vase",
+            "description_english": "Rustic hand-thrown terracotta clay flower vase.",
+            "description_hindi": "हाथ से बना मिट्टी का सुंदर फूलदान।",
+            "category": "Pottery & Ceramics",
+            "material": "Natural Clay",
+            "image_url": "https://example.com/vase.jpg",
+            "status": "draft"
+        })
+        self.assertEqual(draft_res.status_code, 201)
+        prod_id = draft_res.json()["id"]
+
+        # 2. Attempt bulk order on draft product -> MUST be rejected with 409 Conflict
+        order_payload = {
+            "product_id": prod_id,
+            "buyer_name": "FabIndia Procurement",
+            "buyer_contact": "procurement@fabindia.com",
+            "quantity": 50,
+            "message": "Bulk purchase inquiry for Diwali."
+        }
+        res_order_draft = self.client.post("/api/orders/request", json=order_payload)
+        self.assertEqual(res_order_draft.status_code, 409)
+        self.assertIn("published", res_order_draft.json()["detail"].lower())
+
+        # 3. Publish product via publish endpoint
+        res_publish = self.client.patch(f"/api/products/{prod_id}/publish")
+        self.assertEqual(res_publish.status_code, 200)
+        self.assertEqual(res_publish.json()["status"], "published")
+
+        # Check status endpoint
+        res_status = self.client.get(f"/api/products/{prod_id}/status")
+        self.assertEqual(res_status.status_code, 200)
+        self.assertEqual(res_status.json()["status"], "published")
+
+        # 4. Quantity validation: quantity <= 0 rejected with 422
+        bad_qty_payload = {**order_payload, "quantity": 0}
+        self.assertEqual(self.client.post("/api/orders/request", json=bad_qty_payload).status_code, 422)
+
+        bad_neg_payload = {**order_payload, "quantity": -10}
+        self.assertEqual(self.client.post("/api/orders/request", json=bad_neg_payload).status_code, 422)
+
+        # 5. Submit valid bulk order now that product is published
+        res_valid_order = self.client.post("/api/orders/request", json=order_payload)
+        self.assertEqual(res_valid_order.status_code, 201)
+        order_data = res_valid_order.json()
+        order_id = order_data["id"]
+        self.assertEqual(order_data["status"], "pending")
+
+        # 6. Verify order persists
+        res_get = self.client.get(f"/api/orders/{order_id}")
+        self.assertEqual(res_get.status_code, 200)
+        self.assertEqual(res_get.json()["quantity"], 50)
+        self.assertEqual(res_get.json()["product_id"], prod_id)
+
+        # 7. Verify status update persists
+        res_patch = self.client.patch(f"/api/orders/{order_id}/status", json={"status": "accepted"})
+        self.assertEqual(res_patch.status_code, 200)
+        self.assertEqual(res_patch.json()["status"], "accepted")
+
+        # Confirm persisted on re-fetch
+        res_get_updated = self.client.get(f"/api/orders/{order_id}")
+        self.assertEqual(res_get_updated.json()["status"], "accepted")
+
+    def test_19_pricing_inputs_verification_and_disclaimer(self):
+        """Verify pricing accepts material, labor hours, quantity, cost, overhead, region, min < max, and disclaims guaranteed truth."""
+        estimate_payload = {
+            "category": "Textiles & Handloom",
+            "material": "Chanderi Silk Cotton",
+            "dimensions": "2.5m x 1m",
+            "production_time": "5 days",
+            "raw_material_cost": 450.0,
+            "labor_hours": 24,
+            "labor_cost": 1800.0,
+            "overhead": 250.0,
+            "quantity": 100,
+            "region": "Madhya Pradesh",
+            "craft_type": "Handloom Weaving"
+        }
+        res = self.client.post("/api/pricing/estimate", json=estimate_payload)
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+
+        # Numeric min/max and min < max
+        self.assertIsInstance(data["suggested_price_min"], (int, float))
+        self.assertIsInstance(data["suggested_price_max"], (int, float))
+        self.assertGreater(data["suggested_price_max"], data["suggested_price_min"])
+
+        # Labeling must NOT claim guaranteed market truth
+        self.assertEqual(data["pricing_label"], "AI-assisted suggested price range")
+        self.assertEqual(data["confidence"], "demo")
+        self.assertIn("AI-assisted suggested price range", data["reason"])
+        self.assertNotIn("guaranteed truth", data["reason"].lower())
+        self.assertNotIn("absolute price", data["reason"].lower())
+
+        # Pricing factors present
+        factors = data["pricing_factors"]
+        self.assertIn("material", factors)
+        self.assertIn("production_time", factors)
+        self.assertIn("handmade_nature", factors)
+        self.assertIn("category", factors)
+
+        # Negative inputs rejected
+        bad_cost = {**estimate_payload, "raw_material_cost": -50.0}
+        self.assertEqual(self.client.post("/api/pricing/estimate", json=bad_cost).status_code, 422)
+
+        bad_hours = {**estimate_payload, "labor_hours": -5}
+        self.assertEqual(self.client.post("/api/pricing/estimate", json=bad_hours).status_code, 422)
+
+        bad_overhead = {**estimate_payload, "overhead": -10.0}
+        self.assertEqual(self.client.post("/api/pricing/estimate", json=bad_overhead).status_code, 422)
+
+    def test_20_product_detail_fields_integrity(self):
+        """Verify product detail works: image works, price works, and fields are correctly structured."""
+        pub_products = self.client.get("/api/buyer/products").json()
+        self.assertGreaterEqual(len(pub_products), 1)
+        first_prod = pub_products[0]
+
+        detail_res = self.client.get(f"/api/products/{first_prod['id']}")
+        self.assertEqual(detail_res.status_code, 200)
+        detail = detail_res.json()
+
+        # Image works
+        self.assertTrue(bool(detail.get("image_url") or detail.get("enhanced_image_url")))
+
+        # Price works
+        self.assertIsNotNone(detail.get("suggested_price_min"))
+        self.assertIsNotNone(detail.get("suggested_price_max"))
+        self.assertGreater(detail["suggested_price_max"], detail["suggested_price_min"])
+
+        # Core fields work
+        self.assertTrue(bool(detail.get("title")))
+        self.assertTrue(bool(detail.get("category")))
+
 
 if __name__ == "__main__":
     unittest.main()

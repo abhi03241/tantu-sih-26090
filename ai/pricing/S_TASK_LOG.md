@@ -239,5 +239,26 @@
   - All verified features and endpoints are fully functional and passing all tests.
   - No genuine blocking issue found.
   - Per strict instruction (**"If everything works: MAKE NO CODE CHANGES"**), no code was modified.
-* **Commit/hash**: None required (Successful audit-only; no code fixes necessary).
+* **Commit/hash**: `be879aa` (`docs: record ShilpVani pricing and marketplace audit`).
+* **Branch**: `feature/S-pricing-marketplace`
+
+---
+
+## 📌 Checkpoint 10: Pricing, Marketplace, and Bulk-Order Flow Finalization
+
+* **Task**: Finalize pricing, marketplace, and bulk-order functionality:
+  - Verify pricing inputs (material/product inputs, labor hours, quantity, cost, overhead, region), numeric bounds (`min < max`), negative input rejection, correct suggested range display, and disclaimer (never described as guaranteed market truth).
+  - Verify buyer marketplace: published products appear, draft and processing products excluded, product detail works (images work, prices work).
+  - Verify bulk order flow: unpublished products cannot receive orders (409 Conflict), quantity validation works (<= 0 rejected with 422), orders persist, and order status updates persist.
+  - Strictly avoid adding payments, logistics, GeM, ONDC, or modifying NLP, vision, camera, or frontend architecture.
+* **Implementation**:
+  - `backend/app/schemas.py`: Added `status` field to `ProductBase` (default `"published"`) and `ProductUpdate`; added `ProductStatusResponse`.
+  - `backend/app/database.py`: Added `status` column to `products` table creation and migration in `init_db()`; updated `ProductRepository._row_to_dict`, `ProductRepository.get_all` (supports filtering by `status`), and `ProductRepository.save` to persist `status`.
+  - `backend/app/routers/buyer.py`: `GET /api/buyer/products` strictly filters by `status="published"` by default, preventing draft and processing products from appearing in the marketplace.
+  - `backend/app/routers/orders.py`: `POST /api/orders/request` validates that the product exists and has `status == "published"`, rejecting unpublished products with `409 Conflict`. Validates `quantity > 0` (422) and non-empty `buyer_name` (422). Orders persist with status `pending`, and `PATCH /api/orders/{id}/status` persists status transitions across `requested`, `pending`, `accepted`, `rejected`, `completed`.
+  - `backend/app/routers/products.py`: Added `GET /api/products/{id}/status` and `PATCH /api/products/{id}/publish` to transition products to published state.
+  - `tests/test_pricing_marketplace.py`: Added tests 17 through 20 covering publication exclusion guards, unpublished bulk order rejection, quantity validation, order persistence, status transitions, pricing inputs, bounds check, and disclaimer.
+* **Verification & Results**:
+  - Automated tests: **30/30 passed (100%)** (`test_api.py`: 10/10, `test_pricing_marketplace.py`: 20/20).
+  - Priority adhered to: DEMO STABILITY > NEW FEATURES. No payments, logistics, GeM, ONDC, or architecture modifications added.
 * **Branch**: `feature/S-pricing-marketplace`

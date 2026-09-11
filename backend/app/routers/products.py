@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query, status
-from backend.app.schemas import ProductCreate, ProductResponse, ProductUpdate
+from backend.app.schemas import ProductCreate, ProductResponse, ProductUpdate, ProductStatusResponse
 from backend.app.database import ProductRepository
 
 router = APIRouter(prefix="/api/products", tags=["Products"])
@@ -28,12 +28,13 @@ def create_product(product: ProductCreate):
 def list_products(
     category: Optional[str] = Query(None, description="Filter products by category"),
     artisan_id: Optional[str] = Query(None, description="Filter products by artisan ID"),
-    q: Optional[str] = Query(None, description="Search query across title, description, material")
+    q: Optional[str] = Query(None, description="Search query across title, description, material"),
+    status: Optional[str] = Query(None, description="Filter products by status (draft, processing, ready, published)")
 ):
     """
-    Retrieves all product listings with optional category, artisan, and search filtering.
+    Retrieves all product listings with optional category, artisan, status, and search filtering.
     """
-    products = ProductRepository.get_all(category=category, artisan_id=artisan_id, query=q)
+    products = ProductRepository.get_all(category=category, artisan_id=artisan_id, query=q, status=status)
     return products
 
 
@@ -70,3 +71,37 @@ def update_product(id: str, payload: ProductUpdate):
 
     updated = ProductRepository.save(existing)
     return updated
+
+
+@router.get("/{id}/status", response_model=ProductStatusResponse)
+def get_product_status(id: str):
+    """
+    GET /api/products/{id}/status
+    Retrieves current processing/publication status of a product (draft, processing, ready, published).
+    """
+    product = ProductRepository.get_by_id(id)
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with ID '{id}' not found"
+        )
+    return {"id": product["id"], "status": product.get("status") or "published"}
+
+
+@router.patch("/{id}/publish", response_model=ProductResponse)
+def publish_product(id: str):
+    """
+    PATCH /api/products/{id}/publish
+    Publishes a product (transitions status from draft/ready -> published).
+    Makes the product visible on buyer marketplace feeds and open for bulk orders.
+    """
+    existing = ProductRepository.get_by_id(id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with ID '{id}' not found"
+        )
+
+    existing["status"] = "published"
+    published = ProductRepository.save(existing)
+    return published

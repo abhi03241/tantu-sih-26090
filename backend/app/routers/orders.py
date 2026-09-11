@@ -32,6 +32,13 @@ def create_order_request(order: OrderRequestCreate):
             detail=f"Product with ID '{order.product_id}' not found"
         )
 
+    prod_status = product.get("status") or "published"
+    if prod_status != "published":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Bulk orders can only be requested for published products"
+        )
+
     order_dict = order.model_dump()
     order_dict["id"] = f"ord-{uuid.uuid4().hex[:8]}"
     order_dict["product_title"] = product.get("title", "Artisan Product")

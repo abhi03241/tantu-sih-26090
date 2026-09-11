@@ -41,6 +41,7 @@ def init_db():
         artisan_id TEXT,
         artisan_name TEXT,
         location TEXT,
+        status TEXT DEFAULT 'published',
         created_at TEXT
     )
     """)
@@ -107,6 +108,17 @@ def init_db():
     except Exception:
         pass
 
+    # Safety migration for existing databases missing status column on products
+    try:
+        cursor.execute("ALTER TABLE products ADD COLUMN status TEXT DEFAULT 'published'")
+    except Exception:
+        pass
+
+    try:
+        cursor.execute("UPDATE products SET status = 'published' WHERE status IS NULL")
+    except Exception:
+        pass
+
     conn.commit()
     conn.close()
 
@@ -115,6 +127,8 @@ class ProductRepository:
     @staticmethod
     def _row_to_dict(row: sqlite3.Row) -> Dict[str, Any]:
         d = dict(row)
+        if not d.get("status"):
+            d["status"] = "published"
         if d.get("tags"):
             try:
                 d["tags"] = json.loads(d["tags"])
@@ -125,12 +139,15 @@ class ProductRepository:
         return d
 
     @classmethod
-    def get_all(cls, category: Optional[str] = None, artisan_id: Optional[str] = None, query: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_all(cls, category: Optional[str] = None, artisan_id: Optional[str] = None, query: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
         conn = get_db_connection()
         cursor = conn.cursor()
         sql = "SELECT * FROM products WHERE 1=1"
         params = []
 
+        if status:
+            sql += " AND lower(COALESCE(status, 'published')) = lower(?)"
+            params.append(status)
         if category:
             sql += " AND lower(category) LIKE lower(?)"
             params.append(f"%{category}%")
@@ -169,8 +186,8 @@ class ProductRepository:
             id, title, description_english, description_hindi, category, material,
             dimensions, production_time, tags, story, sentiment, narrative_type,
             image_url, enhanced_image_url, suggested_price_min, suggested_price_max,
-            artisan_id, artisan_name, location, created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            artisan_id, artisan_name, location, status, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
             title=excluded.title,
             description_english=excluded.description_english,
@@ -189,7 +206,8 @@ class ProductRepository:
             suggested_price_max=excluded.suggested_price_max,
             artisan_id=excluded.artisan_id,
             artisan_name=excluded.artisan_name,
-            location=excluded.location
+            location=excluded.location,
+            status=excluded.status
         """, (
             data["id"],
             data["title"],
@@ -210,6 +228,7 @@ class ProductRepository:
             data.get("artisan_id", "art-001"),
             data.get("artisan_name", "Artisan"),
             data.get("location", "India"),
+            data.get("status") or "published",
             created_at
         ))
         conn.commit()

@@ -74,8 +74,15 @@
 - Test suites passing: **26 / 26** on `feature/S-pricing-marketplace` and **33 / 33** on the integrated `bbdaea3` baseline.
 - Decision: All checks passed with zero blocking issues. Per instructions ("If everything works: MAKE NO CODE CHANGES"), no application code was modified.
 
+### 7. Pricing, Marketplace, and Bulk-Order Finalization (Member S, 2026-09-11)
+- **Publication Lifecycle & Marketplace Guards**: Product `status` (`draft`, `processing`, `ready`, `published`) added to schema, SQLite tables, and repository. `GET /api/buyer/products` strictly filters for published products, ensuring draft and processing products are excluded from buyer browse.
+- **Bulk Order Integrity**: `POST /api/orders/request` guards against unpublished items (rejecting with `409 Conflict`), validates `quantity > 0` and non-empty `buyer_name` (422), persists orders as `pending`, and persists status transitions (`PATCH /api/orders/{id}/status`).
+- **Product Status & Publish APIs**: Added `GET /api/products/{id}/status` and `PATCH /api/products/{id}/publish` to transition products from draft/ready to published.
+- **Pricing Explanations & Disclaimers**: Pricing range bounds verified (`min < max`), negative inputs rejected (422), and outputs strictly disclaimed as **"AI-assisted suggested price range"** and **"Demo market reference"** (never described as guaranteed market truth).
+- **Scope Compliance**: No payments, logistics, GeM, ONDC, NLP, vision, camera, or frontend architecture modified.
+
 ---
 
 ## 🧪 Shared Test Suite Status
-- Automated tests passing: **26 / 26** (`tests/test_api.py` and `tests/test_pricing_marketplace.py`).
+- Automated tests passing: **30 / 30** (`tests/test_api.py` and `tests/test_pricing_marketplace.py`).
 - Integrated baseline tests passing: **33 / 33** (`test_api.py`, `test_integration.py`, `test_pricing_marketplace.py`).
