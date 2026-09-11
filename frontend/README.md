@@ -1,4 +1,4 @@
-# TANTU (तंतु) — Frontend & Mobile UI Module
+# ShilpVani (शिल्पवाणी) — Frontend & Mobile UI Module
 
 **Maintained by Team Member P (Frontend/Mobile UI Lead)**  
 **SIH Problem Statement 26090**: *AI-Driven Market Linkage and Smart Cataloging Mobile Application for Marginalized Artisans*
@@ -7,7 +7,7 @@
 
 ## Overview
 
-The TANTU frontend is a modern, tactile, voice-first mobile web application designed specifically for rural Indian artisans with low digital literacy, alongside a streamlined B2B wholesale marketplace for urban retail buyers and institutional purchasers (FabIndia, Tribes India TRIFED, Jaypore, etc.).
+The ShilpVani frontend is a modern, tactile, voice-first mobile web application designed specifically for rural Indian artisans with low digital literacy, alongside a streamlined B2B wholesale marketplace for urban retail buyers and institutional purchasers (FabIndia, Tribes India TRIFED, Jaypore, etc.).
 
 ---
 

@@ -82,4 +82,10 @@
   - Added explicit one-tap "लिखकर बताएं (Switch to Text Fallback)" and "माइक पुनः प्रयास (Retry Mic)" actions.
   - Continuous timer, active audio waveform animation, and transcript audio playback support.
 
+## 7. Final ShilpVani Demo Readiness — P (2026-09-11)
 
+- Verified user-facing branding (`ShilpVani` / `शिल्पवाणी`) across navbar, headers, home screen, browser page title, favicon, and AI workflow modals.
+- Verified camera experience: live stream viewfinder, camera flip, snapshot capture, native mobile camera input (`capture="environment"`), gallery fallback, permission denial alerts, and retry state.
+- Verified microphone UI: SpeechRecognition state management, double-click debounce, permission denial fallback, audio waveform animation, and text input fallback.
+- Verified mobile responsiveness: scroll behavior, button touch targets, keyboard viewport adaptation (`100dvh`), and bilingual typography rendering.
+- Production build verified with `npm run build` in `frontend/` (1610 modules transformed, 0 build errors).

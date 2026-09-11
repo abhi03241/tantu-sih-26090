@@ -326,5 +326,24 @@
   - Production build completed with 0 errors (1610 modules transformed, built in 5.73s).
 - **Status**: Completed ✓
 
+---
 
-
+## Checkpoint 12 — Final ShilpVani Frontend Demo Verification
+- **Step Name**: Final ShilpVani Frontend Demo Verification & Build Stabilization
+- **What Was Implemented**:
+  - **ShilpVani Rebranding**: Verified user-facing branding across Navbar, Header, Home Screen, Language Selector, Multimodal AI Processing UI, Buyer Catalogue, favicon, and browser page title (`शिल्पवाणी ShilpVani`). Verified that internal identifiers (`tantu_role`, `tantu_language`, `tantu_products_db_v2`, `tantu_orders_db_v2`) and backend routes were preserved.
+  - **Camera Pipeline**: Verified Create Product → Camera → Permission → Capture → Preview → Upload flow. Stabilized WebRTC live stream modal, snapshot canvas capture, camera flip (front/back), permission denial alert & retry UI, native camera capture fallback (`capture="environment"`), gallery upload fallback, non-distorted image preview (`object-fit: cover`), and direct upload handling.
+  - **Microphone Pipeline**: Verified Voice Input → Permission → Record → Stop → Result flow. Maintained multi-tap debounce protection (`isMicStarting`), permission denial alert state with clear Hindi guidance, retry mic button, live waveform visualizer, recording timer, text description fallback, and TTS playback.
+  - **Mobile UX**: Verified responsive button layout, scrolling behavior, keyboard viewport insets (`100dvh`), Devanagari text overflow prevention, English/Hindi language toggle, loading states, and error handling.
+  - **Build & Verification**: Executed dependency sync and production build (`npm run build`), confirming 1610 modules transformed cleanly in 5.21s with 0 errors.
+- **Files Created / Modified**:
+  - `frontend/README.md`
+  - `frontend/P_TASK_LOG.md`
+  - `docs/TEAM_PROGRESS.md`
+- **APIs / Interfaces Affected**:
+  - None (All backend, NLP, Vision, Pricing, and database API contracts preserved).
+- **Tests Run**:
+  - `npm run build`
+- **Actual Results**:
+  - Production build passed with 0 errors (1610 modules transformed).
+- **Status**: Completed ✓
