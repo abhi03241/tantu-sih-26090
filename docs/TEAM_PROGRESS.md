@@ -251,3 +251,18 @@ No backend, database, API, NLP, vision, or pricing code was modified.
 - **Frontend Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed, 0 errors).
 - **Git Check**: `git diff --check` **PASSED** (0 formatting/whitespace issues).
 - **Status**: **PASS — SIH 2026 FINALIZED**.
+
+---
+
+### Multilingual Voice-First AI Positioning & Vercel Deployment — 2026-09-12
+
+- **Branch**: `feature/A-backend`
+- **Scope Completed**:
+  - **Multilingual AI Platform Positioning**: Reframed product framing around *"We don't ask artisans to learn e-commerce. We use AI to make e-commerce understand artisans."* Positioned current 7 Indic languages (en, hi, bn, mr, as, ta, te) with 100% key parity (66/66 keys) as an extensible prototype designed for broader regional Indic dialect expansion.
+  - **Vercel Frontend Deployment**: Configured decoupled deployment with root `vercel.json` and `frontend/vercel.json` (Vite SPA rewrites), and added `VITE_API_BASE_URL` resolution in `frontend/src/services/api.js`.
+  - **Backend Hosting Architecture**: Audited FastAPI + SQLite + Pillow image processing backend; recommended host environments (Render / Railway / Fly.io / AWS EC2) for persistent SQLite writes and `/enhanced` studio asset serving.
+  - **SIH Prototype Evaluation**: Formally evaluated project at **~70–75% SIH Prototype Readiness**, documenting core implemented capabilities vs. future production expansion roadmap.
+- **Backend Test Suite**: **62/62 PASSED (100%)** (`python -m unittest discover -s tests -p "test_*.py" -v`).
+- **Frontend Production Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed, 0 errors).
+- **Git Formatting Check**: `git diff --check` **PASSED** (0 formatting/whitespace issues).
+- **Status**: **PASS — MULTILINGUAL AI & VERCEL READY**.

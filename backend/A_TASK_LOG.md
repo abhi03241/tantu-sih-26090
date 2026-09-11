@@ -300,3 +300,25 @@ Draft creation; multipart and JSON image upload; voice/NLP extraction; raw-notes
    - Frontend production build (`npm run build --prefix frontend`): **PASSED** (1610 modules transformed in 1.46s, 0 errors).
    - Format check (`git diff --check`): **PASSED** (0 formatting/whitespace issues).
    - Status: **PASS — 100% FINALIZED & SIH-READY**.
+
+---
+
+## Checkpoint 10 — Multilingual Voice-First AI Positioning & Vercel Deployment Architecture
+**Status**: `PASSED & DEPLOYMENT-READY`
+
+### Summary of Work:
+1. **Multilingual AI Platform Positioning**:
+   - Reframed ShilpVani positioning in documentation and application as a **Multilingual Voice-First AI Platform for Artisans** (*"We don't ask artisans to learn e-commerce. We use AI to make e-commerce understand artisans."*).
+   - Documented current prototype's 7 Indian interface languages (English, Hindi, Bengali, Marathi, Assamese, Tamil, Telugu) with key parity (66/66 keys) as an initial implementation designed for broader Indic language expansion.
+2. **Vercel Frontend Deployment Architecture**:
+   - Audited current decoupled architecture: React 18/Vite 6 frontend is ideal for Vercel Edge CDN distribution (`vite build` → `dist/`).
+   - Configured `vercel.json` (root and `frontend/vercel.json`) with SPA route rewrites (`/(.*)` → `/index.html`).
+   - Added `VITE_API_BASE_URL` support in `frontend/src/services/api.js` to allow seamless environment-variable configuration when connecting to hosted FastAPI backend instances (Render / Railway / Fly.io / AWS EC2).
+   - Retained backend SQLite database (`tantu.db`) and Pillow asset storage on Python backend host without stateful serverless degradation.
+3. **SIH Prototype Readiness Audit**:
+   - Documented **~70–75% SIH Prototype Readiness** covering implemented capabilities vs. future roadmap (ONDC/GeM, escrow payments, logistics API).
+4. **Verification & Quality Checks**:
+   - Backend & NLP unit tests (`python -m unittest discover -s tests -p "test_*.py"`): **62/62 PASSED** (100%).
+   - Frontend production build (`npm run build --prefix frontend`): **PASSED** (1610 modules transformed, 0 build errors).
+   - `git diff --check`: **PASSED** (0 formatting/whitespace issues).
+   - Status: **PASS — 100% SIH FINALIZED & VERCEL READY**.

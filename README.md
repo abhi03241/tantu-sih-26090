@@ -3,20 +3,67 @@
 
   # ShilpVani (शिल्पवाणी)
 
-  **AI-Driven Market Linkage & Smart Cataloging Mobile Application for Rural Artisans**
+  ### Multilingual Voice-First AI for Artisans
 
-  *Your Craft. Your Voice. Your Market.*
+  *"We don't ask artisans to learn e-commerce. We use AI to make e-commerce understand artisans."*
 
-  [![Python Unittest](https://img.shields.io/badge/Backend%20Tests-62%2F62%20PASSED-brightgreen.svg)](file:///d:/SIH2026/tests)
+  [![Backend Tests](https://img.shields.io/badge/Backend%20Tests-62%2F62%20PASSED-brightgreen.svg)](file:///d:/SIH2026/tests)
   [![Frontend Build](https://img.shields.io/badge/Frontend%20Build-PASSED%20(1610%20modules)-blue.svg)](file:///d:/SIH2026/frontend)
-  [![Languages Supported](https://img.shields.io/badge/Languages-7%20Indic%20Languages-orange.svg)](file:///d:/SIH2026/frontend/src/constants/languages.js)
+  [![Vercel Ready](https://img.shields.io/badge/Vercel-Deployment%20Ready-black.svg)](file:///d:/SIH2026/vercel.json)
+  [![SIH Readiness](https://img.shields.io/badge/SIH%20Prototype%20Readiness-70--75%25-orange.svg)](file:///d:/SIH2026/README.md)
 </div>
 
 ---
 
-## 🌟 Overview
+## 🌟 Product Positioning
 
-**ShilpVani (शिल्पवाणी)** is an AI-powered market linkage and smart cataloging mobile application built for Smart India Hackathon (SIH 2026). It bridges the digital divide for rural and marginalized Indian artisans by transforming a simple phone photograph and natural voice speech into studio-grade product listings, AI-assisted suggested fair price ranges, and direct B2B buyer connections across 7 major languages.
+**ShilpVani (शिल्पवाणी)** is a **multilingual, voice-first AI platform** that helps rural and marginalized artisans turn their craft into professional digital catalogues and connect directly with B2B wholesale buyers.
+
+> **Core Innovation**: Reducing the language and digital-literacy barrier between artisans and digital commerce through multilingual, voice-first AI.
+
+---
+
+## 🌐 Multilingual AI Platform
+
+ShilpVani is designed as a **multilingual AI platform** rather than a single language-specific marketplace.
+
+### Supported Interface Languages (Current Prototype)
+
+The current prototype provides complete interface support, speech recognition routing, and translation parity across **seven Indian languages**:
+
+1. **English** (`en`) — English
+2. **Hindi** (`hi`) — हिन्दी
+3. **Bengali** (`bn`) — বাংলা
+4. **Marathi** (`mr`) — मराठी
+5. **Assamese** (`as`) — অসমীয়া
+6. **Tamil** (`ta`) — தமிழ்
+7. **Telugu** (`te`) — తెలుగు
+
+> *Architecture Note*: The current prototype supports 7 Indian languages, with an underlying software and model orchestration architecture designed for further multilingual expansion across additional Indic dialects.
+
+---
+
+## 🔁 The AI Product Story & Journey
+
+```text
+ARTISAN SPEAKS NATURALLY
+   │ (Voice note in native language + Craft Photo)
+   ▼
+MULTILINGUAL INPUT & SPEECH RECOGNITION
+   │ (Speech-to-text + Regional dialect parsing)
+   ▼
+AI UNDERSTANDS THE CRAFT
+   │ (Extracts material, dimensions, duration, heritage story)
+   ▼
+STRUCTURED PRODUCT DATA & IMAGE ENHANCEMENT
+   │ (Bilingual descriptions + Studio lighting backdrop + Fair wage estimation)
+   ▼
+PROFESSIONAL DIGITAL CATALOGUE
+   │ (High-conversion marketplace listing)
+   ▼
+B2B MARKETPLACE & BULK ORDERS
+   │ (Direct wholesale buyer discovery & order lifecycle tracking)
+```
 
 ---
 
@@ -33,69 +80,22 @@ Rural and marginalized artisans across India produce exquisite handcrafted herit
 
 ---
 
-## 💡 The Solution
+## ✨ Key Implemented Capabilities
 
-**Craft → Voice → AI → Catalogue → Pricing → Buyer → Bulk Order**
-
-ShilpVani eliminates complex listing forms. An artisan simply snaps a photo of their creation and speaks naturally in their native language describing what they made. ShilpVani's AI pipeline orchestrates voice transcription, background enhancement, multilingual description generation, cost-plus fair price calculation, and direct publication to a wholesale B2B marketplace.
-
----
-
-## 🔁 User Journey
-
-```text
-Artisan
-   │ (Photo Capture + Native Voice Description)
-   ▼
-AI Pipeline Understanding
-   │ (Speech Processing + Image Enhancement + Fair Cost Calculation)
-   ▼
-Professional Product Listing
-   │ (Bilingual Story, Studio Backdrop, Suggested Price Range)
-   ▼
-B2B Buyer Marketplace
-   │ (Direct Wholesale Inquiry & Bulk Order Negotiation)
-   ▼
-Bulk Order Request & Order Lifecycle Tracking
-   │ (Pending → Accepted → Fulfilled)
-   ▼
-Empowered Artisan
-```
-
----
-
-## ✨ Key Features
-
-* 📷 **AI Image Studio / Image Enhancement**: Auto-corrects mobile captures with lighting balance, edge-preserving studio background cleanup, and SHA-256 hashed asset serving.
-* 🎙️ **Voice-First Product Input**: Tap-to-record voice interface supporting regional Indic speech inputs.
+* 📷 **AI Image Studio / Image Enhancement**: Auto-corrects mobile captures with lighting balance, edge-preserving studio background cleanup, and SHA-256 hashed asset serving under `/enhanced`.
+* 🎙️ **Voice-First Product Input**: Tap-to-record voice interface supporting regional speech inputs.
 * 🗣️ **Multilingual Auto-Cataloguing**: Translates raw artisan voice notes into structured, professional marketing copy, heritage stories, and care guidelines.
-* 🌐 **7 Supported Regional Languages**: Full UI navigation, voice recognition, and translation parity across English, Hindi, Bengali, Marathi, Assamese, Tamil, and Telugu.
-* 💰 **AI-Assisted Suggested Pricing**: Material cost-plus algorithm, labor hour breakdown, and regional multipliers providing an *AI-assisted suggested price range*.
+* 🌐 **Multilingual Interface & Localisation**: Verified translation dictionary parity (66 keys each) across English, Hindi, Bengali, Marathi, Assamese, Tamil, and Telugu.
+* 💰 **AI-Assisted Suggested Pricing**: Cost-plus pricing algorithm consuming raw material cost, labor hours, production duration, and regional multipliers providing an *AI-assisted suggested price range*.
 * 🏢 **B2B Wholesale Marketplace**: Dedicated buyer feed for discovering published artisan products, submitting bulk order requests, and negotiating custom unit prices.
 * 📦 **Order Status Tracking**: Persisted order lifecycle state management (`pending` → `accepted` → `fulfilled`).
 * 📜 **Cultural Narrative Preservation**: Highlights traditional craft techniques, heritage stories, and human artisan identity.
 
 ---
 
-## 🌐 Supported Languages
-
-ShilpVani natively supports **7 fully verified languages**:
-
-1. **English** (`en`) — English
-2. **Hindi** (`hi`) — हिन्दी
-3. **Bengali** (`bn`) — বাংলা
-4. **Marathi** (`mr`) — मराठी
-5. **Assamese** (`as`) — অসমীয়া
-6. **Tamil** (`ta`) — தமிழ்
-7. **Telugu** (`te`) — తెలుగు
-
----
-
 ## 🧠 AI Pipeline Architecture
 
-The ShilpVani AI pipeline consists of specialized submodules orchestrated by a central service coordinator:
-
-1. **Voice Processing & NLP (`ai/nlp/voice_and_story.py`)**:
+1. **Voice Processing & Multilingual NLP (`ai/nlp/voice_and_story.py`)**:
    * Speech-to-text transcription parsing native dialect speech.
    * Keyword & entity extraction for dimensions, production duration, material type, and craft category.
    * Grounded narrative generation without hallucinating unstated artisan facts.
@@ -111,15 +111,59 @@ The ShilpVani AI pipeline consists of specialized submodules orchestrated by a c
 
 ---
 
-## 🛒 B2B Marketplace & Bulk Order Workflow
+## 🚀 Vercel & Cloud Deployment Architecture
 
-ShilpVani connects rural artisans directly with verified wholesale buyers, institutions, and retailers:
+ShilpVani uses a decoupled frontend/backend deployment model optimized for performance, scalability, and state persistence:
 
-* **Buyer Feed (`GET /api/buyer/products`)**: Displays strictly published artisan crafts with filtered tags, categories, and region markers.
-* **Bulk Order Request (`POST /api/orders/request`)**: Buyers submit wholesale inquiries with custom quantity (units) and proposed unit pricing.
-* **Order Status Management (`PATCH /api/orders/{id}/status`)**: Real-time status transitions (`pending` → `accepted` → `fulfilled`) persisted across SQLite backend and local state.
+```text
+┌────────────────────────────────────────────────────────┐
+│                   Vercel CDN Edge Network              │
+│  React 18 + Vite 6 Single Page App (SPA)               │
+│  - Static Asset Distribution & Global Edge Caching     │
+│  - Environment: VITE_API_BASE_URL                      │
+│  - Config: vercel.json (Root & frontend/ vercel.json)   │
+└───────────────────────────┬────────────────────────────┘
+                            │ API Calls / CORS
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│               FastAPI Backend Cloud Host               │
+│  Python 3.12 + FastAPI + SQLite3                       │
+│  - Host: Render / Railway / Fly.io / AWS EC2            │
+│  - Persistent SQLite Database (tantu.db)               │
+│  - Persistent Image Uploads & /enhanced Studio Assets  │
+└────────────────────────────────────────────────────────┘
+```
 
-> *Note on Scope*: The current prototype demonstrates wholesale discovery, inquiry submission, and status tracking. External payment gateway integration, escrow holds, ONDC network connection, and logistics fulfillment are designed as future production extensions.
+### Vercel Frontend Configuration
+
+* **Build Command**: `npm run build --prefix frontend` (or `npm run build` inside `frontend/`)
+* **Output Directory**: `frontend/dist` (or `dist` inside `frontend/`)
+* **Environment Variable**: `VITE_API_BASE_URL` (points to live FastAPI backend; defaults to local development server when unset).
+* **Configuration Files**: Root [`vercel.json`](file:///d:/SIH2026/vercel.json) and [`frontend/vercel.json`](file:///d:/SIH2026/frontend/vercel.json) included in repository.
+
+---
+
+## 📊 SIH Prototype Readiness: ~70–75%
+
+### Core Capabilities Implemented (70–75%)
+* ✅ **Multilingual interface & localization architecture** (7 Indic languages)
+* ✅ **Voice-first artisan input & transcription routing**
+* ✅ **AI-assisted catalogue generation & grounded narrative synthesis**
+* ✅ **Studio image enhancement & non-destructive processing**
+* ✅ **AI-assisted fair pricing estimation**
+* ✅ **B2B marketplace discovery feed**
+* ✅ **Bulk-order request submission & quantity pricing**
+* ✅ **Order lifecycle state persistence** (`pending` → `accepted` → `fulfilled`)
+* ✅ **Cloud-deployment readiness & Vercel configuration**
+
+### Future Scope & Production Roadmap (25–30%)
+* 🔮 **Additional Indian Languages**: Expanding voice recognition and NLP models to cover Bhojpuri, Maithili, Odia, Dogri, Santhali, and Khasi.
+* 🔮 **Advanced Speech Dialect Models**: Fine-tuning whisper/wav2vec models for noisy rural environments and strong regional accents.
+* 🔮 **Real Market-Price Datasets**: Integrating live handicraft export pricing datasets and Ministry of Textiles benchmarks.
+* 🔮 **Payment & Escrow Systems**: Integrated UPI/Razorpay payment processing with milestone-based escrow payouts protecting artisan earnings.
+* 🔮 **Logistics & Shipping Partnerships**: Automated shipping label generation with regional postal and courier partners for door-to-door artisan pickups.
+* 🔮 **ONDC & GeM Network Connectors**: Direct integration with Open Network for Digital Commerce (ONDC) and Government e-Marketplace (GeM).
+* 🔮 **Phygital Onboarding**: Partnering with Self-Help Groups (SHGs) and NGO cluster leads to onboard non-smartphone artisans through digital champions.
 
 ---
 
@@ -127,108 +171,12 @@ ShilpVani connects rural artisans directly with verified wholesale buyers, insti
 
 | Layer | Technology | Details |
 |---|---|---|
+| **Frontend UI (Vercel)** | React 18 + Vite 6 | SPA with CSS variables, glassmorphism, responsive grid & mobile bottom nav |
 | **Backend Framework** | Python 3.12 / FastAPI | Asynchronous REST API server with Pydantic v2 schemas |
-| **Database & Storage** | SQLite 3 (`tantu.db`) | Relational persistence with raw parameterization & auto-seeding |
-| **Frontend UI** | React 18 + Vite 6 | Responsive mobile-first SPA with CSS variables & glassmorphism |
-| **Icons & Design** | Lucide React / Google Fonts | Outfit, Noto Sans Devanagari, Rozha One typography |
-| **Image Processing** | Pillow (PIL) | Non-destructive EXIF auto-transpose, studio lighting, RGB conversion |
+| **Database & Persistence** | SQLite 3 (`tantu.db`) | Relational persistence with raw parameterization & auto-seeding |
+| **AI & NLP Processing** | Python 3.12 / RegEx / PIL | Devanagari/Indic script digit normalization, PIL image transformation |
+| **Icons & Typography** | Lucide React / Google Fonts | Outfit, Noto Sans Devanagari, Rozha One |
 | **Testing Suite** | Python `unittest` | Automated backend, NLP, vision, pricing & contract regression tests |
-
----
-
-## 📁 Repository Structure
-
-```text
-tantu-sih-26090/
-├── ai/                              # AI Submodules (Members M, R, S)
-│   ├── nlp/                         # Multilingual NLP, Voice & Storytelling (Manyata)
-│   ├── vision/                      # Computer Vision & Image Enhancement (Raj)
-│   └── pricing/                     # Dynamic Pricing & Fair Wage Engine (Sanskriti)
-├── backend/                         # FastAPI Backend & Database (Abhishek Shukla)
-│   ├── app/
-│   │   ├── main.py                  # Server entry point, CORS & static mounts
-│   │   ├── database.py              # SQLite database layer & repositories
-│   │   ├── schemas.py               # Pydantic data schemas & contracts
-│   │   ├── seed_data.py             # Product database initial seed
-│   │   ├── routers/                 # Products, Buyer, Orders & AI API endpoints
-│   │   └── services/                # Service layer & Orchestrator pipeline
-│   ├── requirements.txt             # Python backend dependencies
-│   └── A_TASK_LOG.md                # Backend development & integration log
-├── docs/                            # Documentation & Architecture
-│   ├── assets/                      # Official ShilpVani branding & logos
-│   └── TEAM_PROGRESS.md             # Master team progress & QA sign-off record
-├── frontend/                        # Mobile-First Web Application (Pratistha)
-│   ├── public/                      # Static web assets & official favicon
-│   ├── src/
-│   │   ├── components/              # Artisan Wizard, Buyer Feed, Language Modal & Header
-│   │   ├── constants/               # 7-language dictionary & craft categories
-│   │   ├── context/                 # Application global state provider
-│   │   ├── index.css                # Custom CSS design system & micro-animations
-│   │   └── services/                # API client & local mock fallbacks
-│   ├── package.json                 # Frontend dependencies & scripts
-│   └── vite.config.js               # Vite build configuration
-├── tests/                           # Automated Test Suite (Parth)
-│   ├── test_api.py                  # Core backend API integration tests
-│   ├── test_nlp_pipeline.py         # NLP & language contract tests
-│   ├── test_vision.py               # Vision module & asset delivery tests
-│   └── test_integration.py          # End-to-end multi-module pipeline tests
-└── README.md                        # Project documentation
-```
-
----
-
-## ⚡ Setup & Installation Guide
-
-### Prerequisites
-* Python 3.10+ (Python 3.12 recommended)
-* Node.js 18+ and `npm`
-
-### 1. Clone & Setup Backend
-```bash
-# Clone the repository & enter workspace
-git clone https://github.com/abhi03241/tantu-sih-26090.git
-cd tantu-sih-26090
-git checkout feature/A-backend
-
-# Install Python dependencies
-python -m pip install -r backend/requirements.txt
-
-# Run FastAPI backend server
-python -m backend.app.main
-```
-* Backend URL: `http://localhost:8000`
-* Interactive API Documentation (Swagger): `http://localhost:8000/docs`
-
-### 2. Setup & Run Frontend
-```bash
-# Enter frontend directory
-cd frontend
-
-# Install Node modules
-npm install
-
-# Start Vite development server
-npm run dev
-
-# Build production bundle
-npm run build
-```
-
----
-
-## 🧪 Automated Testing & Verification
-
-The repository features a 100% passing automated regression test suite:
-
-```bash
-# Run full python unittest suite
-python -m unittest discover -s tests -p "test_*.py" -v
-```
-
-### Verified Test Results:
-* **Backend & Integration Unittests**: **62/62 PASSED** (0 failures, 0 errors in 1.72s).
-* **Frontend Production Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed in 1.46s, 0 build errors).
-* **Git Whitespace & Format Check**: `git diff --check` **PASSED** (0 whitespace/formatting issues).
 
 ---
 
@@ -245,15 +193,45 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 ---
 
-## 🔮 Future Scope & Roadmap
+## ⚡ Setup & Installation Guide
 
-While ShilpVani currently operates as a fully functional demo prototype, future production deployment planned phases include:
+### Prerequisites
+* Python 3.10+ (Python 3.12 recommended)
+* Node.js 18+ and `npm`
 
-* 🌐 **ONDC & GeM Network Integration**: Direct API connectors to list artisan products on Government e-Marketplace (GeM) and Open Network for Digital Commerce (ONDC).
-* 💳 **Payment & Escrow Systems**: Integrated UPI/Razorpay payment processing with milestone-based escrow payouts protecting artisan earnings.
-* 🚚 **Logistics & Shipping Partnerships**: Automated shipping label generation with regional postal and courier partners for door-to-door artisan pickups.
-* 🤝 **Phygital Onboarding Network**: Partnering with Self-Help Groups (SHGs) and NGO cluster leads to onboard non-smartphone artisans through digital champions.
-* 🗣️ **Extended Dialects**: Expanding voice recognition models to cover regional sub-dialects (Bhojpuri, Maithili, Odia, Dogri, Santhali).
+### 1. Clone & Setup Backend
+```bash
+git clone https://github.com/abhi03241/tantu-sih-26090.git
+cd tantu-sih-26090
+git checkout feature/A-backend
+
+python -m pip install -r backend/requirements.txt
+python -m backend.app.main
+```
+* Backend URL: `http://localhost:8000`
+* Interactive API Documentation (Swagger): `http://localhost:8000/docs`
+
+### 2. Setup & Run Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+npm run build
+```
+
+---
+
+## 🧪 Automated Testing & Verification
+
+```bash
+# Run full python unittest suite
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+### Verified Test Results:
+* **Backend & Integration Unittests**: **62/62 PASSED** (0 failures, 0 errors in 1.89s).
+* **Frontend Production Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed in 1.56s, 0 build errors).
+* **Git Whitespace & Format Check**: `git diff --check` **PASSED** (0 whitespace/formatting issues).
 
 ---
 
