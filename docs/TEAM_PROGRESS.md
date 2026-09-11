@@ -68,3 +68,18 @@
 - Verified that Hindi text preserves all existing responsive card and header layouts without truncation or overflow.
 - Preserved all backend schemas, API contracts, table identifiers, and Artisan/Buyer workflows.
 
+## 6. Camera & Microphone Hardware Experience — P (2026-09-11)
+
+- **Camera**:
+  - Added in-app live viewfinder modal using `navigator.mediaDevices.getUserMedia` with video frame snapshot capture to canvas (`image/jpeg`).
+  - Added camera flip button (front/back facing mode toggle).
+  - Added graceful fallback to native device camera (`<input capture="environment">`) for mobile browsers and Android/Capacitor webviews.
+  - Implemented camera permission denial states with explicit retry and gallery/file upload fallbacks.
+  - Proper MediaStream track cleanup on modal close and component unmount to release camera hardware.
+- **Microphone**:
+  - Implemented multi-click debouncing (`isMicStarting`) to prevent race conditions during SpeechRecognition initialization.
+  - Added microphone permission denial handling (`NotAllowedError` / `not-allowed`) with clear Hindi guidance.
+  - Added explicit one-tap "लिखकर बताएं (Switch to Text Fallback)" and "माइक पुनः प्रयास (Retry Mic)" actions.
+  - Continuous timer, active audio waveform animation, and transcript audio playback support.
+
+

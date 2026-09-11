@@ -1439,3 +1439,106 @@ a {
   from { opacity: 0; transform: translate(-50%, -10px); }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
+
+/* Live Camera Viewfinder & In-App Shutter */
+.camera-viewfinder-box {
+  width: 100%;
+  height: 280px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: #0F172A;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.camera-video-stream {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-viewfinder-grid {
+  position: absolute;
+  inset: 16px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+}
+
+.camera-shutter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.camera-shutter-btn {
+  flex: 1;
+  min-height: 52px;
+  background: linear-gradient(135deg, var(--terracotta) 0%, var(--primary-600) 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(200, 75, 32, 0.35);
+  transition: transform 0.15s ease;
+}
+
+.camera-shutter-btn:active {
+  transform: scale(0.97);
+}
+
+.camera-flip-btn {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: var(--radius-full);
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+}
+
+.camera-flip-btn:active {
+  transform: rotate(180deg);
+}
+
+/* Permission Alert & Retry Box */
+.permission-alert-box {
+  background: #FFFBEB;
+  border: 1.5px solid #FCD34D;
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.permission-alert-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #92400E;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.permission-action-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+

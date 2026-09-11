@@ -7,7 +7,7 @@ import confetti from 'canvas-confetti';
 import {
   Camera, Upload, Trash2, RefreshCw, Mic, MicOff, Sparkles, Check, CheckCircle2,
   ArrowRight, ArrowLeft, RotateCcw, Volume2, Edit3, Image as ImageIcon,
-  Save, AlertCircle, Layers, Ruler, Clock, Heart, FileText, X
+  Save, AlertCircle, Layers, Ruler, Clock, Heart, FileText, X, Video, SwitchCamera, ShieldAlert
 } from 'lucide-react';
 
 export default function AddProductWizard() {
@@ -21,19 +21,29 @@ export default function AddProductWizard() {
   // 5 = Published / Saved Celebration
   const [currentStep, setCurrentStep] = useState(1);
 
-  // CHECKPOINT 3: PHOTO STATE
+  // CHECKPOINT 3: PHOTO & CAMERA STATE
   const [photoUrl, setPhotoUrl] = useState(DEMO_SAMPLE_CRAFTS[0].imageUrl);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [photoError, setPhotoError] = useState('');
-  const fileInputRef = useRef(null);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+  const [cameraFacingMode, setCameraFacingMode] = useState('environment'); // 'environment' | 'user'
+  const [cameraPermissionState, setCameraPermissionState] = useState('idle'); // 'idle' | 'requesting' | 'granted' | 'denied' | 'unsupported'
+  const [cameraError, setCameraError] = useState('');
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const cameraStreamRef = useRef(null);
 
   // CHECKPOINT 4: VOICE & TEXT FALLBACK STATE
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [isMicStarting, setIsMicStarting] = useState(false);
   const [transcript, setTranscript] = useState(DEMO_SAMPLE_CRAFTS[0].voiceTranscriptHi);
   const [textFallback, setTextFallback] = useState('');
   const [inputMode, setInputMode] = useState('voice'); // 'voice' | 'text'
   const [voiceError, setVoiceError] = useState('');
+  const [micPermissionState, setMicPermissionState] = useState('idle'); // 'idle' | 'granted' | 'denied' | 'unsupported'
   const speechRecognitionRef = useRef(null);
   const timerRef = useRef(null);
 
@@ -57,13 +67,128 @@ export default function AddProductWizard() {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (speechRecognitionRef.current) speechRecognitionRef.current.stop();
+      if (speechRecognitionRef.current) {
+        try { speechRecognitionRef.current.abort(); } catch (e) {}
+      }
+      stopCameraStream();
     };
   }, []);
 
   // -------------------------------------------------------------
-  // CHECKPOINT 3: PHOTO HANDLING
+  // CHECKPOINT 3: PHOTO & CAMERA HANDLING
   // -------------------------------------------------------------
+  const stopCameraStream = () => {
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach(track => {
+        try {
+          track.stop();
+        } catch (e) {}
+      });
+      cameraStreamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const startCameraStream = async (facing = cameraFacingMode) => {
+    stopCameraStream();
+    setCameraError('');
+    setCameraPermissionState('requesting');
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setCameraPermissionState('unsupported');
+      setCameraError('इस ब्राउज़र में लाइव कैमरा स्ट्रीम समर्थित नहीं है। कृपया डिवाइस कैमरा चुनें।');
+      return;
+    }
+
+    try {
+      const constraints = {
+        video: {
+          facingMode: facing,
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      cameraStreamRef.current = stream;
+      setCameraPermissionState('granted');
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        try {
+          await videoRef.current.play();
+        } catch (e) {
+          console.warn("Video play interrupted:", e);
+        }
+      }
+    } catch (err) {
+      console.warn("Camera access error:", err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setCameraPermissionState('denied');
+        setCameraError('कैमरा अनुमति अस्वीकृत है। कृपया ब्राउज़र सेटिंग्स में कैमरा एक्सेस की अनुमति दें, या नीचे गैलरी/फाइल विकल्प का उपयोग करें।');
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setCameraPermissionState('unsupported');
+        setCameraError('कोई कैमरा उपकरण नहीं मिला। कृपया गैलरी से फोटो अपलोड करें।');
+      } else {
+        setCameraPermissionState('denied');
+        setCameraError(`कैमरा शुरू करने में समस्या हुई: ${err.message || 'त्रुटि'}`);
+      }
+    }
+  };
+
+  const handleOpenCamera = () => {
+    setPhotoError('');
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      setIsCameraModalOpen(true);
+      startCameraStream(cameraFacingMode);
+    } else if (cameraInputRef.current) {
+      cameraInputRef.current.click();
+    }
+  };
+
+  const handleCloseCameraModal = () => {
+    stopCameraStream();
+    setIsCameraModalOpen(false);
+    setCameraError('');
+    setCameraPermissionState('idle');
+  };
+
+  const handleFlipCamera = () => {
+    const nextFacing = cameraFacingMode === 'environment' ? 'user' : 'environment';
+    setCameraFacingMode(nextFacing);
+    startCameraStream(nextFacing);
+  };
+
+  const handleCaptureSnapshot = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    const width = video.videoWidth || 640;
+    const height = video.videoHeight || 480;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, width, height);
+
+    try {
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+      setPhotoUrl(dataUrl);
+      setPhotoError('');
+      handleCloseCameraModal();
+      showToast('फोटो खींच लिया गया!', 'success');
+      speakText('फोटो तैयार है');
+    } catch (err) {
+      console.warn("Snapshot error:", err);
+      setCameraError('फोटो कैप्चर करने में त्रुटि हुई।');
+    }
+  };
+
   const handleSelectSample = (sample) => {
     setPhotoError('');
     setPhotoUrl(sample.imageUrl);
@@ -73,11 +198,11 @@ export default function AddProductWizard() {
 
   const handleFileUpload = (e) => {
     setPhotoError('');
-    const file = e.target.files[0];
+    const file = e.target.files && e.target.files[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setPhotoError('कृपया केवल फोटो/इमेज फाइल चुनें');
+      setPhotoError('कृपया केवल फोटो/इमेज फाइल चुनें (PNG, JPG, WEBP)');
       return;
     }
 
@@ -87,6 +212,8 @@ export default function AddProductWizard() {
       setPhotoUrl(uploadEvent.target.result);
       setPhotoLoading(false);
       showToast('फोटो लोड हो गया!', 'success');
+      if (cameraInputRef.current) cameraInputRef.current.value = '';
+      if (galleryInputRef.current) galleryInputRef.current.value = '';
     };
     reader.onerror = () => {
       setPhotoLoading(false);
@@ -114,31 +241,53 @@ export default function AddProductWizard() {
   // CHECKPOINT 4: VOICE & TEXT HANDLING
   // -------------------------------------------------------------
   const handleToggleRecord = () => {
+    if (isMicStarting) return;
     setVoiceError('');
-    if (isRecording) {
-      // Stop recording
-      setIsRecording(false);
-      clearInterval(timerRef.current);
-      if (speechRecognitionRef.current) {
-        speechRecognitionRef.current.stop();
-      }
-      showToast(t('recordedSuccess'), 'success');
-    } else {
-      // Start recording
-      setIsRecording(true);
-      setRecordingSeconds(0);
-      timerRef.current = setInterval(() => {
-        setRecordingSeconds(prev => prev + 1);
-      }, 1000);
 
-      // Web Speech API
+    if (isRecording) {
+      // Stop recording cleanly
+      setIsRecording(false);
+      setIsMicStarting(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      if (speechRecognitionRef.current) {
+        try {
+          speechRecognitionRef.current.stop();
+        } catch (e) {}
+      }
+      if (transcript && transcript.trim()) {
+        showToast(t('recordedSuccess'), 'success');
+      } else {
+        showToast("रिकॉर्डिंग समाप्त हुई", "info");
+      }
+    } else {
+      // Start recording with double-click guard
+      setIsMicStarting(true);
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
       if (SpeechRecognition) {
         try {
+          if (speechRecognitionRef.current) {
+            try { speechRecognitionRef.current.abort(); } catch (e) {}
+          }
+
           const recognition = new SpeechRecognition();
           recognition.continuous = true;
           recognition.interimResults = true;
           recognition.lang = language === 'en' ? 'en-IN' : 'hi-IN';
+
+          recognition.onstart = () => {
+            setIsRecording(true);
+            setIsMicStarting(false);
+            setMicPermissionState('granted');
+            setRecordingSeconds(0);
+            if (timerRef.current) clearInterval(timerRef.current);
+            timerRef.current = setInterval(() => {
+              setRecordingSeconds(prev => prev + 1);
+            }, 1000);
+          };
 
           recognition.onresult = (event) => {
             let current = '';
@@ -153,26 +302,51 @@ export default function AddProductWizard() {
           recognition.onerror = (err) => {
             console.warn("Speech recognition error:", err);
             setIsRecording(false);
-            clearInterval(timerRef.current);
-            setVoiceError("माइक्रोफ़ोन एक्सेस नहीं मिला। आप नीचे लिखकर भी विवरण दर्ज कर सकते हैं।");
+            setIsMicStarting(false);
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+
+            if (err.error === 'not-allowed') {
+              setMicPermissionState('denied');
+              setVoiceError("माइक्रोफ़ोन अनुमति अस्वीकृत है। कृपया ब्राउज़र सेटिंग्स में माइक्रोफ़ोन की अनुमति दें, या नीचे 'लिखकर बताएं' विकल्प चुनें।");
+            } else if (err.error === 'no-speech') {
+              setVoiceError("कोई आवाज़ नहीं सुनी गई। कृपया माइक के पास बोलें या पुनः प्रयास करें।");
+            } else if (err.error === 'network') {
+              setVoiceError("नेटवर्क समस्या के कारण ध्वनि पहचान प्रभावित हुई। आप नीचे लिखकर विवरण दे सकते हैं।");
+            } else {
+              setVoiceError("माइक्रोफ़ोन एक्सेस में समस्या हुई। आप नीचे लिखकर भी विवरण दे सकते हैं।");
+            }
+          };
+
+          recognition.onend = () => {
+            setIsRecording(false);
+            setIsMicStarting(false);
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
           };
 
           speechRecognitionRef.current = recognition;
           recognition.start();
         } catch (e) {
-          console.warn("Speech recognition failed:", e);
+          console.warn("Speech recognition start failed:", e);
           setIsRecording(false);
-          clearInterval(timerRef.current);
-          setVoiceError("ब्राउज़र में ध्वनि पहचान उपलब्ध नहीं है। कृपया नीचे लिखकर दर्ज करें।");
+          setIsMicStarting(false);
+          if (timerRef.current) clearInterval(timerRef.current);
+          setMicPermissionState('denied');
+          setVoiceError("माइक्रोफ़ोन शुरू करने में समस्या हुई। कृपया नीचे लिखकर बताएं।");
         }
       } else {
-        // Speech API not supported in browser environment: fallback to text mode cleanly
-        setTimeout(() => {
-          setIsRecording(false);
-          clearInterval(timerRef.current);
-          setInputMode('text');
-          setVoiceError("इस ब्राउज़र में सीधा माइक उपलब्ध नहीं है। कृपया लिखकर बताएं।");
-        }, 1200);
+        // Speech API not supported: fallback to text mode cleanly
+        setIsRecording(false);
+        setIsMicStarting(false);
+        setMicPermissionState('unsupported');
+        setInputMode('text');
+        setVoiceError("इस ब्राउज़र में सीधा स्पीच रिकग्निशन उपलब्ध नहीं है। कृपया नीचे लिखकर विवरण दें।");
+        showToast("कृपया उत्पाद का विवरण लिखकर बताएं", "info");
       }
     }
   };
@@ -393,7 +567,7 @@ export default function AddProductWizard() {
                 </span>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button
-                    onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                    onClick={handleOpenCamera}
                     style={{ background: 'rgba(255, 255, 255, 0.95)', color: '#0F172A', padding: '5px 12px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     <RefreshCw size={12} />
@@ -412,7 +586,7 @@ export default function AddProductWizard() {
           ) : (
             <div
               className="upload-dropzone"
-              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              onClick={handleOpenCamera}
             >
               <Camera size={44} color="#EA580C" style={{ marginBottom: '8px' }} />
               <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>
@@ -424,19 +598,29 @@ export default function AddProductWizard() {
             </div>
           )}
 
+          {/* Hidden File Inputs for Device Camera & Album Fallback */}
           <input
             type="file"
-            ref={fileInputRef}
+            ref={cameraInputRef}
+            onChange={handleFileUpload}
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+          />
+          <input
+            type="file"
+            ref={galleryInputRef}
             onChange={handleFileUpload}
             accept="image/*"
             style={{ display: 'none' }}
           />
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
 
           {/* Large Action Buttons */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
             <button
               className="btn-secondary-large"
-              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              onClick={handleOpenCamera}
               disabled={photoLoading}
             >
               <Camera size={20} color="#EA580C" />
@@ -445,13 +629,109 @@ export default function AddProductWizard() {
 
             <button
               className="btn-secondary-large"
-              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              onClick={() => galleryInputRef.current && galleryInputRef.current.click()}
               disabled={photoLoading}
             >
               <Upload size={20} color="#EA580C" />
               <span>{photoLoading ? 'लोड हो रहा...' : t('uploadPhoto')}</span>
             </button>
           </div>
+
+          {/* Live In-App Camera Viewfinder Modal */}
+          {isCameraModalOpen && (
+            <div className="modal-backdrop" onClick={handleCloseCameraModal}>
+              <div className="modal-content-sheet" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header-row">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Camera size={20} color="var(--terracotta)" />
+                    <h3 className="modal-title">लाइव कैमरा (Live Camera)</h3>
+                  </div>
+                  <button className="modal-close-btn" onClick={handleCloseCameraModal}>
+                    <X size={18} />
+                  </button>
+                </div>
+
+                {cameraPermissionState === 'denied' || cameraError ? (
+                  <div className="permission-alert-box">
+                    <div className="permission-alert-content">
+                      <ShieldAlert size={24} color="#DC2626" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <div>
+                        <div style={{ fontWeight: 800, color: '#991B1B', marginBottom: '4px' }}>
+                          कैमरा अनुमति आवश्यक है
+                        </div>
+                        <p style={{ fontSize: '0.82rem', color: '#7F1D1D' }}>
+                          {cameraError || 'ब्राउज़र में कैमरा अनुमति अस्वीकृत है। कृपया अनुमति दें या गैलरी से फोटो अपलोड करें।'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="permission-action-row">
+                      <button
+                        className="pill-btn"
+                        onClick={() => startCameraStream(cameraFacingMode)}
+                        style={{ background: '#FFFFFF', color: '#92400E', borderColor: '#FCD34D' }}
+                      >
+                        <RefreshCw size={13} />
+                        <span>पुनः प्रयास करें</span>
+                      </button>
+                      <button
+                        className="pill-btn"
+                        onClick={() => {
+                          handleCloseCameraModal();
+                          if (galleryInputRef.current) galleryInputRef.current.click();
+                        }}
+                        style={{ background: 'var(--terracotta)', color: '#FFFFFF', borderColor: 'var(--terracotta)' }}
+                      >
+                        <Upload size={13} />
+                        <span>गैलरी से चुनें</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="camera-viewfinder-box">
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="camera-video-stream"
+                      />
+                      <div className="camera-viewfinder-grid" />
+                    </div>
+
+                    <div className="camera-shutter-bar">
+                      <button
+                        className="camera-flip-btn"
+                        onClick={handleFlipCamera}
+                        title="कैमरा बदलें (Front / Back)"
+                      >
+                        <SwitchCamera size={22} />
+                      </button>
+
+                      <button
+                        className="camera-shutter-btn"
+                        onClick={handleCaptureSnapshot}
+                      >
+                        <Camera size={22} />
+                        <span>फोटो खींचें (Capture)</span>
+                      </button>
+
+                      <button
+                        className="camera-flip-btn"
+                        onClick={() => {
+                          handleCloseCameraModal();
+                          if (galleryInputRef.current) galleryInputRef.current.click();
+                        }}
+                        title="गैलरी से फोटो चुनें"
+                      >
+                        <Upload size={20} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Quick Demo Sample Picker */}
           <div style={{ marginBottom: '24px' }}>
@@ -536,9 +816,39 @@ export default function AddProductWizard() {
           </div>
 
           {voiceError && (
-            <div style={{ background: '#FEF3C7', border: '1px solid #F59E0B', color: '#92400E', padding: '10px 14px', borderRadius: '12px', fontSize: '0.82rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <AlertCircle size={16} />
-              <span>{voiceError}</span>
+            <div className="permission-alert-box">
+              <div className="permission-alert-content">
+                <ShieldAlert size={20} color="#D97706" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <div style={{ fontWeight: 800, color: '#92400E', marginBottom: '2px' }}>
+                    माइक सहायता संदेश
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: '#78350F' }}>
+                    {voiceError}
+                  </p>
+                </div>
+              </div>
+              <div className="permission-action-row">
+                <button
+                  className="pill-btn"
+                  onClick={handleToggleRecord}
+                  style={{ background: '#FFFFFF', color: '#92400E', borderColor: '#FCD34D' }}
+                >
+                  <RefreshCw size={13} />
+                  <span>पुनः प्रयास करें</span>
+                </button>
+                <button
+                  className="pill-btn"
+                  onClick={() => {
+                    setInputMode('text');
+                    setVoiceError('');
+                  }}
+                  style={{ background: 'var(--terracotta)', color: '#FFFFFF', borderColor: 'var(--terracotta)' }}
+                >
+                  <FileText size={13} />
+                  <span>लिखकर बताएं</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -549,6 +859,8 @@ export default function AddProductWizard() {
                 <button
                   className={`mic-circle-btn ${isRecording ? 'recording' : ''}`}
                   onClick={handleToggleRecord}
+                  disabled={isMicStarting}
+                  title={isRecording ? "बोलना रोकें" : "बोलने के लिए दबाएं"}
                 >
                   {isRecording ? <MicOff size={42} /> : <Mic size={42} />}
                 </button>

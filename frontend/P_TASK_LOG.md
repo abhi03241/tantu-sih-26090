@@ -189,6 +189,7 @@
 | **Checkpoint 8** | Frontend Handoff Audit & Live-flow Repairs | Completed ✓ | `feat: preserve existing ui and repair navigation handoff` |
 | **Checkpoint 9** | Mobile & APK Readiness | Completed ✓ | `feat: mobile and apk readiness safeguards` |
 | **Checkpoint 10** | ShilpVani (शिल्पवाणी) User-Facing Rebranding & Language Polish | Completed ✓ | `feat: rebrand user-facing product to shilpvani and polish language selector` |
+| **Checkpoint 11** | Camera & Microphone Reliability & Native Fallbacks | Completed ✓ | `feat: enhance camera and microphone reliability and permissions` |
 
 ---
 
@@ -292,5 +293,38 @@
 - **Actual Results**:
   - Production build completed successfully in 6.09s (1610 modules transformed, 0 errors).
 - **Status**: Completed ✓
+
+---
+
+## Checkpoint 11 — Camera & Microphone Hardware Reliability & Permissions
+- **Step Name**: Camera & Microphone User Experience and Permission Resilience
+- **What Was Implemented**:
+  - **Camera Pipeline**:
+    - Integrated in-app live viewfinder modal (`isCameraModalOpen`) utilizing `navigator.mediaDevices.getUserMedia` with video frame snapshot capture to a canvas at native resolution (`image/jpeg`).
+    - Added camera flip button (front/environment facing mode toggle).
+    - Added direct device camera trigger fallback (`<input type="file" accept="image/*" capture="environment">`) for mobile browsers and Android/Capacitor webviews where live WebRTC streams are restricted.
+    - Added dedicated photo album/gallery picker fallback (`<input type="file" accept="image/*">`).
+    - Handled permission denial (`NotAllowedError`) with clear user guidance in Hindi, explicit retry button, and immediate gallery picker fallback.
+    - Enforced proper MediaStream track disposal (`track.stop()`) on modal dismissal and component unmount to release device hardware.
+    - Maintained un-distorted preview rendering (`object-fit: cover`) and MIME type validation.
+  - **Microphone Pipeline**:
+    - Added debounce guard (`isMicStarting`) to prevent multi-click race conditions on SpeechRecognition initialization.
+    - Handled Web Speech API permission denial (`not-allowed`) with clear Hindi alert and instant switch to "लिखकर बताएं (Text Fallback)".
+    - Handled `no-speech` and `network` events with graceful retry prompts.
+    - Preserved live audio waveform animation, timer feedback, and audio playback synthesis (`speakText`).
+    - Seamlessly passed transcripts and uploaded photos to existing backend AI endpoints (`productService.processVoice` and `productService.enhanceImage`) without altering backend contracts.
+- **Files Created / Modified**:
+  - `frontend/src/components/artisan/AddProductWizard.jsx`
+  - `frontend/src/index.css`
+  - `docs/TEAM_PROGRESS.md`
+  - `frontend/P_TASK_LOG.md`
+- **APIs / Interfaces Affected**:
+  - None (Shared API contracts, product schema, and AI pipeline preserved).
+- **Tests Run**:
+  - `npm run build`
+- **Actual Results**:
+  - Production build completed with 0 errors (1610 modules transformed, built in 5.73s).
+- **Status**: Completed ✓
+
 
 
