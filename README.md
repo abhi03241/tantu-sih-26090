@@ -9,7 +9,7 @@
 
   [![Backend Tests](https://img.shields.io/badge/Backend%20Tests-62%2F62%20PASSED-brightgreen.svg)](file:///d:/SIH2026/tests)
   [![Frontend Build](https://img.shields.io/badge/Frontend%20Build-PASSED%20(1610%20modules)-blue.svg)](file:///d:/SIH2026/frontend)
-  [![Vercel Ready](https://img.shields.io/badge/Vercel-Deployment%20Ready-black.svg)](file:///d:/SIH2026/vercel.json)
+  [![Vercel Deployment](https://img.shields.io/badge/Vercel-Frontend%20Ready-black.svg)](file:///d:/SIH2026/vercel.json)
   [![SIH Readiness](https://img.shields.io/badge/SIH%20Prototype%20Readiness-70--75%25-orange.svg)](file:///d:/SIH2026/README.md)
 </div>
 
@@ -39,7 +39,7 @@ The current prototype provides complete interface support, speech recognition ro
 6. **Tamil** (`ta`) — தமிழ்
 7. **Telugu** (`te`) — తెలుగు
 
-> *Architecture Note*: The current prototype supports 7 Indian languages, with an underlying software and model orchestration architecture designed for further multilingual expansion across additional Indic dialects.
+> *Platform Architecture*: The underlying software and AI model orchestration architecture is built for broader multilingual expansion across additional Indic dialects.
 
 ---
 
@@ -56,7 +56,7 @@ AI UNDERSTANDS THE CRAFT
    │ (Extracts material, dimensions, duration, heritage story)
    ▼
 STRUCTURED PRODUCT DATA & IMAGE ENHANCEMENT
-   │ (Bilingual descriptions + Studio lighting backdrop + Fair wage estimation)
+   │ (Bilingual descriptions + Studio backdrop + Fair wage estimation)
    ▼
 PROFESSIONAL DIGITAL CATALOGUE
    │ (High-conversion marketplace listing)
@@ -67,79 +67,44 @@ B2B MARKETPLACE & BULK ORDERS
 
 ---
 
-## 🚨 Problem Statement
+## 🚀 Cloud Deployment Architecture & Vercel Integration
 
-Rural and marginalized artisans across India produce exquisite handcrafted heritage items but face severe systemic barriers to online commercial marketplaces:
-
-* **Language Barriers**: E-commerce platforms are overwhelmingly English/Hindi-centric, excluding regional dialect speakers.
-* **Digital Literacy Deficit**: Form-heavy listing tools require typing, categorization codes, and complex administrative inputs.
-* **Cataloguing Friction**: Writing persuasive marketing text, cultural background, dimensions, and maintenance care instructions is challenging without formal marketing training.
-* **Sub-par Product Photography**: Photographs taken on basic smartphones under poor lighting fail to attract urban and international buyers.
-* **Pricing Uncertainty**: Artisans often underprice their labor or lack cost-plus pricing frameworks, leading to economic exploitation.
-* **Limited Access to B2B Markets**: High dependency on local middlemen, physical seasonal fairs, and regional traders limits income stability.
-
----
-
-## ✨ Key Implemented Capabilities
-
-* 📷 **AI Image Studio / Image Enhancement**: Auto-corrects mobile captures with lighting balance, edge-preserving studio background cleanup, and SHA-256 hashed asset serving under `/enhanced`.
-* 🎙️ **Voice-First Product Input**: Tap-to-record voice interface supporting regional speech inputs.
-* 🗣️ **Multilingual Auto-Cataloguing**: Translates raw artisan voice notes into structured, professional marketing copy, heritage stories, and care guidelines.
-* 🌐 **Multilingual Interface & Localisation**: Verified translation dictionary parity (66 keys each) across English, Hindi, Bengali, Marathi, Assamese, Tamil, and Telugu.
-* 💰 **AI-Assisted Suggested Pricing**: Cost-plus pricing algorithm consuming raw material cost, labor hours, production duration, and regional multipliers providing an *AI-assisted suggested price range*.
-* 🏢 **B2B Wholesale Marketplace**: Dedicated buyer feed for discovering published artisan products, submitting bulk order requests, and negotiating custom unit prices.
-* 📦 **Order Status Tracking**: Persisted order lifecycle state management (`pending` → `accepted` → `fulfilled`).
-* 📜 **Cultural Narrative Preservation**: Highlights traditional craft techniques, heritage stories, and human artisan identity.
-
----
-
-## 🧠 AI Pipeline Architecture
-
-1. **Voice Processing & Multilingual NLP (`ai/nlp/voice_and_story.py`)**:
-   * Speech-to-text transcription parsing native dialect speech.
-   * Keyword & entity extraction for dimensions, production duration, material type, and craft category.
-   * Grounded narrative generation without hallucinating unstated artisan facts.
-2. **Vision & Image Enhancement (`ai/vision/image_enhancer.py`)**:
-   * EXIF orientation auto-normalization for smartphone photos.
-   * Non-destructive studio backdrop enhancement & lighting balance.
-   * Content-hash collision protection with static asset serving under `/enhanced`.
-3. **AI-Assisted Dynamic Pricing (`ai/pricing/smart_pricing.py`)**:
-   * Cost-plus pricing algorithm consuming raw material cost, labor hours, production duration, and regional multipliers.
-   * Outputs an **AI-assisted suggested price range** (labeled clearly with a disclaimer; does not guarantee absolute market value).
-4. **Product Pipeline Orchestration (`backend/app/services/orchestrator.py`)**:
-   * Chains NLP, Vision, and Pricing submodules with step-level fallback isolation, ensuring system resilience even if individual AI steps encounter partial data.
-
----
-
-## 🚀 Vercel & Cloud Deployment Architecture
-
-ShilpVani uses a decoupled frontend/backend deployment model optimized for performance, scalability, and state persistence:
+ShilpVani uses a decoupled deployment model:
 
 ```text
 ┌────────────────────────────────────────────────────────┐
-│                   Vercel CDN Edge Network              │
-│  React 18 + Vite 6 Single Page App (SPA)               │
-│  - Static Asset Distribution & Global Edge Caching     │
-│  - Environment: VITE_API_BASE_URL                      │
-│  - Config: vercel.json (Root & frontend/ vercel.json)   │
+│                   Vercel Edge Network                  │
+│  React 18 + Vite 6 Frontend SPA                        │
+│  - High-Speed Global CDN Static Distribution          │
+│  - SPA Routing Rewrites via vercel.json                │
+│  - Configurable Build Env: VITE_API_BASE_URL           │
 └───────────────────────────┬────────────────────────────┘
-                            │ API Calls / CORS
+                            │ Cross-Origin HTTPS API Calls
                             ▼
 ┌────────────────────────────────────────────────────────┐
-│               FastAPI Backend Cloud Host               │
-│  Python 3.12 + FastAPI + SQLite3                       │
-│  - Host: Render / Railway / Fly.io / AWS EC2            │
+│               Persistent Python Cloud Host             │
+│  FastAPI + Python 3.12 + SQLite + Pillow Asset Storage │
+│  - Cloud Host: Render / Railway / Fly.io / AWS EC2     │
 │  - Persistent SQLite Database (tantu.db)               │
-│  - Persistent Image Uploads & /enhanced Studio Assets  │
+│  - Persistent /uploads & /enhanced Static Asset Serving│
 └────────────────────────────────────────────────────────┘
 ```
 
-### Vercel Frontend Configuration
-
-* **Build Command**: `npm run build --prefix frontend` (or `npm run build` inside `frontend/`)
-* **Output Directory**: `frontend/dist` (or `dist` inside `frontend/`)
-* **Environment Variable**: `VITE_API_BASE_URL` (points to live FastAPI backend; defaults to local development server when unset).
+### 1. Frontend Vercel Deployment Guide
+* **Vercel Root Directory**: `frontend/` (or repository root)
+* **Build Command**: `npm run build` (or `npm run build --prefix frontend`)
+* **Output Directory**: `dist` (or `frontend/dist`)
+* **Environment Variables**:
+  * `VITE_API_BASE_URL`: `https://<YOUR-BACKEND-HOST>.onrender.com`
+  * `VITE_BACKEND_URL`: `https://<YOUR-BACKEND-HOST>.onrender.com`
 * **Configuration Files**: Root [`vercel.json`](file:///d:/SIH2026/vercel.json) and [`frontend/vercel.json`](file:///d:/SIH2026/frontend/vercel.json) included in repository.
+
+### 2. Backend Hosting Guide (Render / Railway / Fly.io)
+* **Runtime**: Python 3.12
+* **Build Command**: `pip install -r backend/requirements.txt`
+* **Start Command**: `python -m backend.app.main` (or `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`)
+* **Environment Variables**: `MOCK_AI=true`, `HOST=0.0.0.0`
+* **CORS Middleware**: Pre-configured with `allow_origins=["*"]` to serve Vercel frontend domains.
 
 ---
 
@@ -154,7 +119,7 @@ ShilpVani uses a decoupled frontend/backend deployment model optimized for perfo
 * ✅ **B2B marketplace discovery feed**
 * ✅ **Bulk-order request submission & quantity pricing**
 * ✅ **Order lifecycle state persistence** (`pending` → `accepted` → `fulfilled`)
-* ✅ **Cloud-deployment readiness & Vercel configuration**
+* ✅ **Vercel frontend deployment configuration & decoupled backend API**
 
 ### Future Scope & Production Roadmap (25–30%)
 * 🔮 **Additional Indian Languages**: Expanding voice recognition and NLP models to cover Bhojpuri, Maithili, Odia, Dogri, Santhali, and Khasi.
@@ -229,8 +194,8 @@ python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
 ### Verified Test Results:
-* **Backend & Integration Unittests**: **62/62 PASSED** (0 failures, 0 errors in 1.89s).
-* **Frontend Production Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed in 1.56s, 0 build errors).
+* **Backend & Integration Unittests**: **62/62 PASSED** (0 failures, 0 errors in 1.81s).
+* **Frontend Production Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed in 1.38s, 0 build errors).
 * **Git Whitespace & Format Check**: `git diff --check` **PASSED** (0 whitespace/formatting issues).
 
 ---

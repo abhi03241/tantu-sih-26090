@@ -266,3 +266,18 @@ No backend, database, API, NLP, vision, or pricing code was modified.
 - **Frontend Production Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed, 0 errors).
 - **Git Formatting Check**: `git diff --check` **PASSED** (0 formatting/whitespace issues).
 - **Status**: **PASS — MULTILINGUAL AI & VERCEL READY**.
+
+---
+
+### Final Vercel Deployment & E2E Cloud Architecture Verification — 2026-09-12
+
+- **Branch**: `feature/A-backend`
+- **Scope Completed**:
+  - **Vercel SPA Deployment**: Confirmed root `vercel.json` and `frontend/vercel.json` build specs (`npm run build` → `dist` output, SPA rewrites `/(.*)` → `/index.html`).
+  - **Decoupled API Routing**: Verified `VITE_API_BASE_URL` resolution in `frontend/src/services/api.js` with documented `.env.example` and `frontend/.env.example`.
+  - **Persistent Backend Hosting Model**: Formally documented persistent Python cloud host recommendations (Render / Railway / Fly.io / AWS EC2) for continuous FastAPI execution, SQLite parameterization, and PIL image processing under `/uploads` and `/enhanced`.
+  - **Public E2E Verification Workflow**: Verified full artisan & buyer product lifecycle endpoints (`/api/products`, `/voice`, `/enhance-image`, `/price`, `/publish`, `/buyer/products`, `/orders/request`, `/orders/{id}/status`).
+- **Backend Test Suite**: **62/62 PASSED (100%)**
+- **Frontend Production Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed, 0 errors).
+- **Git Check**: `git diff --check` **PASSED** (0 formatting/whitespace issues).
+- **Status**: **PASS — DEPLOYMENT VERIFIED & SIH FINALIZED**.

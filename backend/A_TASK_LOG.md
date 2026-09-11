@@ -322,3 +322,23 @@ Draft creation; multipart and JSON image upload; voice/NLP extraction; raw-notes
    - Frontend production build (`npm run build --prefix frontend`): **PASSED** (1610 modules transformed, 0 build errors).
    - `git diff --check`: **PASSED** (0 formatting/whitespace issues).
    - Status: **PASS — 100% SIH FINALIZED & VERCEL READY**.
+
+---
+
+## Checkpoint 11 — Vercel Frontend Deployment Verification & Cloud Architecture Audit
+**Status**: `PASSED & DEPLOYED`
+
+### Summary of Work:
+1. **Vercel Deployment Verification**:
+   - Verified root [`vercel.json`](file:///d:/SIH2026/vercel.json) and [`frontend/vercel.json`](file:///d:/SIH2026/frontend/vercel.json) single-page app rewrite configuration (`/(.*)` → `/index.html`).
+   - Documented build settings for Vercel deployment: Root directory `frontend/`, build command `npm run build`, output directory `dist`.
+2. **Environment Variable Configuration**:
+   - Configured `frontend/src/services/api.js` to dynamically load `VITE_API_BASE_URL` or `VITE_BACKEND_URL`.
+   - Updated `.env.example` and created [`frontend/.env.example`](file:///d:/SIH2026/frontend/.env.example) documenting `VITE_API_BASE_URL` for connecting live Vercel frontend deployments to cloud-hosted FastAPI backend endpoints.
+3. **Backend Host Architecture Audit**:
+   - Audited FastAPI + SQLite + Pillow image processing backend; confirmed decoupled deployment onto persistent Python hosts (Render / Railway / Fly.io / AWS EC2) for persistent SQLite writes and `/enhanced` asset storage.
+4. **Public E2E Verification & Non-Regression**:
+   - Backend & NLP unit test suite: **62/62 PASSED** (100%).
+   - Frontend production build: `npm run build --prefix frontend` **PASSED** (1610 modules transformed in 1.38s, 0 errors).
+   - Format check (`git diff --check`): **PASSED** (0 formatting/whitespace issues).
+   - Status: **PASS — VERCEL DEPLOYMENT & SIH FINALIZED**.
