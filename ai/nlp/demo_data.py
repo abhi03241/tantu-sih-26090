@@ -454,6 +454,18 @@ def extract_material_and_category(text: str) -> Tuple[str, str]:
     return "Natural Artisan Material", "Handicrafts & Decor"
 
 
+def _match_any_keyword(text: str, keywords: list) -> bool:
+    """
+    Matches keywords using word/token boundaries across Latin and Indic scripts (\u0900-\u0D7F),
+    preventing false positive substring matches (e.g., 'মা' matching inside 'মাটির').
+    """
+    for kw in keywords:
+        pattern = r'(?<![\w\u0900-\u0D7F])' + re.escape(kw.lower()) + r'(?![\w\u0900-\u0D7F])'
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    return False
+
+
 def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """
     Extracts artisan storytelling, narrative classification, and sentiment cues across all 7 supported languages.
@@ -474,12 +486,13 @@ def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], Optional[str]
       - Neutral
     """
     lower = text.lower().replace("’", "'")
-    has_pride = any(k in lower for k in [
-        "pride", "proud", "garv", "गर्व", "গর্ব", "গৌৰৱ", "अभिमान", "பெருமை", "గర్వం"
+    has_pride = _match_any_keyword(lower, [
+        "pride", "proud", "garv", "गर्व", "গর্ব", "গৌরব", "গৌৰৱ", "अभिमान", "अभिमानाने",
+        "பெருமை", "பெருமையுடன்", "பெருமையோடு", "గర్వం", "గర్వంగా"
     ])
 
     # 1. Community-made (Self-help groups, women cooperatives, collective work)
-    if any(k in lower for k in [
+    if _match_any_keyword(lower, [
         "women's group", "women group", "shg", "samuh", "samooh", "mahila", "collective", "cooperative",
         "মহিলা দল", "মহিলা গোট", "महिला बचत गट", "மகளிர் குழு", "మహిళా సంఘం"
     ]):
@@ -488,48 +501,60 @@ def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], Optional[str]
         return story, sentiment, "Community-made"
 
     # 2. Family craft (Parents, grandparents, generational family learning)
-    if any(k in lower for k in ["maa", "mother", "mummy", "माता", "मां", "মা", "আই", "आई", "அம்மா", "தாய்", "తల్లి", "అమ్మ"]):
+    if _match_any_keyword(lower, [
+        "maa", "mother", "mummy", "माता", "मां", "মা", "মায়ের", "মায়ে", "আই", "আইৰ",
+        "आई", "आईने", "आईनी", "அம்மா", "தாய்", "తల్లి", "అమ్మ"
+    ]):
         story = "Learned the craft from mother: an inherited craft tradition taught by the artisan's mother."
         return story, "Pride" if has_pride else "Nostalgia", "Family craft"
 
-    if any(k in lower for k in ["dada", "dadi", "grandfather", "grandmother", "दादा", "नाना", "দাদু", "ঠাকুমা", "ককা", "আইতা", "आजोबा", "आजी", "தாத்தா", "பாட்டி", "తాత", "అవ్వ", "నానమ్మ", "అమ్మమ్మ"]):
+    if _match_any_keyword(lower, [
+        "dada", "dadi", "grandfather", "grandmother", "दादा", "दादी", "नाना", "नानी",
+        "দাদু", "ঠাকুমা", "ককা", "আইতা", "आजोबा", "आजी", "தாத்தா", "பாட்டி",
+        "తాత", "అవ్వ", "నానమ్మ", "అమ్మమ్మ"
+    ]):
         story = "The artisan mentions learning this craft from a grandfather or grandmother."
         return story, "Pride" if has_pride else "Nostalgia", "Family craft"
 
-    if any(k in lower for k in ["pita", "pitaji", "father", "बापू", "पिता", "বাবা", "দেউতা", "वडील", "बाबा", "அப்பா", "தந்தை", "తండ్రి", "నాన్న"]):
+    if _match_any_keyword(lower, [
+        "pita", "pitaji", "father", "बापू", "पिता", "बाबा", "বাবার", "দেউতা", "দেউতাৰ",
+        "वडील", "वडिलांनी", "वडिलांचे", "बाबा", "அப்பா", "தந்தை", "తండ్రి", "నాన్న"
+    ]):
         story = "Artisanal techniques and heritage passed down from the artisan's father."
         return story, "Pride" if has_pride else "Nostalgia", "Family craft"
 
     # 3. Traditional heritage (Generations, centuries of lineage)
-    if any(k in lower for k in [
-        "peedhi", "generation", "virasat", "ancestral", "विरासत", "पीढ़ी", "heritage", "centuries",
-        "প্রজন্ম", "বংশ", "পুৰুষ", "পৰম্পৰা", "पिढ्या", "वारसा", "தலைமுறை", "பாரம்பரியம்", "తరాలు", "సాంప్రదాయం"
+    if _match_any_keyword(lower, [
+        "peedhi", "peedhiyan", "peedhiyon", "generation", "generations", "virasat",
+        "ancestral", "ancestor", "ancestors", "विरासत", "पीढ़ी", "पीढ़ियों", "पीढ़ियां", "heritage",
+        "centuries", "century", "প্রজন্ম", "বংশ", "পুৰুষ", "পৰম্পৰা", "पिढ्या", "वारसा",
+        "தலைமுறை", "பாரம்பரியம்", "తరాలు", "సాంప్రదాయం"
     ]):
         story = "The artisan describes this craft as continuing across generations."
         return story, "Nostalgia", "Traditional heritage"
 
     # 4. Cultural identity (Regional festivals, sacred traditions, tribal symbolism)
-    if any(k in lower for k in [
+    if _match_any_keyword(lower, [
         "culture", "cultural", "tribal", "folk", "sanskriti", "parampara", "festival", "utsav", "ritual",
-        "সংস্কৃতি", "উৎসব", "संस्कृती", "सण", "பண்பாடு", "திருவிழா", "సంస్కృతి", "పండుగ"
+        "সংস্কৃতি", "উৎসব", "সংস্কृती", "सण", "பண்பாடு", "திருவிழா", "సంస్కృతి", "పండుగ"
     ]):
         story = "The artisan references a cultural, festival, ritual, or regional context for this craft."
         return story, "Neutral", "Cultural identity"
 
     # 5. Handmade journey (Intricate hand-making, hours of patience, dedication)
-    if any(k in lower for k in ["passion", "love", "dil se", "pyaar", "shauk", "ভালপোৱা", "प्रेम", "அன்பு", "ప్రేమ"]):
+    if _match_any_keyword(lower, ["passion", "love", "dil se", "pyaar", "shauk", "ভালপোৱা", "प्रेम", "அன்பு", "ప్రేమ"]):
         story = "Crafted with immense artistic passion and personal love for the handmade form."
         return story, "Passion", "Handmade journey"
 
-    if any(k in lower for k in ["joy", "khushi", "anand", "happy", "खुशी", "आनंद", "আনন্দ", "மகிழ்ச்சி", "ఆనందం"]):
+    if _match_any_keyword(lower, ["joy", "khushi", "anand", "happy", "खुशी", "आनंद", "আনন্দ", "மகிழ்ச்சி", "ఆనందం"]):
         story = "Created with joy and creative spirit, celebrating artisanal handwork."
         return story, "Joy", "Handmade journey"
 
-    if any(k in lower for k in ["pride", "proud", "garv", "गर्व", "গর্ব", "গৌৰৱ", "अभिमान", "பெருமை", "గర్వం"]):
+    if has_pride:
         story = "The artisan expresses pride in this craft."
         return story, "Pride", "Handmade journey"
 
-    if any(k in lower for k in [
+    if _match_any_keyword(lower, [
         "handcrafted", "hand-carved", "handwoven", "haath se", "buna", "mehnat",
         "হাতে তৈরি", "हातमागावर", "கைவினை", "చేతితో"
     ]):
@@ -538,6 +563,7 @@ def extract_story_and_sentiment(text: str) -> Tuple[Optional[str], Optional[str]
 
     # If artisan did not communicate any story or narrative, do NOT invent one
     return None, "Neutral", None
+
 
 
 # ==========================================================

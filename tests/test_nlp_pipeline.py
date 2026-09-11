@@ -373,6 +373,56 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(detect_language("இது ஒரு கைவினைப் பொருள்"), "ta")
         self.assertEqual(detect_language("ఇది అందమైన చేతివృత్తి కళాఖండం"), "te")
 
+    def test_grounded_behavior_no_hallucinated_duration_or_story(self):
+        """
+        Groundedness guarantee: When an artisan inputs only basic craft info
+        WITHOUT stating production time, dimensions, or story,
+        the NLP pipeline MUST return None and Neutral sentiment.
+        """
+        inputs = [
+            ("en", "Simple clay pot for kitchen water storage."),
+            ("hi", "मिट्टी का साधारण घड़ा पानी रखने के लिए।"),
+            ("bn", "রান্নাঘরের জন্য সাধারণ মাটির ঘড়া।"),
+            ("mr", "स्वयंपाकघरासाठी साधे मातीचे भांडे."),
+            ("as", "পানী ৰাখিবলৈ সাধাৰণ মাটিৰ পাত্ৰ।"),
+            ("ta", "சமையலறைக்கு சாதாரண மண்பாண்டம்."),
+            ("te", "నీళ్లు ఉంచడానికి సాధారణ మట్టి కుండ."),
+        ]
+        for lang_code, text in inputs:
+            res = self.mock_service.process_transcript(text, language=lang_code)
+            self.assertIsNone(res.dimensions, f"Dimensions hallucinated for {lang_code}")
+            self.assertIsNone(res.production_time, f"Production time hallucinated for {lang_code}")
+            self.assertIsNone(res.story, f"Story hallucinated for {lang_code}")
+            self.assertEqual(res.sentiment, "Neutral", f"Non-neutral sentiment for {lang_code}")
+
+    def test_catalogue_generation_raw_notes_preservation(self):
+        """
+        Verifies that generate_catalogue_nlp strictly integrates raw notes
+        without fabricating unstated artisan lineage or awards.
+        """
+        product_info = {
+            "title": "Natural River Clay Diya",
+            "category": "Pottery & Ceramics",
+            "material": "Terracotta Clay",
+            "raw_notes": "Sun-dried diya set for Diwali festival."
+        }
+        res = generate_catalogue_nlp(product_info, mock=True)
+        self.assertIn("Sun-dried diya set for Diwali festival.", res["description_english"])
+        self.assertEqual(res["sentiment"], "Neutral")
+        self.assertEqual(res["narrative_type"], "Cultural identity")
+
+    def test_grounded_dimensions_and_production_time_extraction(self):
+        """
+        Explicit dimensions and production duration stated in speech must be faithfully extracted.
+        """
+        res_hi = self.mock_service.process_transcript("सागवान की लकड़ी की मेज 60cm x 40cm x 50cm, बनाने में 6 दिन लगे।")
+        self.assertEqual(res_hi.dimensions, "60cm x 40cm x 50cm")
+        self.assertEqual(res_hi.production_time, "6 days")
+
+        res_en = self.mock_service.process_transcript("Handwoven wool rug 180cm x 120cm crafted in 2 weeks.")
+        self.assertEqual(res_en.dimensions, "180cm x 120cm")
+        self.assertEqual(res_en.production_time, "2 weeks")
+
 
 if __name__ == "__main__":
     unittest.main()

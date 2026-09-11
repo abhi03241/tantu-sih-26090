@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { DEMO_SAMPLE_CRAFTS } from '../../constants/categories';
+import { LANGUAGES } from '../../constants/languages';
 import { productService } from '../../services/products';
 import { PRODUCT_STATUSES } from '../../services/mockData';
 import confetti from 'canvas-confetti';
@@ -67,7 +68,16 @@ export default function AddProductWizard() {
   const handleSelectSample = (sample) => {
     setPhotoError('');
     setPhotoUrl(sample.imageUrl);
-    setTranscript(language === 'hi' ? sample.voiceTranscriptHi : sample.voiceTranscriptEn);
+    const transcriptMap = {
+      en: sample.voiceTranscriptEn,
+      hi: sample.voiceTranscriptHi,
+      bn: sample.voiceTranscriptBn,
+      mr: sample.voiceTranscriptMr,
+      as: sample.voiceTranscriptAs,
+      ta: sample.voiceTranscriptTa,
+      te: sample.voiceTranscriptTe,
+    };
+    setTranscript(transcriptMap[language] || sample.voiceTranscriptHi || sample.voiceTranscriptEn);
     showToast(`चुना गया: ${sample.title.split(' ')[0]}`, 'info');
   };
 
@@ -138,7 +148,8 @@ export default function AddProductWizard() {
           const recognition = new SpeechRecognition();
           recognition.continuous = true;
           recognition.interimResults = true;
-          recognition.lang = language === 'en' ? 'en-IN' : 'hi-IN';
+          const langObj = LANGUAGES.find(l => l.code === language);
+          recognition.lang = langObj ? langObj.locale : (language === 'en' ? 'en-IN' : 'hi-IN');
 
           recognition.onresult = (event) => {
             let current = '';

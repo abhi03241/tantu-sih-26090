@@ -310,3 +310,30 @@
   - Verified 100% translation key coverage across all JSX components with custom script: **0 missing keys**.
 - **Status**: Completed, fully verified, and ready for tomorrow's hackathon demonstration.
 
+---
+
+## Checkpoint 11: Finalize ShilpVani Multilingual Language Selector & Grounded NLP (2026-09-11)
+
+- **Task**: Address Parth's QA feedback by ensuring the language selector across the app fully provides all 7 required ShilpVani languages (English, Hindi, Bengali, Marathi, Assamese, Tamil, Telugu), resolving keyword boundary false positives in Indic scripts, connecting native speech recognition locales, and verifying draft voice generation.
+- **Files Modified**:
+  - `frontend/src/constants/categories.js`: Added native regional demo transcripts for Bengali, Marathi, Assamese, Tamil, and Telugu to all 4 sample craft profiles.
+  - `frontend/src/components/artisan/AddProductWizard.jsx`: Connected `LANGUAGES` to dynamic speech recognition locale (`recognition.lang = langObj.locale`) so browser STT targets native Indic speech (`bn-IN`, `mr-IN`, `as-IN`, `ta-IN`, `te-IN`, `hi-IN`, `en-IN`), and updated sample selector to populate regional speech transcript.
+  - `ai/nlp/demo_data.py`: Added `_match_any_keyword` with Indic-aware token boundary regex (`(?<![\w\u0900-\u0D7F])` and `(?![\w\u0900-\u0D7F])`) preventing false positive substring triggers (such as `মা` in `মাটির`), and added inflected noun stems (`মায়ের`, `আইনে`, `वडिलांनी`, `பெருமையுடன்`, `peedhiyan`).
+  - `backend/app/routers/ai_endpoints.py`: Integrated ephemeral draft support (`new-draft`, `draft`) in `/api/products/{id}/voice` and `/api/products/{id}/generate-catalogue` without requiring pre-existing DB rows.
+  - `tests/test_api.py`: Added `test_05b_ephemeral_draft_voice_multilingual` testing wizard draft voice processing across all 7 languages.
+  - `tests/test_nlp_pipeline.py`: Added `test_grounded_behavior_no_hallucinated_duration_or_story`, `test_catalogue_generation_raw_notes_preservation`, and `test_grounded_dimensions_and_production_time_extraction`.
+  - `ai/nlp/M_TASK_LOG.md`: Updated task log with Checkpoint 11.
+  - `docs/TEAM_PROGRESS.md`: Updated team progress matrix.
+- **Verified Language Capabilities (Honest Verification)**:
+  1. **English (`en`)**: 100% UI translation, STT locale `en-IN`, grounded NLP extraction, bilingual catalogue generation.
+  2. **Hindi (`hi`)**: 100% UI translation, STT locale `hi-IN`, Devanagari duration parsing (`3 दिन` -> `3 days`), grounded NLP extraction, bilingual catalogue generation.
+  3. **Bengali (`bn`)**: 100% UI translation (66 keys), STT locale `bn-IN`, grounded NLP extraction, zero false positive on `মাটির`, bilingual catalogue generation.
+  4. **Marathi (`mr`)**: 100% UI translation (66 keys), STT locale `mr-IN`, grounded NLP extraction (`आईने`, `दोन दिवस`), bilingual catalogue generation.
+  5. **Assamese (`as`)**: 100% UI translation (66 keys), STT locale `as-IN` (with fallback to text where browser speech engine lacks Assamese), grounded NLP extraction, bilingual catalogue generation.
+  6. **Tamil (`ta`)**: 100% UI translation (66 keys), STT locale `ta-IN`, grounded NLP extraction (`தாத்தா`, `பெருமையுடன்`), bilingual catalogue generation.
+  7. **Telugu (`te`)**: 100% UI translation (66 keys), STT locale `te-IN`, grounded NLP extraction (`చేనేత`, `తరాలు`), bilingual catalogue generation.
+- **Controlled Fallback**: All missing or unsupported keys automatically fall back to English via `getTranslation(lang, key)`.
+- **Tests Executed**:
+  - Full backend and NLP regression suite: **37/37 tests passed** (11 Backend API tests + 26 NLP pipeline tests).
+  - Frontend production build: `npm run build` completed in 2.86s with **0 errors**.
+- **Status**: Completed, 100% demo-ready.

@@ -84,3 +84,11 @@
   - Browser STT: Automatically falls back to text input when microphone speech recognition is unavailable in client browser.
 - Executed full test suite: **33/33 unit & API integration tests passed**. Verified live backend `/api/products/{id}/voice` endpoint across all 7 languages (**7/7 passed**). Verified frontend production build (**0 errors**).
 
+### M — ShilpVani Language Selector & Grounded NLP Finalization (2026-09-11)
+- Verified active presence of all 7 target languages in the language selector (`LanguageSelection.jsx` and `Header.jsx`).
+- Connected native speech recognition locales (`en-IN`, `hi-IN`, `bn-IN`, `mr-IN`, `as-IN`, `ta-IN`, `te-IN`) to `AddProductWizard.jsx`.
+- Added regional voice transcripts for all 4 demo sample crafts in `DEMO_SAMPLE_CRAFTS`.
+- Fixed keyword boundary matching in `demo_data.py` (`_match_any_keyword`) to eliminate false-positive substring cues in Indic scripts (e.g., `মা` in `মাটির`).
+- Verified ephemeral wizard drafts (`new-draft`) in `/api/products/{id}/voice` and `/api/products/{id}/generate-catalogue` for seamless offline/online frontend flow.
+- Verified test suite: **37/37 tests passed** (11 backend API tests + 26 NLP pipeline tests).
+- Verified production build: `npm run build` in `frontend/` succeeds with **0 errors**.

@@ -82,6 +82,33 @@ class TestTantuBackendAPI(unittest.TestCase):
         self.assertEqual(data["dimensions"], "120cm x 80cm")
         self.assertEqual(data["production_time"], "3 days")
 
+    def test_05b_ephemeral_draft_voice_multilingual(self):
+        """
+        Verifies that frontend wizard draft ID 'new-draft' succeeds with 200 OK
+        across all 7 supported languages without requiring pre-existing DB rows.
+        """
+        cases = [
+            ("en", "Handcrafted teak wood elephant carved with pride in 4 days.", "Teak Wood", "4 days"),
+            ("hi", "यह बांस की टोकरी है। इसे बनाने में दो दिन लगते हैं।", "Bamboo", "2 days"),
+            ("bn", "এটি একটি বাঁশের তৈরি ঝুড়ি। এটি তৈরি করতে ২ দিন সময় লাগে।", "Bamboo", "2 days"),
+            ("mr", "ही बांबूची टोपली आहे. हे बनवण्यासाठी दोन दिवस लागतात.", "Bamboo", "2 days"),
+            ("as", "এইটো এটা বাঁহৰ খৰাহী। এইটো বনাবলৈ ২ দিন লাগে।", "Bamboo", "2 days"),
+            ("ta", "இது ஒரு அழகான தேக்கு மர யானை சிற்பம். இதை செய்ய 4 நாட்கள் ஆகும்.", "Teak Wood", "4 days"),
+            ("te", "ఇది చేనేత పట్టు చీర. ఇది తయారు చేయడానికి 5 రోజులు పడుతుంది.", "Chanderi Silk", "5 days"),
+        ]
+        for lang_code, transcript, expected_mat, expected_time in cases:
+            payload = {
+                "audio_transcript": transcript,
+                "language": lang_code
+            }
+            res = self.client.post("/api/products/new-draft/voice", json=payload)
+            self.assertEqual(res.status_code, 200, f"Failed for {lang_code}: {res.text}")
+            data = res.json()
+            self.assertEqual(data["material"], expected_mat)
+            self.assertEqual(data["production_time"], expected_time)
+            self.assertTrue(len(data["description_english"]) > 10)
+            self.assertTrue(len(data["description_hindi"]) > 10)
+
     def test_06_enhance_image(self):
         res = self.client.get("/api/products")
         prod_id = res.json()[0]["id"]
