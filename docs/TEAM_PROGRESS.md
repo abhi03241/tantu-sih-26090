@@ -92,3 +92,11 @@
 - Verified ephemeral wizard drafts (`new-draft`) in `/api/products/{id}/voice` and `/api/products/{id}/generate-catalogue` for seamless offline/online frontend flow.
 - Verified test suite: **37/37 tests passed** (11 backend API tests + 26 NLP pipeline tests).
 - Verified production build: `npm run build` in `frontend/` succeeds with **0 errors**.
+
+### M — ShilpVani 7-Language Selector Verification & QA Resolution (2026-09-12)
+- Re-verified all 7 target languages in `LANGUAGES` array (`frontend/src/constants/languages.js`): English (`en`), Hindi (`hi`), Bengali (`bn`), Marathi (`mr`), Assamese (`as`), Tamil (`ta`), Telugu (`te`).
+- Verified selector displays all 7 languages in `LanguageSelection.jsx` (2-column mobile card grid) and `Header.jsx` (dropdown language menu).
+- Cleaned language selection flow in `AppContext.jsx` to prevent premature unmounting when browsing languages.
+- Added automated contract regression test `test_frontend_languages_selector_contract` in `tests/test_nlp_pipeline.py`.
+- Automated test results: **38/38 tests passed**.
+- Frontend production build: `npm run build` succeeds in 2.79s with **0 errors**.

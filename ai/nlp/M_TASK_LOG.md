@@ -337,3 +337,28 @@
   - Full backend and NLP regression suite: **37/37 tests passed** (11 Backend API tests + 26 NLP pipeline tests).
   - Frontend production build: `npm run build` completed in 2.86s with **0 errors**.
 - **Status**: Completed, 100% demo-ready.
+
+---
+
+## Checkpoint 12: ShilpVani 7-Language Selector Verification & QA Resolution (2026-09-12)
+
+- **Task**: Address Parth's final QA review on commit verification by ensuring `frontend/src/constants/languages.js` actively exposes all 7 target languages (English, Hindi, Bengali, Marathi, Assamese, Tamil, Telugu), verifying selector stability, preventing premature unmounting in `LanguageSelection.jsx`, adding automated regression testing for the language selector contract, and running full end-to-end tests.
+- **Languages Verified in Selector**:
+  1. English (`en`) — English, locale `en-IN`
+  2. Hindi (`hi`) — हिन्दी, locale `hi-IN`
+  3. Bengali (`bn`) — বাংলা, locale `bn-IN`
+  4. Marathi (`mr`) — मराठी, locale `mr-IN`
+  5. Assamese (`as`) — অসমীয়া, locale `as-IN`
+  6. Tamil (`ta`) — தமிழ், locale `ta-IN`
+  7. Telugu (`te`) — తెలుగు, locale `te-IN`
+- **Files Modified**:
+  - `frontend/src/constants/languages.js`: Verified export of `LANGUAGES` containing all 7 languages and `TRANSLATIONS` with all 66 keys for each language.
+  - `frontend/src/context/AppContext.jsx`: Cleaned `selectLanguage` to avoid premature screen unmount during language preview in `LanguageSelection.jsx`.
+  - `tests/test_nlp_pipeline.py`: Added `test_frontend_languages_selector_contract` to enforce all 7 language codes and dictionary blocks in automated tests.
+  - `ai/nlp/M_TASK_LOG.md`: Updated with Checkpoint 12.
+  - `docs/TEAM_PROGRESS.md`: Updated with QA resolution status.
+- **Tests Executed**:
+  - Full automated backend and NLP test suite: **38/38 tests passed** (11 Backend API tests + 27 NLP tests).
+  - Node.js i18n contract test: Verified 7/7 languages and 66/66 keys with 0 missing keys.
+  - Frontend production build: `npm run build` completed in 2.79s with **0 errors**.
+- **Status**: Verified and demo-ready.

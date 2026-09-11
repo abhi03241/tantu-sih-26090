@@ -119,7 +119,6 @@ export function AppProvider({ children }) {
   // Update language selection
   const selectLanguage = (code) => {
     setLanguage(code);
-    setHasChosenLanguage(true);
     localStorage.setItem('tantu_language', code);
     const langObj = LANGUAGES.find(l => l.code === code);
     if (langObj) {
