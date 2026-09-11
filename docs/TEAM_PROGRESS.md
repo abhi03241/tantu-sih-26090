@@ -70,3 +70,17 @@
   - Underspecified inputs: empty and generic inputs handled gracefully with `null` specs/story and `Neutral` sentiment.
 - Integrity verified: zero invented facts, artisan info strictly preserved, correct catalogue schema conformity, and established sentiment/narrative cues maintained.
 - Test suite executed: **26/26 unit and API integration tests passed**; dedicated 10-point audit script passed.
+
+### M — 7-Language Multilingual NLP, Voice & UI Support (2026-09-11)
+- Implemented functional end-to-end support for **7 target languages**: English (`en`), Hindi (`hi`), Bengali (`bn`), Marathi (`mr`), Assamese (`as`), Tamil (`ta`), Telugu (`te`).
+- Language selector filtered to display **ONLY** the 7 functional languages (removed Odia and Gujarati placeholders).
+- Implemented authentic, complete UI translation dictionaries across all 7 languages for all 66 application strings in `frontend/src/constants/languages.js`.
+- Extended NLP pipeline (`ai/nlp/demo_data.py`, `ai/nlp/service.py`) to extract material, category, production duration, craft title, sentiment, and story cues in all 7 languages into structured product JSON.
+- Normalized Indic digits (Devanagari, Bengali, Tamil, Telugu) to ASCII integers via `INDIC_DIGITS_MAP` in duration extraction.
+- Enhanced font fallbacks (`Noto Sans Bengali`, `Noto Sans Tamil`, `Noto Sans Telugu`, `Nirmala UI`) in `index.html` and `index.css` for clean typography across Indian scripts.
+- Documented voice vs. text capabilities honestly:
+  - Text & Audio Transcript NLP: 100% functional across all 7 languages.
+  - Web Speech API TTS Reader: Speaks natively in `en-IN`, `hi-IN`, `bn-IN`, `mr-IN`, `ta-IN`, `te-IN`, with `as-IN` falling back to regional speech synthesis.
+  - Browser STT: Automatically falls back to text input when microphone speech recognition is unavailable in client browser.
+- Executed full test suite: **33/33 unit & API integration tests passed**. Verified live backend `/api/products/{id}/voice` endpoint across all 7 languages (**7/7 passed**). Verified frontend production build (**0 errors**).
+

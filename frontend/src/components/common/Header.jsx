@@ -79,15 +79,15 @@ export default function Header() {
                 borderRadius: '16px',
                 boxShadow: 'var(--shadow-lg)',
                 border: '1px solid var(--border-light)',
-                width: '180px',
+                minWidth: '200px',
                 padding: '8px',
                 zIndex: 100
               }}
             >
               <div style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 10px', color: 'var(--text-light)', borderBottom: '1px solid var(--border-light)' }}>
-                भाषा चुनें (Select Language)
+                {t('selectLanguage')}
               </div>
-              <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
+              <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
                 {LANGUAGES.map((l) => (
                   <button
                     key={l.code}

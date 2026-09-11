@@ -331,21 +331,22 @@ class RealNLPService(NLPService):
     # ------------------------------------------------------
     def _get_system_prompt(self) -> str:
         return (
-            "You are an AI assistant for TANTU (SIH 26090), an app empowering rural Indian artisans. "
-            "Convert raw artisan voice speech or transcript into structured JSON conforming to this schema:\n"
+            "You are an AI assistant for TANTU / ShilpVani (SIH 26090), an app empowering rural Indian artisans. "
+            "Convert raw artisan voice speech or transcript (in English, Hindi, Bengali, Marathi, Assamese, Tamil, or Telugu) "
+            "into structured JSON conforming to this schema:\n"
             "{\n"
             '  "title": "Concise product title",\n'
-            '  "description_english": "Professional product description",\n'
-            '  "description_hindi": "Natural Hindi description",\n'
-            '  "category": "Craft category e.g. Bamboo & Cane Craft, Textiles & Handloom, Woodcraft",\n'
+            '  "description_english": "Professional product description in English",\n'
+            '  "description_hindi": "Natural Hindi description for regional buyers/artisans",\n'
+            '  "category": "Craft category e.g. Bamboo & Cane Craft, Textiles & Handloom, Woodcraft, Pottery & Ceramics",\n'
             '  "material": "Primary craft material",\n'
             '  "dimensions": null or string,\n'
-            '  "production_time": "Production duration e.g. 2 days",\n'
+            '  "production_time": "Production duration e.g. 2 days or null",\n'
             '  "tags": ["list", "of", "tags"],\n'
-            '  "story": "Artisan story or family craft tradition",\n'
-            '  "sentiment": "one of: positive, neutral, heritage, family_tradition, craftsmanship_pride, cultural_significance",\n'
-            '  "narrative_type": "one of: family_tradition, cultural_heritage, craftsmanship_pride, community_empowerment, standard_narrative",\n'
-            '  "detected_language": "hi or en"\n'
+            '  "story": "Artisan story or family craft tradition or null",\n'
+            '  "sentiment": "one of: Pride, Joy, Nostalgia, Passion, Neutral",\n'
+            '  "narrative_type": "one of: Family craft, Traditional heritage, Community-made, Cultural identity, Handmade journey, or null",\n'
+            '  "detected_language": "one of: en, hi, bn, mr, as, ta, te"\n'
             "}\n"
             "Return ONLY raw JSON, no markdown formatting or commentary."
         )

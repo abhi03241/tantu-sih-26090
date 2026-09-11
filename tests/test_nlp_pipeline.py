@@ -280,6 +280,100 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res["sentiment"], "Neutral")
         self.assertIsNone(res["narrative_type"])
 
+    # ==========================================================
+    # 6. VERIFIED 7-LANGUAGE MULTILINGUAL NLP TESTS
+    # ==========================================================
+    def test_bengali_input(self):
+        """Tests Bengali voice/text transcript input."""
+        transcript = "এটি একটি বাঁশের তৈরি ঝুড়ি। এটি তৈরি করতে ২ দিন সময় লাগে। আমার মা আমাকে এটি তৈরি করতে শিখিয়েছিলেন।"
+        res = self.mock_service.process_transcript(transcript, language="bn")
+
+        self.assertIsInstance(res, ProductCatalogNLPOutput)
+        self.assertEqual(res.material, "Bamboo")
+        self.assertEqual(res.category, "Bamboo & Cane Craft")
+        self.assertEqual(res.production_time, "2 days")
+        self.assertEqual(res.sentiment, "Nostalgia")
+        self.assertEqual(res.narrative_type, "Family craft")
+        self.assertEqual(res.detected_language, "bn")
+        self.assertTrue(len(res.description_english) > 20)
+        self.assertTrue(len(res.description_hindi) > 20)
+
+    def test_marathi_input(self):
+        """Tests Marathi voice/text transcript input."""
+        transcript = "ही बांबूची टोपली आहे. हे बनवण्यासाठी दोन दिवस लागतात. माझ्या आईने मला हे शिकवले आहे."
+        res = self.mock_service.process_transcript(transcript, language="mr")
+
+        self.assertIsInstance(res, ProductCatalogNLPOutput)
+        self.assertEqual(res.material, "Bamboo")
+        self.assertEqual(res.category, "Bamboo & Cane Craft")
+        self.assertEqual(res.production_time, "2 days")
+        self.assertEqual(res.sentiment, "Nostalgia")
+        self.assertEqual(res.narrative_type, "Family craft")
+        self.assertEqual(res.detected_language, "mr")
+
+    def test_assamese_input(self):
+        """Tests Assamese voice/text transcript input."""
+        transcript = "এইটো এটা বাঁহৰ খৰাহী। এইটো বনাবলৈ ২ দিন লাগে। মোৰ মায়ে মোক এইটো বনাবলৈ শিকাইছিল।"
+        res = self.mock_service.process_transcript(transcript, language="as")
+
+        self.assertIsInstance(res, ProductCatalogNLPOutput)
+        self.assertEqual(res.material, "Bamboo")
+        self.assertEqual(res.category, "Bamboo & Cane Craft")
+        self.assertEqual(res.production_time, "2 days")
+        self.assertEqual(res.sentiment, "Nostalgia")
+        self.assertEqual(res.narrative_type, "Family craft")
+        self.assertEqual(res.detected_language, "as")
+
+    def test_tamil_input(self):
+        """Tests Tamil voice/text transcript input."""
+        transcript = "இது ஒரு அழகான தேக்கு மர யானை சிற்பம். இதை செய்ய 4 நாட்கள் ஆகும். என் தாத்தா எனக்கு பெருமையுடன் கற்றுக் கொடுத்தார்."
+        res = self.mock_service.process_transcript(transcript, language="ta")
+
+        self.assertIsInstance(res, ProductCatalogNLPOutput)
+        self.assertEqual(res.material, "Teak Wood")
+        self.assertEqual(res.category, "Woodcraft")
+        self.assertEqual(res.production_time, "4 days")
+        self.assertEqual(res.sentiment, "Pride")
+        self.assertEqual(res.narrative_type, "Family craft")
+        self.assertEqual(res.detected_language, "ta")
+
+    def test_telugu_input(self):
+        """Tests Telugu voice/text transcript input."""
+        transcript = "ఇది చేనేత పట్టు చీర. ఇది తయారు చేయడానికి 5 రోజులు పడుతుంది. మా తరాలుగా ఈ సాంప్రదాయం కొనసాగుతోంది."
+        res = self.mock_service.process_transcript(transcript, language="te")
+
+        self.assertIsInstance(res, ProductCatalogNLPOutput)
+        self.assertEqual(res.material, "Chanderi Silk")
+        self.assertEqual(res.category, "Textiles & Handloom")
+        self.assertEqual(res.production_time, "5 days")
+        self.assertEqual(res.sentiment, "Nostalgia")
+        self.assertEqual(res.narrative_type, "Traditional heritage")
+        self.assertEqual(res.detected_language, "te")
+
+    def test_multilingual_production_time_parsing(self):
+        """Verifies duration parsing across all 7 supported language conventions."""
+        from ai.nlp.demo_data import extract_production_time
+        self.assertEqual(extract_production_time("takes 3 days to weave"), "3 days")
+        self.assertEqual(extract_production_time("banane mein 3 din lagte hain"), "3 days")
+        self.assertEqual(extract_production_time("৩ দিন সময় লাগে"), "3 days")
+        self.assertEqual(extract_production_time("दोन दिवस लागतात"), "2 days")
+        self.assertEqual(extract_production_time("2 நாட்கள் ஆகும்"), "2 days")
+        self.assertEqual(extract_production_time("5 రోజులు పడుతుంది"), "5 days")
+        self.assertEqual(extract_production_time("3 ghante"), "3 hours")
+        self.assertEqual(extract_production_time("2 hafte"), "2 weeks")
+
+    def test_language_detection_all_7_languages(self):
+        """Verifies language identification across the 7 supported languages."""
+        from ai.nlp.demo_data import detect_language
+        self.assertEqual(detect_language("Handcrafted bamboo craft from rural artisans"), "en")
+        self.assertEqual(detect_language("यह हाथ से बनी बांस की टोकरी है"), "hi")
+        self.assertEqual(detect_language("এটি একটি বাঁশের তৈরি সুন্দর ঝুড়ি"), "bn")
+        self.assertEqual(detect_language("ही सुंदर बांबूची टोपली आहे"), "mr")
+        self.assertEqual(detect_language("এইটো আমাৰ বাবে তৈয়াৰ কৰা বাঁহৰ খৰাহী"), "as")
+        self.assertEqual(detect_language("இது ஒரு கைவினைப் பொருள்"), "ta")
+        self.assertEqual(detect_language("ఇది అందమైన చేతివృత్తి కళాఖండం"), "te")
+
 
 if __name__ == "__main__":
     unittest.main()
+

@@ -13,7 +13,12 @@ function simulateVoiceAI(product, transcript, language = 'hi') {
   let sentiment = 'Warm, authentic, heritage-focused';
   let narrativeType = 'Cultural Heritage';
 
-  if (lower.includes('बांस') || lower.includes('bamboo') || lower.includes('टोकरी') || lower.includes('basket')) {
+  if (
+    lower.includes('बांस') || lower.includes('bamboo') || lower.includes('टोकरी') || lower.includes('basket') ||
+    lower.includes('বাঁশ') || lower.includes('ঝুড়ি') || lower.includes('বাঁহ') || lower.includes('খৰাহী') ||
+    lower.includes('बांबू') || lower.includes('टोपली') || lower.includes('மூங்கில்') || lower.includes('கூடை') ||
+    lower.includes('వెదురు') || lower.includes('బుట్ట')
+  ) {
     category = 'Bamboo & Cane Craft';
     material = 'Natural Assam Bamboo';
     dimensions = '30cm x 30cm x 20cm';
@@ -21,7 +26,10 @@ function simulateVoiceAI(product, transcript, language = 'hi') {
     story = 'Passed down through four generations in Silchar groves using sustainable harvest bamboo.';
     sentiment = 'Warm, authentic, eco-conscious';
     narrativeType = 'Cultural Heritage';
-  } else if (lower.includes('रेशम') || lower.includes('silk') || lower.includes('दुपट्टा') || lower.includes('chanderi') || lower.includes('हथकरघ')) {
+  } else if (
+    lower.includes('रेशम') || lower.includes('silk') || lower.includes('दुपट्टा') || lower.includes('chanderi') || lower.includes('हथकरघ') ||
+    lower.includes('রেশম') || lower.includes('মুগা') || lower.includes('रेशीम') || lower.includes('பட்டு') || lower.includes('చేనేత') || lower.includes('పట్టు')
+  ) {
     category = 'Textiles & Handloom';
     material = 'Chanderi Silk Cotton';
     dimensions = '2.5m x 0.9m';
@@ -29,7 +37,10 @@ function simulateVoiceAI(product, transcript, language = 'hi') {
     story = 'Handwoven on traditional pit looms in Chanderi village reflecting royal court heritage.';
     sentiment = 'Elegant, luxury, traditional craftsmanship';
     narrativeType = 'Artisanal Mastery';
-  } else if (lower.includes('लकड़ी') || lower.includes('wood') || lower.includes('हाथी') || lower.includes('elephant') || lower.includes('शीशम')) {
+  } else if (
+    lower.includes('लकड़ी') || lower.includes('wood') || lower.includes('हाथी') || lower.includes('elephant') || lower.includes('शीशम') ||
+    lower.includes('কাঠ') || lower.includes('হাতি') || lower.includes('लाकूड') || lower.includes('हत्ती') || lower.includes('மரம்') || lower.includes('யானை') || lower.includes('చెక్క') || lower.includes('ఏనుగు')
+  ) {
     category = 'Woodcraft';
     material = 'Sheesham Wood (Indian Rosewood)';
     dimensions = '15cm x 10cm x 22cm';
@@ -37,7 +48,10 @@ function simulateVoiceAI(product, transcript, language = 'hi') {
     story = 'Carved painstakingly by Saharanpur artisans using traditional chisel tools without modern machinery.';
     sentiment = 'Regal, durable, classic art';
     narrativeType = 'Heritage Craftsmanship';
-  } else if (lower.includes('मिट्टी') || lower.includes('pottery') || lower.includes('blue') || lower.includes('फूलदान') || lower.includes('vase')) {
+  } else if (
+    lower.includes('मिट्टी') || lower.includes('pottery') || lower.includes('blue') || lower.includes('फूलदान') || lower.includes('vase') ||
+    lower.includes('মাটি') || lower.includes('মাটিৰ') || lower.includes('माती') || lower.includes('களிமண்') || lower.includes('మట్టి')
+  ) {
     category = 'Pottery & Ceramics';
     material = 'Jaipur Blue Quartz Powder & Natural Pigments';
     dimensions = '18cm height x 12cm diameter';
