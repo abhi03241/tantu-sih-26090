@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { LANGUAGES } from '../../constants/languages';
+import ShilpVaniLogo from './ShilpVaniLogo';
 import { Globe, Smartphone, Monitor, Volume2, Sparkles, ShoppingBag, Palette } from 'lucide-react';
 
 export default function Header() {
@@ -24,9 +25,9 @@ export default function Header() {
 
   const handleSpeechHelper = () => {
     if (role === 'artisan') {
-      speakText("तंतु कारीगर मंच में आपका स्वागत है। नया उत्पाद जोड़ने के लिए नीचे दिए गए नारंगी बटन को दबाएं।");
+      speakText("शिल्पवाणी कारीगर मंच में आपका स्वागत है। नया उत्पाद जोड़ने के लिए नीचे दिए गए नारंगी बटन को दबाएं।");
     } else {
-      speakText("तंतु बाज़ार में आपका स्वागत है। भारत के ग्रामीण कारीगरों से सीधे थोक ऑर्डर करें।");
+      speakText("शिल्पवाणी बाज़ार में आपका स्वागत है। भारत के ग्रामीण कारीगरों से सीधे थोक ऑर्डर करें।");
     }
   };
 
@@ -34,12 +35,12 @@ export default function Header() {
     <header className="app-header">
       <div className="header-brand" onClick={() => navigateTo(role === 'artisan' ? 'home' : 'marketplace')} style={{ cursor: 'pointer' }}>
         <div className="brand-icon-box">
-          <Sparkles size={22} />
+          <ShilpVaniLogo size={24} />
         </div>
         <div>
           <div className="brand-title">
-            <span>तंतु</span>
-            <span style={{ fontSize: '1.05rem', color: 'var(--text-main)', fontWeight: 800 }}>TANTU</span>
+            <span>शिल्पवाणी</span>
+            <span style={{ fontSize: '1.05rem', color: 'var(--text-main)', fontWeight: 800 }}>ShilpVani</span>
           </div>
           <div className="brand-subtitle">
             {backendOnline ? '🟢 Backend Live' : '🟡 AI Demo Active'}

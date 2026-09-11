@@ -1,83 +1,28 @@
 // Supported regional languages with native script & speech synthesis codes
+// Functional languages: Hindi (hi) & English (en)
 export const LANGUAGES = [
   {
     code: 'hi',
     name: 'हिन्दी',
     englishName: 'Hindi',
     locale: 'hi-IN',
-    greeting: 'नमस्ते! तंतु में आपका स्वागत है।',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'नमस्ते! शिल्पवाणी में आपका स्वागत है।',
+    greetingEn: 'Welcome to ShilpVani'
   },
   {
     code: 'en',
     name: 'English',
     englishName: 'English',
     locale: 'en-IN',
-    greeting: 'Welcome to TANTU Artisan App.',
-    greetingEn: 'Welcome to TANTU'
-  },
-  {
-    code: 'bn',
-    name: 'বাংলা',
-    englishName: 'Bengali',
-    locale: 'bn-IN',
-    greeting: 'নমস্কার! তন্তু-তে আপনাকে স্বাগতম।',
-    greetingEn: 'Welcome to TANTU'
-  },
-  {
-    code: 'as',
-    name: 'অসমীয়া',
-    englishName: 'Assamese',
-    locale: 'as-IN',
-    greeting: 'নমস্কাৰ! তন্তুলৈ আপোনাক স্বাগতম।',
-    greetingEn: 'Welcome to TANTU'
-  },
-  {
-    code: 'or',
-    name: 'ଓଡ଼ିଆ',
-    englishName: 'Odia',
-    locale: 'or-IN',
-    greeting: 'ନମସ୍କାର! ତନ୍ତୁ କୁ ସ୍ଵାଗତ।',
-    greetingEn: 'Welcome to TANTU'
-  },
-  {
-    code: 'mr',
-    name: 'मराठी',
-    englishName: 'Marathi',
-    locale: 'mr-IN',
-    greeting: 'नमस्कार! तंतू मध्ये आपले स्वागत आहे.',
-    greetingEn: 'Welcome to TANTU'
-  },
-  {
-    code: 'gu',
-    name: 'ગુજરાતી',
-    englishName: 'Gujarati',
-    locale: 'gu-IN',
-    greeting: 'નમસ્તે! તંતુ માં તમારું સ્વાગત છે.',
-    greetingEn: 'Welcome to TANTU'
-  },
-  {
-    code: 'te',
-    name: 'తెలుగు',
-    englishName: 'Telugu',
-    locale: 'te-IN',
-    greeting: 'నమస్కారం! తంతు కు స్వాగతం.',
-    greetingEn: 'Welcome to TANTU'
-  },
-  {
-    code: 'ta',
-    name: 'தமிழ்',
-    englishName: 'Tamil',
-    locale: 'ta-IN',
-    greeting: 'வணக்கம்! தந்து-விற்கு நல்வரவு.',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'Welcome to ShilpVani Artisan App.',
+    greetingEn: 'Welcome to ShilpVani'
   }
 ];
 
 // UI String dictionary for high accessibility
 export const TRANSLATIONS = {
   hi: {
-    appTitle: 'तंतु TANTU',
+    appTitle: 'शिल्पवाणी ShilpVani',
     tagline: 'कारीगरों के लिए स्मार्ट कैटलॉगिंग और बाज़ार मंच',
     artisanRole: 'कारीगर (Artisan)',
     buyerRole: 'खरीदार (Buyer)',
@@ -104,7 +49,7 @@ export const TRANSLATIONS = {
     step2Voice: '2. बोलकर बताएं',
     step2VoiceSub: 'माइक दबाकर 30 सेकंड में उत्पाद के बारे में बताएं',
     step3Ai: '3. AI प्रसंस्करण',
-    step3AiSub: 'तंतु AI स्मार्ट कैटलॉग तैयार कर रहा है',
+    step3AiSub: 'शिल्पवाणी AI स्मार्ट कैटलॉग तैयार कर रहा है',
     step4Catalog: '4. स्मार्ट कैटलॉग',
     step4CatalogSub: 'तैयार कैटलॉग जांचें और प्रकाशित करें',
     takePhoto: 'कैमरा खोलें',
@@ -145,7 +90,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI सटीकता'
   },
   en: {
-    appTitle: 'TANTU तंतु',
+    appTitle: 'ShilpVani शिल्पवाणी',
     tagline: 'AI Market Linkage & Smart Cataloging for Marginalized Artisans',
     artisanRole: 'Artisan View',
     buyerRole: 'Buyer View',
@@ -172,7 +117,7 @@ export const TRANSLATIONS = {
     step2Voice: '2. Voice Narrative',
     step2VoiceSub: 'Tap mic and describe your craft in your native language',
     step3Ai: '3. AI Synthesis',
-    step3AiSub: 'TANTU AI is generating the bilingual catalogue',
+    step3AiSub: 'ShilpVani AI is generating the bilingual catalogue',
     step4Catalog: '4. Smart Catalogue',
     step4CatalogSub: 'Review generated catalogue & publish',
     takePhoto: 'Open Camera',

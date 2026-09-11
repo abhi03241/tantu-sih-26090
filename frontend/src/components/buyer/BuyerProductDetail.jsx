@@ -73,7 +73,7 @@ export default function BuyerProductDetail({ productId, onBack }) {
           />
           <span className="badge-ai-enhanced">
             <Sparkles size={12} />
-            <span>{viewEnhanced ? 'Enhanced by TANTU AI' : 'Original Photo'}</span>
+            <span>{viewEnhanced ? 'Enhanced by ShilpVani AI' : 'Original Photo'}</span>
           </span>
           <span className="badge-category">{product.category}</span>
         </div>

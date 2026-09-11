@@ -59,3 +59,12 @@
 - No Capacitor configuration, Android project, or Capacitor dependency is currently committed; no native scaffolding was added to avoid an unvalidated platform change.
 - The frontend now detects a Capacitor shell and requires `VITE_BACKEND_URL` for native API access, avoiding a hardcoded device-local `localhost` target. Browser development behavior and offline mock fallback are unchanged.
 - Small-screen safeguards now cover safe-area insets, dynamic viewport modal height, touch scrolling, iOS input zoom prevention, compact header actions, and stacked buyer/catalogue modal fields at narrow widths.
+
+## 5. User-Facing Rebranding to ShilpVani (शिल्पवाणी) — P (2026-09-11)
+
+- Rebranded all user-facing strings, headers, page titles, and assistive TTS prompts from TANTU to **ShilpVani** (Hindi: **शिल्पवाणी**).
+- Added `ShilpVaniLogo.jsx` SVG component (Indian loom shuttle and voice resonance motif) to header and onboarding language selection.
+- Refined language selector to strictly display the 2 fully-functional languages (Hindi & English), removing stub languages without translation dictionaries.
+- Verified that Hindi text preserves all existing responsive card and header layouts without truncation or overflow.
+- Preserved all backend schemas, API contracts, table identifiers, and Artisan/Buyer workflows.
+

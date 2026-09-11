@@ -195,7 +195,7 @@ export default function AddProductWizard() {
     setCurrentStep(3);
     setAiError('');
     setAiProgress(10);
-    speakText("तंतु AI आपके उत्पाद का विश्लेषण कर रहा है।");
+    speakText("शिल्पवाणी AI आपके उत्पाद का विश्लेषण कर रहा है।");
 
     const baseProduct = {
       title: 'Handcrafted Artisan Craft',
@@ -649,9 +649,9 @@ export default function AddProductWizard() {
           <div className="ai-processing-header">
             <div className="ai-sparkle-badge">
               <Sparkles size={15} />
-              <span>TANTU MULTIMODAL AI PIPELINE</span>
+              <span>SHILPVANI MULTIMODAL AI PIPELINE</span>
             </div>
-            <h2 className="ai-processing-title">तंतु AI विश्लेषण जारी है...</h2>
+            <h2 className="ai-processing-title">शिल्पवाणी AI विश्लेषण जारी है...</h2>
             <p className="ai-processing-sub">
               आपकी आवाज़ और फोटो से स्मार्ट कैटलॉग तैयार किया जा रहा है
             </p>
