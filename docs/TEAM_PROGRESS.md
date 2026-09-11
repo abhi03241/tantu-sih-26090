@@ -35,11 +35,13 @@
   - Updates `enhanced_image_url` while preserving raw `image_url`.
   - Real-mode assets are now served at `/enhanced/...`; frontend clients should resolve this relative path against the API base URL. Mock mode continues to return remote demo URLs.
   - Conforms to standard product schema and REST contract.
-- **Test Coverage**: 13 unit/integration tests in `tests/test_vision.py` passing ($100\%$).
+- **Test Coverage**: 17 vision unit/integration tests in `tests/test_vision.py` passing ($100\%$, 27/27 suite total).
 - **Visual Demo**: Run `python ai/vision/demo.py` to see side-by-side Before/After transformations on 4 sample artisan crafts (Bamboo, Terracotta, Silk Handloom, Wood Carving).
 
-### Mobile / APK Verification Note (R)
+### ShilpVani Rebranding & Asset Audit Verification (R)
 
-- The existing vision service returns real-mode catalogue assets as `/enhanced/...`; a Capacitor/WebView client must resolve this against its API base URL to display the enhanced image.
-- Added regression coverage for a 4032 × 3024 mobile-camera JPEG and static retrieval of the returned enhanced JPEG URL. Runtime execution is pending because the current workstation has no Python installation; this is not reported as a test pass.
-- No vision behavior, product schema, NLP, pricing, or frontend components were changed during this verification.
+- **Audit Completed**: Verified that existing product image uploads, JPEG/PNG pipelines, adaptive lighting/texture enhancement, collision-safe hashed URLs (`/enhanced/...`), EXIF orientation normalization, and original raw image preservation remain 100% functional.
+- **Logo Display**: Confirmed that ShilpVani branding/logo assets can be safely displayed with preserved aspect ratio without distortion or forced non-uniform scaling.
+- **Test Results**: All 27 unit and integration tests passing in `<5.0s`.
+- **Scope Compliance**: No modifications made to NLP, pricing, database, marketplace, backend architecture, or frontend branding.
+

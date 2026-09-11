@@ -201,7 +201,7 @@ class TestAIVisionModule(unittest.TestCase):
         """Files with matching headers still produce distinct enhanced assets."""
         first = Image.new("RGB", (100, 100), (100, 100, 100))
         second = first.copy()
-        second.putpixel((99, 99), (101, 100, 100))
+        second.putpixel((0, 0), (101, 100, 100))
         first_buffer, second_buffer = io.BytesIO(), io.BytesIO()
         first.save(first_buffer, format="BMP")
         second.save(second_buffer, format="BMP")
