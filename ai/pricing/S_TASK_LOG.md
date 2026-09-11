@@ -261,4 +261,26 @@
 * **Verification & Results**:
   - Automated tests: **30/30 passed (100%)** (`test_api.py`: 10/10, `test_pricing_marketplace.py`: 20/20).
   - Priority adhered to: DEMO STABILITY > NEW FEATURES. No payments, logistics, GeM, ONDC, or architecture modifications added.
+* **Commit/hash**: `fcb86b5` (`fix: finalize pricing marketplace flow`).
+* **Branch**: `feature/S-pricing-marketplace`
+
+---
+
+## 📌 Checkpoint 11: Final QA Verification of Pricing, Marketplace, and Bulk Order Flow
+
+* **Task**: Final QA verification following Parth's QA PASS of the Pricing, Marketplace, and Bulk Order flow.
+* **Verified Flow**:
+  $$\text{Product} \longrightarrow \text{AI-Assisted Suggested Price} \longrightarrow \text{Review} \longrightarrow \text{Publish} \longrightarrow \text{Buyer Marketplace} \longrightarrow \text{Product Detail} \longrightarrow \text{Bulk Order} \longrightarrow \text{Order Status}$$
+* **Verification Results**:
+  1. **Pricing Range**: Displays correctly with numeric bounds (`min < max`, e.g., INR 3260 - 3980 for 10 units of wool craft) with explicit non-guaranteed demo disclaimer label.
+  2. **Labor/Cost Inputs**: Raw material cost, labor hours, labor cost, and overhead calculate transparent cost breakdown with fair artisan wage floor.
+  3. **Published Products**: Confirmed published products appear in `GET /api/buyer/products` feed.
+  4. **Drafts/Processing Hidden**: Confirmed `draft` and `processing` products remain strictly hidden from buyer marketplace feed.
+  5. **Bulk Order Workflow**: Confirmed unpublished items cannot receive bulk orders (HTTP `409 Conflict`), and published items receive orders returning unique `ord-...` with status `pending`.
+  6. **Quantity Validation**: Confirmed quantity $\le 0$ rejects with HTTP `422 Unprocessable Entity`.
+  7. **Order Persistence**: Order record persists in SQLite `orders` table.
+  8. **Status Persistence After Reload**: Status transitions (`accepted`, etc.) persist across reloads directly confirmed against SQLite database.
+* **Code Modification Decision**:
+  - All verification steps passed (30/30 unit tests + direct end-to-end integration script).
+  - No genuine bugs found. Per instruction ("If everything works: DO NOT MODIFY CODE"), zero code files modified.
 * **Branch**: `feature/S-pricing-marketplace`
