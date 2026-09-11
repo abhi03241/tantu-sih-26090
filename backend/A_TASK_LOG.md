@@ -253,3 +253,24 @@ Draft creation; multipart and JSON image upload; voice/NLP extraction; raw-notes
    - Backend unit & integration test suite (`python -m unittest discover -s tests -p "test_*.py"`): **34/34 PASSED** (0 failed, 0 skipped).
    - Preserved core FastAPI, SQLite, and AI pipeline architecture 100% intact.
 
+---
+
+## Checkpoint 8 — Final Master Integration of M's ShilpVani 7-Language Selector
+**Status**: `PASSED & INTEGRATED`
+
+### Summary of Work:
+1. **Integrated M's Commit**:
+   - Integrated commit `c4870ad` (`fix: complete ShilpVani language selector`) from `feature/M-ai-nlp` into `feature/A-backend`.
+   - Verified that all 7 target languages (English, Hindi, Bengali, Marathi, Assamese, Tamil, Telugu) are fully supported across constants, UI components (`LanguageSelection.jsx`, `Header.jsx`), and translations dictionary.
+   - Cleaned `selectLanguage` in `frontend/src/context/AppContext.jsx` to prevent premature screen unmounting.
+   - Kept automated contract test `test_frontend_languages_selector_contract` in `tests/test_nlp_pipeline.py`.
+2. **Preservation & Non-Regression**:
+   - Retained all existing vision (R), pricing & marketplace (S), database/API (A/Parth), and NLP (M) capabilities intact.
+   - Did not alter vision, pricing, marketplace, orders, or unrelated backend/frontend code.
+3. **Verification Results**:
+   - Backend & NLP unit tests (`python -m unittest discover -s tests -p "test_*.py"`): **62/62 PASSED** (0 failures, 0 errors).
+   - Frontend production build (`npm run build --prefix frontend`): **PASSED** (1610 modules transformed, 0 build errors).
+   - `git diff --check`: **PASSED** (0 formatting or whitespace issues).
+   - Status: **PASS — 100% DEMO-READY & INTEGRATED**.
+
+
