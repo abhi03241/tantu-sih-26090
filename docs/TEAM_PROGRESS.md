@@ -118,3 +118,37 @@ This document tracks team member status, backend readiness, and integration cont
 #### 🧪 Parth — Database, Testing & Integration Support
 - Test suite location: `tests/` (`test_api.py` and `test_integration.py`). Run with `python -m unittest discover -s tests`.
 - Database file: `backend/tantu.db` (SQLite). Schema and repositories located in `backend/app/database.py`.
+
+---
+
+### 2026-09-11 — Targeted Frontend QA Fixes (A, covering for unavailable P)
+
+**P was unavailable for this session. A applied only the four targeted fixes from Parth QA report.**
+No backend, database, API, NLP, vision, or pricing code was modified.
+
+#### Issue 1 — Sample Craft Image [FIXED]
+- Unsplash wristwatch photo (1590736969955-71cc94801759) replaced with bamboo basket (1558618666-fcd25c85cd64).
+- File: frontend/src/constants/categories.js
+
+#### Issue 2 — Hardcoded Language Strings [FIXED]
+- ArtisanOrdersList.jsx: filter tab labels (All/Pending/Accepted) now use t() — responds to language switch.
+- BuyerHome.jsx: hero badge, title, subtitle, search placeholder, catalogue label, empty state,
+  price label, and bulk button now use t() — responds to language switch.
+- languages.js: added filterAll/filterPending/filterAccepted + 10 buyer* keys to hi and en dicts.
+- M can extend to bn/mr/as/ta/te by adding these keys to those language entries when ready.
+
+#### Issue 3 — Camera capture=environment [FIXED]
+- AddProductWizard.jsx now has two separate hidden inputs:
+  cameraInputRef (capture=environment) for Camera button,
+  fileInputRef (no capture) for Gallery button.
+- Desktop file picker, gallery, preview, upload, and image enhancement all unaffected.
+
+#### Issue 4 — Bottom Nav Clipping at 375px [FIXED]
+- index.css: flex-shrink:0 on .bottom-nav, min-height:0 on .app-main-content,
+  padding-bottom:18px on .device-mode .bottom-nav.
+
+#### Verification
+- npm run build: 1610 modules, 0 errors (exit 0).
+- git diff --check: Passed.
+- Backend unittest suite: 34/34 passed (unchanged).
+- 6 frontend files changed, 0 backend files changed.

@@ -294,3 +294,35 @@
 - **Status**: Completed ✓
 
 
+
+---
+
+## QA Fix Handover — 2026-09-11 (Executed by A — P Unavailable)
+
+**Note**: P was unavailable. A (Tech Lead) applied ONLY the four targeted frontend fixes identified by Parth QA. No redesign, no architecture change, no new features.
+
+### Issue 1 — Wrong Sample Craft Image [FIXED]
+- Root cause: DEMO_SAMPLE_CRAFTS[0].imageUrl pointed to Unsplash wristwatch photo.
+- Fix: Replaced with correct handwoven bamboo basket photo (1558618666-fcd25c85cd64).
+- File: frontend/src/constants/categories.js
+
+### Issue 2 — Hardcoded Language Strings [FIXED]
+- ArtisanOrdersList.jsx tab labels now use t(filterAll/filterPending/filterAccepted).
+- BuyerHome.jsx hero/banner/search/empty-state strings now use t(buyer*) keys.
+- New keys added to languages.js hi and en dictionaries.
+- Files: languages.js, ArtisanOrdersList.jsx, BuyerHome.jsx
+
+### Issue 3 — Camera capture=environment [FIXED]
+- Added separate cameraInputRef with capture=environment attribute.
+- Camera button triggers cameraInputRef (mobile rear cam); gallery button triggers fileInputRef (file picker).
+- File: frontend/src/components/artisan/AddProductWizard.jsx
+
+### Issue 4 — Bottom Nav Clipping at 375px [FIXED]
+- Added flex-shrink:0 to .bottom-nav, min-height:0 to .app-main-content,
+  padding-bottom:18px to .device-mode .bottom-nav.
+- File: frontend/src/index.css
+
+### Build Verification
+- npm run build: 1610 modules, 0 errors (exit 0).
+- git diff --check: Passed.
+- Backend test suite: 34/34 passed (unchanged).

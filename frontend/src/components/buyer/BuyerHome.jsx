@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { CRAFT_CATEGORIES } from '../../constants/categories';
-import { Search, Sparkles, MapPin, Layers, ShoppingBag, ArrowRight, ShieldCheck, Heart } from 'lucide-react';
+import { Search, Sparkles, MapPin, ShoppingBag, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function BuyerHome() {
   const { products, navigateTo, t } = useApp();
@@ -27,13 +27,13 @@ export default function BuyerHome() {
       <div className="buyer-hero-banner">
         <div className="buyer-badge">
           <ShieldCheck size={14} />
-          <span>VERIFIED RURAL ARTISAN MARKET LINKAGE</span>
+          <span>{t('buyerHeroBadge')}</span>
         </div>
         <h2 className="buyer-hero-title">
-          Direct Artisanal Sourcing, Powered by AI
+          {t('buyerHeroTitle')}
         </h2>
         <p className="buyer-hero-sub">
-          Source authentic GI-tagged and handcrafted heritage products directly from rural Indian master craftsmen without intermediaries.
+          {t('buyerHeroSub')}
         </p>
       </div>
 
@@ -43,7 +43,7 @@ export default function BuyerHome() {
         <input
           type="text"
           className="search-input"
-          placeholder="Search by craft, silk, bamboo, artisan or state..."
+          placeholder={t('buyerSearchPlaceholder')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -64,18 +64,18 @@ export default function BuyerHome() {
 
       {/* Products Grid */}
       <div className="section-header-row">
-        <h3 className="section-title">Artisan Catalogues ({filtered.length})</h3>
+        <h3 className="section-title">{t('buyerCataloguesLabel')} ({filtered.length})</h3>
         <span style={{ fontSize: '0.78rem', color: 'var(--text-light)', fontWeight: 600 }}>
-          B2B & Bulk Direct
+          {t('buyerB2BLabel')}
         </span>
       </div>
 
       {filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid var(--border-light)' }}>
           <ShoppingBag size={40} color="#94A3B8" style={{ marginBottom: '10px' }} />
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>No craft listings match your query</h3>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>{t('buyerNoResults')}</h3>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            Try searching for "Bamboo", "Silk", "Saharanpur" or clear filters.
+            {t('buyerNoResultsSub')}
           </p>
         </div>
       ) : (
@@ -106,14 +106,14 @@ export default function BuyerHome() {
                 </div>
 
                 <h4 className="product-card-title">{product.title}</h4>
-                
+
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: '1.4', marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {product.description_english}
                 </p>
 
                 <div className="product-card-footer">
                   <div className="price-tag-wrap">
-                    <span className="price-label">Suggested Wholesale</span>
+                    <span className="price-label">{t('buyerSuggestedWholesale')}</span>
                     <span className="price-value">
                       ₹{product.suggested_price_min} - ₹{product.suggested_price_max}
                     </span>
@@ -123,7 +123,7 @@ export default function BuyerHome() {
                     className="pill-btn"
                     style={{ background: 'var(--indigo-dark)', color: '#FFFFFF', borderColor: 'var(--indigo-dark)', fontWeight: 700 }}
                   >
-                    <span>Request Bulk</span>
+                    <span>{t('buyerRequestBulk')}</span>
                     <ArrowRight size={14} />
                   </button>
                 </div>

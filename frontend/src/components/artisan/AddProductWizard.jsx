@@ -25,7 +25,8 @@ export default function AddProductWizard() {
   const [photoUrl, setPhotoUrl] = useState(DEMO_SAMPLE_CRAFTS[0].imageUrl);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [photoError, setPhotoError] = useState('');
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef(null);    // gallery — no capture hint
+  const cameraInputRef = useRef(null);  // camera — capture="environment" for mobile
 
   // CHECKPOINT 4: VOICE & TEXT FALLBACK STATE
   const [isRecording, setIsRecording] = useState(false);
@@ -424,6 +425,17 @@ export default function AddProductWizard() {
             </div>
           )}
 
+          {/* Hidden file inputs: separate camera vs gallery */}
+          {/* Camera input – capture hint tells mobile to open rear camera */}
+          <input
+            type="file"
+            ref={cameraInputRef}
+            onChange={handleFileUpload}
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+          />
+          {/* Gallery input – no capture attribute so file picker opens on desktop and mobile */}
           <input
             type="file"
             ref={fileInputRef}
@@ -436,7 +448,7 @@ export default function AddProductWizard() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
             <button
               className="btn-secondary-large"
-              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              onClick={() => cameraInputRef.current && cameraInputRef.current.click()}
               disabled={photoLoading}
             >
               <Camera size={20} color="#EA580C" />

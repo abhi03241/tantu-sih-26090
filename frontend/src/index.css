@@ -145,6 +145,7 @@ a {
 /* App Body Content Area */
 .app-main-content {
   flex: 1;
+  min-height: 0; /* Allows flex child to scroll without overflowing its sibling bottom-nav */
   padding: 16px 18px calc(90px + env(safe-area-inset-bottom)) 18px; /* Bottom padding for bottom navigation bar */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -246,6 +247,7 @@ a {
   transform: translateX(-50%);
   width: 100%;
   max-width: 480px;
+  flex-shrink: 0; /* Never compress the nav bar inside device-frame flex column */
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -261,6 +263,8 @@ a {
   position: sticky;
   bottom: 0;
   border-radius: 0 0 34px 34px;
+  /* Add a tiny bottom pad so content isn't hidden by the frame's rounded border */
+  padding-bottom: 18px;
 }
 
 .nav-item {

@@ -87,7 +87,20 @@ export const TRANSLATIONS = {
     listenToScreen: 'इस पृष्ठ को सुनें',
     viewEnhanced: 'AI स्टूडियो लाइटिंग फोटो',
     viewOriginal: 'मूल फोटो',
-    aiConfidence: 'AI सटीकता'
+    aiConfidence: 'AI सटीकता',
+    filterAll: 'सभी',
+    filterPending: 'लंबित',
+    filterAccepted: 'स्वीकृत',
+    buyerHeroBadge: 'सत्यापित ग्रामीण कारीगर बाज़ार',
+    buyerHeroTitle: 'AI द्वारा संचालित, सीधा कारीगर स्रोत',
+    buyerHeroSub: 'बिना बिचौलियों के भारतीय ग्रामीण शिल्पकारों से प्रामाणिक GI-टैग और हस्तनिर्मित विरासत उत्पाद सीधे प्राप्त करें।',
+    buyerSearchPlaceholder: 'शिल्प, बांस, रेशम, कारीगर या राज्य खोजें...',
+    buyerCataloguesLabel: 'कारीगर कैटलॉग',
+    buyerB2BLabel: 'B2B थोक',
+    buyerNoResults: 'आपकी खोज से मेल खाने वाला कोई शिल्प नहीं मिला',
+    buyerNoResultsSub: '"बांस", "रेशम" या "सहारनपुर" खोजें या फ़िल्टर हटाएं।',
+    buyerSuggestedWholesale: 'सुझाया थोक मूल्य',
+    buyerRequestBulk: 'थोक अनुरोध'
   },
   en: {
     appTitle: 'ShilpVani शिल्पवाणी',
@@ -155,7 +168,20 @@ export const TRANSLATIONS = {
     listenToScreen: 'Read page aloud',
     viewEnhanced: 'AI Studio Lighting',
     viewOriginal: 'Raw Capture',
-    aiConfidence: 'AI Confidence'
+    aiConfidence: 'AI Confidence',
+    filterAll: 'All',
+    filterPending: 'Pending',
+    filterAccepted: 'Accepted',
+    buyerHeroBadge: 'VERIFIED RURAL ARTISAN MARKET LINKAGE',
+    buyerHeroTitle: 'Direct Artisanal Sourcing, Powered by AI',
+    buyerHeroSub: 'Source authentic GI-tagged and handcrafted heritage products directly from rural Indian master craftsmen without intermediaries.',
+    buyerSearchPlaceholder: 'Search by craft, silk, bamboo, artisan or state...',
+    buyerCataloguesLabel: 'Artisan Catalogues',
+    buyerB2BLabel: 'B2B & Bulk Direct',
+    buyerNoResults: 'No craft listings match your query',
+    buyerNoResultsSub: 'Try searching for "Bamboo", "Silk", "Saharanpur" or clear filters.',
+    buyerSuggestedWholesale: 'Suggested Wholesale',
+    buyerRequestBulk: 'Request Bulk'
   }
 };
 

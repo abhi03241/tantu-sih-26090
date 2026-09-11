@@ -41,19 +41,19 @@ export default function ArtisanOrdersList() {
           className={`category-chip ${filter === 'all' ? 'active' : ''}`}
           onClick={() => setFilter('all')}
         >
-          <span>सभी ({myOrders.length})</span>
+          <span>{t('filterAll')} ({myOrders.length})</span>
         </button>
         <button
           className={`category-chip ${filter === 'pending' ? 'active' : ''}`}
           onClick={() => setFilter('pending')}
         >
-          <span>लंबित ({myOrders.filter(o => o.status === 'pending').length})</span>
+          <span>{t('filterPending')} ({myOrders.filter(o => o.status === 'pending').length})</span>
         </button>
         <button
           className={`category-chip ${filter === 'accepted' ? 'active' : ''}`}
           onClick={() => setFilter('accepted')}
         >
-          <span>स्वीकृत ({myOrders.filter(o => o.status === 'accepted').length})</span>
+          <span>{t('filterAccepted')} ({myOrders.filter(o => o.status === 'accepted').length})</span>
         </button>
       </div>
 
