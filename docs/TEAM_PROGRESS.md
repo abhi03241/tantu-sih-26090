@@ -190,3 +190,19 @@ No backend, database, API, NLP, vision, or pricing code was modified.
 - **Final Test Verification**: **61/61 backend unit & integration tests passed (0 failed, 0 skipped)** (`python -m unittest discover -s tests -p "test_*.py"`).
 - **Final Frontend Build**: `npm run build` succeeded with **0 errors** (1610 modules transformed).
 - **Status**: **PASS — Integrated & Production Ready**.
+
+---
+
+### Final Pricing, Marketplace & Order QA Sign-off (S) — 2026-09-12
+
+- **Target Commit Tested**: `f7a95b3431aa4b83758fae01f70ac472c2e25318`
+- **Branch**: `feature/A-backend`
+- **Scope Verified**:
+  - **Dynamic Pricing**: Numeric `min < max`, cost/labor hours breakdown wired properly, negative inputs rejected (422), volume discount & regional multiplier working, output labeled as "AI-assisted suggested price range" with demo disclaimer (no claim of guaranteed market truth).
+  - **Buyer Marketplace**: Only published products appear; draft/processing products strictly hidden. Product cards load with category/region tags. Product detail (`GET /api/products/{id}`) and image routing (/uploads, /enhanced) verified.
+  - **Bulk Orders**: B2B bulk orders submit cleanly (`POST /api/orders/request`), draft/processing orders rejected (409 Conflict), quantity <= 0 rejected (422), order persisted and retrievable by ID.
+  - **Order Status**: Status updates persist (`pending` -> `accepted` -> `fulfilled`), reload resilience confirmed.
+  - **Mobile Layout**: Responsive at 375×667 and 390×844 with fluid max-width 480px and bottom sheet modal.
+- **Fix Applied**: Added `"completed"` and `"requested"` to `OrderStatus` schema in `backend/app/schemas.py` to support legacy records without 500 `ResponseValidationError`.
+- **Test Results**: **61/61 unit and integration tests passed (100%)** (`python -m unittest discover -s tests -p "test_*.py"`).
+- **Status**: **PASS — DEMO-READY**.

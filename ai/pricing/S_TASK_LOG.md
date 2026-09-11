@@ -241,3 +241,42 @@
   - Per strict instruction (**"If everything works: MAKE NO CODE CHANGES"**), no code was modified.
 * **Commit/hash**: None required (Successful audit-only; no code fixes necessary).
 * **Branch**: `feature/S-pricing-marketplace`
+
+---
+
+## 📌 Checkpoint 10: Final Pricing & Marketplace QA Verification — ShilpVani (f7a95b3)
+
+* **Task**: Final integrated QA verification of Pricing, Buyer Marketplace, Product Detail, Bulk Orders, and Order Status on commit `f7a95b3` (`feature/A-backend`).
+* **Exact Commit Tested**: `f7a95b3431aa4b83758fae01f70ac472c2e25318`
+* **Branch**: `feature/A-backend`
+* **Audit & Verification Results**:
+  1. **Dynamic Pricing**: **PASS**
+     - `POST /api/pricing/estimate` works accurately across all craft categories.
+     - Suggested min/max values are strictly numeric and valid (`suggested_price_min < suggested_price_max`).
+     - Cost and labor hours inputs are wired correctly (`raw_material_cost`, `labor_hours`, `labor_cost`, `overhead`).
+     - Negative cost, labor hours, and overhead inputs are rejected with `422 Unprocessable Entity`.
+     - Quantity tiers correctly apply volume discount factors (e.g. 10% discount at $q=100$).
+     - Region inputs adjust labor rates via regional craft cluster multipliers.
+     - UI and API explicitly label outputs as **"AI-assisted suggested price range"** with `"confidence": "demo"`; no claim of guaranteed market truth.
+  2. **Buyer Marketplace**: **PASS**
+     - Published products (`status="published"`) appear in `GET /api/buyer/products`.
+     - Draft and processing products (`draft`, `processing`, `ready`) do NOT appear in the buyer marketplace feed.
+     - Product cards load correctly with high-resolution image URLs, craft categories, and regional tags.
+     - Product detail endpoint (`GET /api/products/{id}`) returns complete product metadata.
+     - Image display data works correctly through static file routes (`/uploads` and `/enhanced`).
+  3. **Bulk Orders**: **PASS**
+     - Buyer bulk order submission (`POST /api/orders/request`) works smoothly.
+     - Unpublished (draft/processing) products are rejected with `409 Conflict`.
+     - Quantity validation rejects invalid or non-positive quantities (`quantity <= 0`) with `422 Unprocessable Entity`.
+     - Order is persisted with a unique `ord-...` identifier and initial status `pending`.
+     - Order can be retrieved immediately via `GET /api/orders/{id}`.
+  4. **Order Status**: **PASS**
+     - Status updates work via `PATCH /api/orders/{id}/status` supporting both JSON `{ "status": "accepted" }` and query parameter `new_status`.
+     - Updated status persists across reloads and fresh database connections.
+     - **Blocker Fixed**: Extended `OrderStatus` literal in `backend/app/schemas.py` to include `"completed"` and `"requested"`, resolving a `ResponseValidationError` when reading orders containing legacy test records.
+     - No regression in existing API behavior.
+  5. **Mobile Responsiveness**: **PASS**
+     - Verified at 375×667 (iPhone SE) and 390×844 (iPhone 12/13/14).
+     - UI constraints (`.app-container` `max-width: 480px`, fluid width, `.modal-content-sheet` bottom sheet layout) prevent horizontal overflow and guarantee touch-friendly interaction.
+* **Test Suite Status**: **61/61 passed (100%)** (`python -m unittest discover -s tests -p "test_*.py"` in 3.46s).
+* **Demo-Ready Verdict**: **DEMO-READY (PASS)**.

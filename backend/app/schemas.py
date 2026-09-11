@@ -3,7 +3,7 @@ from typing import List, Literal, Optional
 
 
 ProductStatus = Literal["draft", "processing", "ready", "published", "failed"]
-OrderStatus = Literal["pending", "accepted", "fulfilled", "rejected"]
+OrderStatus = Literal["pending", "accepted", "fulfilled", "rejected", "completed", "requested"]
 
 
 # ==========================================
