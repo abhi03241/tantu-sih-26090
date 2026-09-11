@@ -206,3 +206,13 @@ No backend, database, API, NLP, vision, or pricing code was modified.
 - **Fix Applied**: Added `"completed"` and `"requested"` to `OrderStatus` schema in `backend/app/schemas.py` to support legacy records without 500 `ResponseValidationError`.
 - **Test Results**: **61/61 unit and integration tests passed (100%)** (`python -m unittest discover -s tests -p "test_*.py"`).
 - **Status**: **PASS — DEMO-READY**.
+
+---
+
+### M — ShilpVani 7-Language Selector Verification & QA Resolution (2026-09-12)
+- Re-verified all 7 target languages in `LANGUAGES` array (`frontend/src/constants/languages.js`): English (`en`), Hindi (`hi`), Bengali (`bn`), Marathi (`mr`), Assamese (`as`), Tamil (`ta`), Telugu (`te`).
+- Verified selector displays all 7 languages in `LanguageSelection.jsx` (2-column mobile card grid) and `Header.jsx` (dropdown language menu).
+- Cleaned language selection flow in `AppContext.jsx` to prevent premature unmounting when browsing languages.
+- Added automated contract regression test `test_frontend_languages_selector_contract` in `tests/test_nlp_pipeline.py`.
+- Automated test results: **38/38 tests passed**.
+- Frontend production build: `npm run build` succeeds in 2.79s with **0 errors**.

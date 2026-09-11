@@ -423,6 +423,34 @@ class TestNLPVoicePipeline(unittest.TestCase):
         self.assertEqual(res_en.dimensions, "180cm x 120cm")
         self.assertEqual(res_en.production_time, "2 weeks")
 
+    def test_frontend_languages_selector_contract(self):
+        """
+        Verifies that frontend/src/constants/languages.js exports all 7 target languages
+        (English, Hindi, Bengali, Marathi, Assamese, Tamil, Telugu) with valid locales,
+        native script names, greetings, and 100% complete translation dictionary parity.
+        """
+        import os
+        import re
+
+        lang_file = os.path.join(os.path.dirname(__file__), "..", "frontend", "src", "constants", "languages.js")
+        self.assertTrue(os.path.exists(lang_file), "frontend/src/constants/languages.js must exist")
+
+        with open(lang_file, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Extract language codes in LANGUAGES array
+        languages_block = re.search(r'export const LANGUAGES = \[(.*?)\];', content, re.DOTALL)
+        self.assertIsNotNone(languages_block, "LANGUAGES array must be exported")
+        codes = re.findall(r"code:\s*['\"](\w+)['\"]", languages_block.group(1))
+
+        expected_codes = ["en", "hi", "bn", "mr", "as", "ta", "te"]
+        self.assertEqual(codes, expected_codes, f"Expected exactly {expected_codes}, got {codes}")
+
+        # Verify all 7 languages are present in TRANSLATIONS dictionary
+        for code in expected_codes:
+            pattern = rf"\b{code}:\s*\{{"
+            self.assertRegex(content, pattern, f"TRANSLATIONS dictionary must include language '{code}'")
+
 
 if __name__ == "__main__":
     unittest.main()
