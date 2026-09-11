@@ -202,3 +202,42 @@
 * **Required integration**: Provide the validated integrated branch/commit containing the publication lifecycle and React/Capacitor frontend, then rerun this verification there. No workaround or schema change was applied.
 * **Commit/hash**: `7fb2bb9` (`docs: record mobile pricing flow verification`).
 * **Branch**: `feature/S-pricing-marketplace`
+
+---
+
+## 📌 Checkpoint 9: ShilpVani Pricing & B2B Marketplace End-to-End Audit
+
+* **Task**: Audit and verify the end-to-end pricing and B2B marketplace flow for the ShilpVani project (formerly TANTU, SIH 26090), verify all required lifecycle and pricing constraints, and identify all user-facing branding instances of "TANTU" without touching frontend branding or changing working code.
+* **Audit Scope & Flow Verified**:
+  $$\text{Pricing} \longrightarrow \text{Review} \longrightarrow \text{Publish} \longrightarrow \text{Buyer Marketplace} \longrightarrow \text{Product Detail} \longrightarrow \text{Bulk Order} \longrightarrow \text{Order Status}$$
+* **Detailed Findings**:
+  1. **AI-Assisted Suggested Price Range**: Verified. Output bounds (`suggested_price_min`, `suggested_price_max`) calculate correctly with `min < max`, explicitly disclaimed as `"AI-assisted suggested price range"` with `"confidence": "demo"`.
+  2. **Labor Hours Handling**: Verified. Handled in `PricingService.estimate_smart_price` using `labor_hours * hourly_rate`, with craft cluster default fallback.
+  3. **Material & Cost Inputs**: Verified. Raw material cost is directly added to base cost; missing values use cluster median fallbacks.
+  4. **Overhead Handling**: Verified. Configurable overhead is calculated as percentage or explicit input.
+  5. **Quantity Handling**: Verified. Volume tiers apply bulk economies-of-scale discount factors while preserving artisan wage guarantees.
+  6. **Region Handling**: Verified. Regional wage multiplier adjusts labor rates based on state/cluster artisan wage benchmarks.
+  7. **Negative/Invalid Input Handling**: Verified. `POST /api/pricing/estimate` rejects negative material, labor, and overhead with `422 Unprocessable Entity`. Order creation rejects `quantity <= 0` with `422`. Non-existent products return `404 Not Found`.
+  8. **Published Products in Marketplace**: Verified. `GET /api/buyer/products` filters by `status="published"`, returning published items.
+  9. **Draft Products Excluded**: Verified. Products with `status="draft"` or unassigned status are strictly excluded from buyer marketplace endpoints. Submitting an order on draft product is rejected with `409 Conflict`.
+  10. **Processing Products Excluded**: Verified. Products in `processing` or `ready` states remain hidden from buyer feed until `PATCH /api/products/{id}/publish` is called.
+  11. **Bulk-Order Request**: Verified. `POST /api/orders/request` validates buyer contact, product ID, and quantity, creating a pending order with unique `ord-...` ID.
+  12. **Order Status Persistence**: Verified. `PATCH /api/orders/{id}/status` updates and persists order status (`pending`, `accepted`, `fulfilled`, `rejected`) in SQLite database across reloads.
+* **User-Facing Screens Branding Audit ("TANTU" -> "ShilpVani")**:
+  - `frontend/src/components/common/Header.jsx` (Line 42): Displays app name `TANTU` in primary header banner across all views.
+  - `frontend/src/components/artisan/LanguageSelection.jsx` (Line 37): Displays `तंतु TANTU` on initial onboarding screen.
+  - `frontend/src/components/artisan/AddProductWizard.jsx` (Line 652): Displays `TANTU MULTIMODAL AI PIPELINE` banner in Step 3 AI processing modal.
+  - `frontend/src/components/buyer/BuyerProductDetail.jsx` (Line 76): Displays `Enhanced by TANTU AI` badge.
+  - `frontend/src/constants/languages.js` (Lines 9, 16, 80, 148, 175): Contains `appTitle: 'तंतु TANTU'`, `appTitle: 'TANTU तंतु'`, `greetingEn: 'Welcome to TANTU'`, and `step3AiSub: 'TANTU AI is generating the bilingual catalogue'`.
+  - `frontend/index.html` (Line 7): Title tag `<title>तंतु TANTU | AI Market Linkage & Smart Cataloging for Artisans</title>`.
+  - `frontend/index.html` (Static B2B Portal, Lines 7, 8, 56, 1467): Displays `TANTU — B2B Artisan Marketplace & Smart Fair Pricing` and `<h1>TANTU <span class="indic-script">(तंतु)</span></h1>`.
+  *(Note: Per instruction, no frontend branding code changes were made; findings documented for the frontend team).*
+* **Test Suite Status**:
+  - `tests/test_pricing_marketplace.py` + `tests/test_api.py`: **26/26 passed (100%)**.
+  - Integrated suite (`bbdaea3` baseline: `test_integration.py` + `test_api.py` + `test_pricing_marketplace.py`): **33/33 passed (100%)**.
+* **Code Modification Decision**:
+  - All verified features and endpoints are fully functional and passing all tests.
+  - No genuine blocking issue found.
+  - Per strict instruction (**"If everything works: MAKE NO CODE CHANGES"**), no code was modified.
+* **Commit/hash**: None required (Successful audit-only; no code fixes necessary).
+* **Branch**: `feature/S-pricing-marketplace`

@@ -64,7 +64,18 @@
 - The requested `bbdaea3` React/Vite/Capacitor baseline is not present in this checkout or configured remotes. This branch has a static marketplace and no `published`/`draft`/`processing` product lifecycle field or publish endpoint.
 - Published-only visibility cannot be verified safely on this branch. The integrated baseline/branch is required; no schema, API, pricing, NLP, or Vision code was changed.
 
+### 6. ShilpVani End-to-End Audit & Verification (Member S, 2026-09-11)
+- Verified complete flow: `Pricing → Review → Publish → Buyer Marketplace → Product Detail → Bulk Order → Order Status`.
+- AI-assisted pricing range verified with bounds calculation, labor hours handling (`labor_hours * rate`), material/cost inputs, overhead, quantity discount tiers, and regional wage adjustments.
+- Validation verified: negative costs/labor/overhead reject with `422 Unprocessable Entity`; non-positive order quantities reject with `422`; non-existent products return `404`.
+- Lifecycle guards verified: published products appear in buyer marketplace; draft and processing products are excluded; bulk orders on unpublished items return `409 Conflict`.
+- Order lifecycle verified: bulk order creation generates pending order; status update endpoint (`PATCH /api/orders/{id}/status`) persists state transitions in SQLite database.
+- TANTU -> ShilpVani Branding Audit: Identified occurrences on user-facing screens (`Header.jsx`, `LanguageSelection.jsx`, `AddProductWizard.jsx`, `BuyerProductDetail.jsx`, `languages.js`, `index.html`). No frontend branding code was changed per instructions.
+- Test suites passing: **26 / 26** on `feature/S-pricing-marketplace` and **33 / 33** on the integrated `bbdaea3` baseline.
+- Decision: All checks passed with zero blocking issues. Per instructions ("If everything works: MAKE NO CODE CHANGES"), no application code was modified.
+
 ---
 
 ## 🧪 Shared Test Suite Status
-- Total automated tests passing: **26 / 26** (`tests/test_api.py` and `tests/test_pricing_marketplace.py`).
+- Automated tests passing: **26 / 26** (`tests/test_api.py` and `tests/test_pricing_marketplace.py`).
+- Integrated baseline tests passing: **33 / 33** (`test_api.py`, `test_integration.py`, `test_pricing_marketplace.py`).
