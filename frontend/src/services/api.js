@@ -1,6 +1,13 @@
 // Base API service with automatic backend detection and graceful offline mock fallback
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const isNativePlatform =
+  typeof window !== 'undefined' &&
+  typeof window.Capacitor?.isNativePlatform === 'function' &&
+  window.Capacitor.isNativePlatform();
+
+// Browsers retain the local development default. A Capacitor shell must receive
+// VITE_BACKEND_URL at build time so an APK never attempts to call its own localhost.
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (isNativePlatform ? '' : 'http://localhost:8000');
 
 let isBackendReachable = null;
 

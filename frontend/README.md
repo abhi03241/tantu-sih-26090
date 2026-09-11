@@ -63,6 +63,14 @@ npm run dev
 ```
 The app will be live at `http://localhost:5173/`.
 
+### Mobile / APK configuration
+
+Capacitor is not currently committed in this frontend module. The React app is prepared for a future Capacitor shell without changing backend behavior:
+
+- Browser development continues to use `http://localhost:8000` by default.
+- Before building an APK, set `VITE_BACKEND_URL` to the reachable HTTPS backend origin (for example, `https://api.example.org`) in the mobile build environment. Do not use `localhost`, because it resolves to the phone itself.
+- The app retains its existing offline mock fallback if that endpoint is unavailable.
+
 ### Build for Production
 ```bash
 npm run build
