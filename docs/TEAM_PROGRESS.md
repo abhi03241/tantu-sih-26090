@@ -57,3 +57,9 @@
   - Non-destructive processing with SHA-256 hashed outputs served via `/enhanced` static mount.
   - Frontend display retrieval verified via backend static asset route.
 - **Regression Status**: 28/28 tests passing cleanly across vision and core API suites.
+
+### QA Sign-off & Vision Pipeline Status (R)
+
+- **Parth's QA Audit**: Vision pipeline confirmed operational and production-ready.
+- **Frontend Camera Note**: Generic file input on frontend camera UI acknowledged and tracked under Team Member P's frontend tasks.
+- **Scope Compliance**: No changes made to frontend language selector, NLP, pricing, marketplace, orders, or database.
