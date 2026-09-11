@@ -35,13 +35,25 @@
   - Updates `enhanced_image_url` while preserving raw `image_url`.
   - Real-mode assets are now served at `/enhanced/...`; frontend clients should resolve this relative path against the API base URL. Mock mode continues to return remote demo URLs.
   - Conforms to standard product schema and REST contract.
-- **Test Coverage**: 17 vision unit/integration tests in `tests/test_vision.py` passing ($100\%$, 27/27 suite total).
+- **Test Coverage**: 18 vision unit/integration tests in `tests/test_vision.py` passing ($100\%$, 28/28 suite total).
 - **Visual Demo**: Run `python ai/vision/demo.py` to see side-by-side Before/After transformations on 4 sample artisan crafts (Bamboo, Terracotta, Silk Handloom, Wood Carving).
 
 ### ShilpVani Rebranding & Asset Audit Verification (R)
 
 - **Audit Completed**: Verified that existing product image uploads, JPEG/PNG pipelines, adaptive lighting/texture enhancement, collision-safe hashed URLs (`/enhanced/...`), EXIF orientation normalization, and original raw image preservation remain 100% functional.
 - **Logo Display**: Confirmed that ShilpVani branding/logo assets can be safely displayed with preserved aspect ratio without distortion or forced non-uniform scaling.
-- **Test Results**: All 27 unit and integration tests passing in `<5.0s`.
+- **Test Results**: All 28 unit and integration tests passing in `<5.0s`.
 - **Scope Compliance**: No modifications made to NLP, pricing, database, marketplace, backend architecture, or frontend branding.
+
+### Mobile Camera & Gallery Ingestion Safety Audit (R)
+
+- **Pipeline Verification**: Confirmed complete end-to-end compatibility for mobile camera and gallery captures (`Camera/Gallery -> Frontend image -> Upload API -> Vision Enhancement -> Enhanced Image`).
+- **Validated Checks**:
+  - Full JPEG and PNG alpha/transparency support.
+  - High-res mobile camera dimension handling ($4032\times 3024$ and up to $8000\times 8000$).
+  - EXIF orientation auto-transpose.
+  - Universal RGB conversion for all color modes.
+  - Base64 Data URL, binary bytes, HTTP/HTTPS URL, and file path upload compatibility.
+  - Non-destructive processing with SHA-256 hashed outputs served via `/enhanced` static mount.
+
 

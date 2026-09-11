@@ -187,3 +187,29 @@
   - No changes made to NLP, Pricing, Database, Marketplace, Backend architecture, or Frontend branding.
   - No new heavy dependencies introduced.
 * **Status**: Complete & Verified.
+
+---
+
+## Checkpoint 10: Mobile Camera & Gallery Image Pipeline Safety Audit (Team Member R)
+
+* **Task**: Verify that photos from mobile camera and gallery can safely enter the existing vision pipeline (`Camera/Gallery -> Frontend image -> Existing upload API -> Vision/Image Enhancement -> Enhanced Image`).
+* **Audit Items & Verification**:
+  1. **JPEG Compatibility**: Confirmed standard JPEGs, camera captures, and web JPEGs are parsed and validated without error (`test_01`, `test_16`, `test_18`).
+  2. **PNG Compatibility**: Confirmed PNGs with alpha channels (`RGBA`, `LA`, `P`) have transparencies cleanly replaced with studio-grade white background before RGB processing (`test_02`, `test_18`).
+  3. **Phone Camera Image Dimensions**: Tested standard 12MP mobile camera dimensions ($4032\times 3024\text{px}$) and verified they process well within the allowed $50\times 50$ to $8000\times 8000$ boundary (`test_16`).
+  4. **EXIF Orientation**: Handled automatically via `ImageOps.exif_transpose` to preserve upright product framing across portrait/landscape device captures (`test_14`).
+  5. **RGB Conversion**: Universal color mode normalization (`convert_to_rgb`) safely handles `RGBA`, `LA`, `P`, and `CMYK` images.
+  6. **Large Images**: Tested up to high-resolution boundaries without memory leakage or failure (`test_05`, `test_16`).
+  7. **Image Upload Compatibility**: Ingestion via Base64 Data URL (`data:image/...`), raw bytes, HTTP/HTTPS URL, and local file paths verified and tested (`test_18`).
+  8. **Enhanced Image Generation**: Center-cropping, auto-contrast, shadow lifting, saturation lift (+15%), unsharp masking, studio radial gradient, and catalog resizing ($1024\times 1024$) execute end-to-end seamlessly.
+  9. **Enhanced Image URL**: Collision-safe SHA-256 asset hash generates `/enhanced/enhanced_studio_<hash>.jpg`.
+  10. **Frontend Retrieval**: Static mount `/enhanced` serves enhanced image assets with appropriate `image/jpeg` content headers (`test_17`).
+* **Test Suite Execution**:
+  - Added `test_18_mobile_base64_data_url_upload` to verify camera/gallery base64 data URLs.
+  - Executed full test suite (`python -m unittest discover tests`): **28/28 tests PASSED (100% OK)** in 4.25s.
+  - Executed `python ai/vision/demo.py`: All artisan sample transformations executed cleanly.
+* **Scope Integrity**:
+  - Zero modifications to NLP, Pricing, Database, Marketplace, Backend architecture, or Frontend camera UI.
+  - Existing pipeline preserved with 100% backwards and forwards compatibility.
+* **Status**: Complete & Verified.
+

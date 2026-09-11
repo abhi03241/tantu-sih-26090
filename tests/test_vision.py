@@ -3,6 +3,7 @@ Unit and Integration Tests for TANTU AI Vision Module.
 Maintained by Team Member R (AI Image Enhancement).
 """
 
+import base64
 import io
 import os
 import sys
@@ -236,6 +237,26 @@ class TestAIVisionModule(unittest.TestCase):
         response = TestClient(app).get(result["enhanced_image_url"])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["content-type"], "image/jpeg")
+
+    def test_18_mobile_base64_data_url_upload(self):
+        """Frontend camera/gallery uploads encoded as base64 data URLs are correctly processed."""
+        # Test JPEG base64 data URL
+        jpeg_bytes = self._create_dummy_image_bytes(size=(600, 800), format="JPEG", color=(150, 100, 50))
+        b64_jpeg_str = f"data:image/jpeg;base64,{base64.b64encode(jpeg_bytes).decode('utf-8')}"
+        res_jpeg = self.real_service.enhance_image(b64_jpeg_str)
+        self.assertEqual(res_jpeg["status"], "success")
+        self.assertTrue(res_jpeg["enhanced_image_url"].startswith("/enhanced/"))
+        self.assertEqual(res_jpeg["metadata"]["original_size"], [600, 800])
+        self.assertEqual(res_jpeg["metadata"]["enhanced_size"], list(DEFAULT_TARGET_SIZE))
+
+        # Test PNG base64 data URL
+        img_png = Image.new("RGBA", (500, 500), (200, 120, 80, 255))
+        buf_png = io.BytesIO()
+        img_png.save(buf_png, format="PNG")
+        b64_png_str = f"data:image/png;base64,{base64.b64encode(buf_png.getvalue()).decode('utf-8')}"
+        res_png = self.real_service.enhance_image(b64_png_str)
+        self.assertEqual(res_png["status"], "success")
+        self.assertTrue(res_png["enhanced_image_url"].startswith("/enhanced/"))
 
 
 if __name__ == "__main__":
