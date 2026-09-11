@@ -52,12 +52,27 @@ def process_voice_and_update_product(id: str, request: VoiceProcessingRequest):
     Processes artisan voice audio transcript into bilingual descriptions, tags, sentiment, and story.
     Updates the product record in the database via NLPService.
     """
+    is_ephemeral_draft = False
     product = ProductRepository.get_by_id(id)
     if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Product with ID '{id}' not found"
-        )
+        if id in ("new-draft", "draft", "new") or id.startswith("new-"):
+            is_ephemeral_draft = True
+            product = {
+                "id": id,
+                "title": "Handcrafted Artisan Craft",
+                "description_english": "Handcrafted regional artisan craft.",
+                "description_hindi": "कारीगर द्वारा निर्मित पारंपरिक हस्तशिल्प।",
+                "category": "Handicrafts & Decor",
+                "material": "Natural Artisan Material",
+                "image_url": "https://images.unsplash.com/photo-1590736969955-71cc94801759",
+                "status": "processing",
+                "tags": []
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Product with ID '{id}' not found"
+            )
 
     ai_result = NLPService.process_voice(
         transcript=request.audio_transcript,
@@ -78,7 +93,10 @@ def process_voice_and_update_product(id: str, request: VoiceProcessingRequest):
     product["sentiment"] = ai_result.get("sentiment", product.get("sentiment"))
     product["narrative_type"] = ai_result.get("narrative_type", product.get("narrative_type"))
 
-    updated = ProductRepository.save(product)
+    if not is_ephemeral_draft:
+        updated = ProductRepository.save(product)
+    else:
+        updated = product
     return updated
 
 
@@ -114,12 +132,27 @@ def generate_product_catalogue(id: str, request: GenerateCatalogueRequest = None
     POST /api/products/{id}/generate-catalogue
     Generates rich marketing description, cultural story, and tags for smart cataloging via NLPService.
     """
+    is_ephemeral_draft = False
     product = ProductRepository.get_by_id(id)
     if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Product with ID '{id}' not found"
-        )
+        if id in ("new-draft", "draft", "new") or id.startswith("new-"):
+            is_ephemeral_draft = True
+            product = {
+                "id": id,
+                "title": "Handcrafted Artisan Craft",
+                "description_english": "Handcrafted regional artisan craft.",
+                "description_hindi": "कारीगर द्वारा निर्मित पारंपरिक हस्तशिल्प।",
+                "category": "Handicrafts & Decor",
+                "material": "Natural Artisan Material",
+                "image_url": "https://images.unsplash.com/photo-1590736969955-71cc94801759",
+                "status": "ready",
+                "tags": []
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Product with ID '{id}' not found"
+            )
 
     catalogue_source = product.copy()
     if request and request.raw_notes:
@@ -133,7 +166,10 @@ def generate_product_catalogue(id: str, request: GenerateCatalogueRequest = None
     product["sentiment"] = ai_result.get("sentiment", product.get("sentiment"))
     product["narrative_type"] = ai_result.get("narrative_type", product.get("narrative_type"))
 
-    updated = ProductRepository.save(product)
+    if not is_ephemeral_draft:
+        updated = ProductRepository.save(product)
+    else:
+        updated = product
     return updated
 
 

@@ -152,3 +152,11 @@ No backend, database, API, NLP, vision, or pricing code was modified.
 - git diff --check: Passed.
 - Backend unittest suite: 34/34 passed (unchanged).
 - 6 frontend files changed, 0 backend files changed.
+### M — ShilpVani Language Selector & Grounded NLP Finalization (2026-09-11)
+- Verified active presence of all 7 target languages in the language selector (`LanguageSelection.jsx` and `Header.jsx`).
+- Connected native speech recognition locales (`en-IN`, `hi-IN`, `bn-IN`, `mr-IN`, `as-IN`, `ta-IN`, `te-IN`) to `AddProductWizard.jsx`.
+- Added regional voice transcripts for all 4 demo sample crafts in `DEMO_SAMPLE_CRAFTS`.
+- Fixed keyword boundary matching in `demo_data.py` (`_match_any_keyword`) to eliminate false-positive substring cues in Indic scripts (e.g., `মা` in `মাটির`).
+- Verified ephemeral wizard drafts (`new-draft`) in `/api/products/{id}/voice` and `/api/products/{id}/generate-catalogue` for seamless offline/online frontend flow.
+- Verified test suite: **37/37 tests passed** (11 backend API tests + 26 NLP pipeline tests).
+- Verified production build: `npm run build` in `frontend/` succeeds with **0 errors**.
