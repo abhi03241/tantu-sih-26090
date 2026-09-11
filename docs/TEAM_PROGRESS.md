@@ -281,3 +281,14 @@ No backend, database, API, NLP, vision, or pricing code was modified.
 - **Frontend Production Build**: `npm run build --prefix frontend` **PASSED** (1610 modules transformed, 0 errors).
 - **Git Check**: `git diff --check` **PASSED** (0 formatting/whitespace issues).
 - **Status**: **PASS — DEPLOYMENT VERIFIED & SIH FINALIZED**.
+
+---
+
+### Deployment Readiness Audit — Vision / Image Pipeline (R) — 2026-09-12
+
+- **Target Platforms**: Frontend on **Vercel**, Backend on **Render**.
+- **Cross-Platform Static Serving**: Enhanced catalog images are served via FastAPI static mount `/enhanced` using cross-platform `os.path.join`/`os.path.abspath` paths (100% Linux/Render compatible).
+- **Frontend URL Resolution**: Frontend constructs API calls against `import.meta.env.VITE_API_BASE_URL` / `import.meta.env.VITE_BACKEND_URL` without localhost or Windows-specific path dependencies.
+- **Image Pipeline Integrity**: Verified multipart upload, JSON `image_url` workflow, EXIF transpose, RGB conversion, Lanczos $1024\times 1024$ resizing, SHA-256 asset naming, and `MOCK_AI=true` demo fallback.
+- **Prototype Storage Limitation**: Local filesystem image storage is suitable for prototype demonstration but should be replaced with persistent object storage for production.
+- **Test Status**: **62/62 unit and integration tests PASSED**. Vision pipeline is deployment-ready with **0 code changes required**.

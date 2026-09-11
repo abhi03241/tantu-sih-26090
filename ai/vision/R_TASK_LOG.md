@@ -258,3 +258,24 @@
   - No code changes required for the vision pipeline.
   - Zero modifications made to frontend language selector, NLP, pricing, marketplace, orders, or database.
 * **Status**: Sign-off Complete & Production Ready.
+
+---
+
+## Checkpoint 13: Final Deployment Readiness Check (Vercel + Render) (Team Member R)
+
+* **Task**: Verify cross-platform deployment safety and static image serving compatibility for Frontend (Vercel) and Backend (Render).
+* **Deployment Safety Audit**:
+  1. **Image Upload & Ingestion**: Verified multipart file upload (`/api/products/{id}/upload-image`), base64 data URLs (`data:image/...`), remote URLs, and JSON payload flows.
+  2. **Image Validation**: Tested format validation (`JPEG`, `PNG`, `WEBP`, `BMP`), dimension constraints ($50\times 50$ to $8000\times 8000$), and corrupted file rejection.
+  3. **Orientation & Colorspace**: EXIF orientation transpose (`ImageOps.exif_transpose`) and universal `RGB` conversion (`convert_to_rgb`) operate without platform dependencies.
+  4. **Static Asset Serving on Render**: Enhanced images are saved to `data/enhanced/` and served via FastAPI static mount at `/enhanced`. Cross-platform paths use `os.path.abspath` and `os.path.join`, ensuring 100% Linux (Render) container compatibility.
+  5. **Frontend / Vercel Compatibility**: Frontend constructs relative endpoints against `BACKEND_URL` (`import.meta.env.VITE_BACKEND_URL`). No localhost dependencies, hardcoded machine paths, or Windows-specific backslashes in generated URLs.
+  6. **MOCK_AI Fallback**: Graceful fallback to instant curated mock studio photos when `MOCK_AI=true` or when external image fetching fails.
+* **Storage Limitation & Production Note**:
+  - *Documented Limitation*: "Local filesystem image storage is suitable for prototype demonstration but should be replaced with persistent object storage for production."
+* **Test Verification**:
+  - `tests/test_vision.py`: **17/17 tests PASSED**.
+  - `tests/test_integration.py`: **5/5 tests PASSED**.
+  - Full suite (`python -m unittest discover tests`): **61/61 tests PASSED (100% OK)** in 3.50s.
+* **Files Changed**: Documentation only.
+* **Status**: PASS — Vision pipeline is deployment-ready. No further changes required.
