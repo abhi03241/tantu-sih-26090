@@ -1,68 +1,68 @@
 // Supported regional languages with native script & speech synthesis codes
-// Contains ONLY the 7 verified functional languages for TANTU/ShilpVani
+// Contains ONLY the 7 verified functional languages for ShilpVani
 export const LANGUAGES = [
   {
     code: 'en',
     name: 'English',
     englishName: 'English',
     locale: 'en-IN',
-    greeting: 'Welcome to TANTU Artisan App.',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'Welcome to ShilpVani Artisan App.',
+    greetingEn: 'Welcome to ShilpVani'
   },
   {
     code: 'hi',
     name: 'हिन्दी',
     englishName: 'Hindi',
     locale: 'hi-IN',
-    greeting: 'नमस्ते! तंतु में आपका स्वागत है।',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'नमस्ते! शिल्पवाणी में आपका स्वागत है।',
+    greetingEn: 'Welcome to ShilpVani'
   },
   {
     code: 'bn',
     name: 'বাংলা',
     englishName: 'Bengali',
     locale: 'bn-IN',
-    greeting: 'নমস্কার! তন্তু-তে আপনাকে স্বাগতম।',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'নমস্কার! শিল্পবাণীতে আপনাকে স্বাগতম।',
+    greetingEn: 'Welcome to ShilpVani'
   },
   {
     code: 'mr',
     name: 'मराठी',
     englishName: 'Marathi',
     locale: 'mr-IN',
-    greeting: 'नमस्कार! तंतू मध्ये आपले स्वागत आहे.',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'नमस्कार! शिल्पवाणी मध्ये आपले स्वागत आहे.',
+    greetingEn: 'Welcome to ShilpVani'
   },
   {
     code: 'as',
     name: 'অসমীয়া',
     englishName: 'Assamese',
     locale: 'as-IN',
-    greeting: 'নমস্কাৰ! তন্তুলৈ আপোনাক স্বাগতম।',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'নমস্কাৰ! শিল্পবাণীলৈ আপোনাক স্বাগতম।',
+    greetingEn: 'Welcome to ShilpVani'
   },
   {
     code: 'ta',
     name: 'தமிழ்',
     englishName: 'Tamil',
     locale: 'ta-IN',
-    greeting: 'வணக்கம்! தந்து-விற்கு நல்வரவு.',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'வணக்கம்! சிற்பவாணி-விற்கு நல்வரவு.',
+    greetingEn: 'Welcome to ShilpVani'
   },
   {
     code: 'te',
     name: 'తెలుగు',
     englishName: 'Telugu',
     locale: 'te-IN',
-    greeting: 'నమస్కారం! తంతు కు స్వాగతం.',
-    greetingEn: 'Welcome to TANTU'
+    greeting: 'నమస్కారం! శిల్పవాణి కి స్వాగతం.',
+    greetingEn: 'Welcome to ShilpVani'
   }
 ];
 
 // UI String dictionary for high accessibility across all 7 supported languages
 export const TRANSLATIONS = {
   hi: {
-    appTitle: 'तंतु TANTU',
+    appTitle: 'शिल्पवाणी ShilpVani',
     tagline: 'कारीगरों के लिए स्मार्ट कैटलॉगिंग और बाज़ार मंच',
     artisanRole: 'कारीगर (Artisan)',
     buyerRole: 'खरीदार (Buyer)',
@@ -89,7 +89,7 @@ export const TRANSLATIONS = {
     step2Voice: '2. बोलकर बताएं',
     step2VoiceSub: 'माइक दबाकर 30 सेकंड में उत्पाद के बारे में बताएं',
     step3Ai: '3. AI प्रसंस्करण',
-    step3AiSub: 'तंतु AI स्मार्ट कैटलॉग तैयार कर रहा है',
+    step3AiSub: 'शिल्पवाणी AI स्मार्ट कैटलॉग तैयार कर रहा है',
     step4Catalog: '4. स्मार्ट कैटलॉग',
     step4CatalogSub: 'तैयार कैटलॉग जांचें और प्रकाशित करें',
     takePhoto: 'कैमरा खोलें',
@@ -130,7 +130,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI सटीकता'
   },
   en: {
-    appTitle: 'TANTU तंतु',
+    appTitle: 'ShilpVani शिल्पवाणी',
     tagline: 'AI Market Linkage & Smart Cataloging for Marginalized Artisans',
     artisanRole: 'Artisan View',
     buyerRole: 'Buyer View',
@@ -157,7 +157,7 @@ export const TRANSLATIONS = {
     step2Voice: '2. Voice Narrative',
     step2VoiceSub: 'Tap mic and describe your craft in your native language',
     step3Ai: '3. AI Synthesis',
-    step3AiSub: 'TANTU AI is generating the bilingual catalogue',
+    step3AiSub: 'ShilpVani AI is generating the bilingual catalogue',
     step4Catalog: '4. Smart Catalogue',
     step4CatalogSub: 'Review generated catalogue & publish',
     takePhoto: 'Open Camera',
@@ -198,7 +198,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI Confidence'
   },
   bn: {
-    appTitle: 'তন্তু TANTU',
+    appTitle: 'শিল্পবাণী ShilpVani',
     tagline: 'কারিগরদের জন্য স্মার্ট ক্যাটালগিং ও বাজার সংযোগ',
     artisanRole: 'কারিগর (Artisan)',
     buyerRole: 'ক্রেতা (Buyer)',
@@ -225,7 +225,7 @@ export const TRANSLATIONS = {
     step2Voice: '২. মুখে বলে জানান',
     step2VoiceSub: 'মাইক চেপে ৩০ সেকেন্ডে পণ্যটি সম্পর্কে বলুন',
     step3Ai: '৩. AI প্রক্রিয়াকরণ',
-    step3AiSub: 'তন্তু AI স্মার্ট ক্যাটালগ প্রস্তুত করছে',
+    step3AiSub: 'শিল্পবাণী AI স্মার্ট ক্যাটালগ প্রস্তুত করছে',
     step4Catalog: '৪. স্মার্ট ক্যাটালগ',
     step4CatalogSub: 'প্রস্তুত ক্যাটালগ যাচাই করুন ও প্রকাশ করুন',
     takePhoto: 'ক্যামেরা খুলুন',
@@ -266,7 +266,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI নির্ভুলতা'
   },
   mr: {
-    appTitle: 'तंतू TANTU',
+    appTitle: 'शिल्पवाणी ShilpVani',
     tagline: 'कारागिरांसाठी स्मार्ट कॅटलॉगिंग आणि बाजारपेठ मंच',
     artisanRole: 'कारागीर (Artisan)',
     buyerRole: 'खरेदीदार (Buyer)',
@@ -293,7 +293,7 @@ export const TRANSLATIONS = {
     step2Voice: '२. बोलून सांगा',
     step2VoiceSub: 'माइक दाबून ३० सेकंदात उत्पादनाबद्दल सांगा',
     step3Ai: '३. AI प्रक्रिया',
-    step3AiSub: 'तंतू AI स्मार्ट कॅटलॉग तयार करत आहे',
+    step3AiSub: 'शिल्पवाणी AI स्मार्ट कॅटलॉग तयार करत आहे',
     step4Catalog: '४. स्मार्ट कॅटलॉग',
     step4CatalogSub: 'तयार कॅटलॉग तपासा आणि प्रकाशित करा',
     takePhoto: 'कॅमेरा उघडा',
@@ -334,7 +334,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI अचूकता'
   },
   as: {
-    appTitle: 'তন্তু TANTU',
+    appTitle: 'শিল্পবাণী ShilpVani',
     tagline: 'শিল্পীসকলৰ বাবে স্মাৰ্ট কেটেলগ আৰু বজাৰ সংযোগ',
     artisanRole: 'শিল্পী (Artisan)',
     buyerRole: 'গ্ৰাহক (Buyer)',
@@ -402,7 +402,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI নিৰ্ভুলতা'
   },
   ta: {
-    appTitle: 'தந்து TANTU',
+    appTitle: 'சிற்பவாணி ShilpVani',
     tagline: 'கைவினைஞர்களுக்கான ஸ்மார்ட் பட்டியல் மற்றும் சந்தை இணைப்பு',
     artisanRole: 'கைவினைஞர் (Artisan)',
     buyerRole: 'வாங்குபவர் (Buyer)',
@@ -429,7 +429,7 @@ export const TRANSLATIONS = {
     step2Voice: '2. குரல் மூலம் சொல்லுங்கள்',
     step2VoiceSub: 'மைக்கை அழுத்தி 30 வினாடிகளில் தயாரிப்பை விவரிக்கவும்',
     step3Ai: '3. AI செயலாக்கம்',
-    step3AiSub: 'தந்து AI ஸ்மார்ட் பட்டியலைத் தயாரிக்கிறது',
+    step3AiSub: 'சிற்பவாணி AI ஸ்மார்ட் பட்டியலைத் தயாரிக்கிறது',
     step4Catalog: '4. ஸ்மார்ட் பட்டியல்',
     step4CatalogSub: 'தயாரான பட்டியலைச் சரிபார்த்து வெளியிடவும்',
     takePhoto: 'கேமரா திறக்கவும்',
@@ -470,7 +470,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI துல்லியம்'
   },
   te: {
-    appTitle: 'తంతు TANTU',
+    appTitle: 'శిల్పవాణి ShilpVani',
     tagline: 'చేతివృత్తుల కళాకారుల కోసం స్మార్ట్ కేటలాగింగ్ & మార్కెట్ వేదిక',
     artisanRole: 'కళాకారుడు (Artisan)',
     buyerRole: 'కొనుగోలుదారు (Buyer)',
@@ -497,7 +497,7 @@ export const TRANSLATIONS = {
     step2Voice: '2. వాయిస్ ద్వారా చెప్పండి',
     step2VoiceSub: 'మైక్ నొక్కి 30 సెకన్లలో ఉత్పత్తి గురించి వివరించండి',
     step3Ai: '3. AI ప్రాసెసింగ్',
-    step3AiSub: 'తంతు AI స్మార్ట్ కేటలాగ్‌ను సిద్ధం చేస్తోంది',
+    step3AiSub: 'శిల్పవాణి AI స్మార్ట్ కేటలాగ్‌ను సిద్ధం చేస్తోంది',
     step4Catalog: '4. స్మార్ట్ కేటలాగ్',
     step4CatalogSub: 'సిద్ధమైన కేటలాగ్‌ను సమీక్షించి ప్రచురించండి',
     takePhoto: 'కెమెరా తెరవండి',
