@@ -6,6 +6,24 @@ from datetime import datetime
 from backend.app.config import settings
 
 
+PRODUCT_STATUS_TRANSITIONS = {
+    "draft": {"draft", "processing", "failed"},
+    "processing": {"processing", "ready", "failed"},
+    "ready": {"ready", "processing", "published", "failed"},
+    "published": {"published"},
+    "failed": {"failed", "processing"},
+}
+
+ORDER_STATUS_TRANSITIONS = {
+    "pending": {"pending", "accepted", "rejected"},
+    "accepted": {"accepted", "fulfilled", "rejected"},
+    "fulfilled": {"fulfilled", "completed"},
+    "rejected": {"rejected"},
+    "completed": {"completed"},
+    "requested": {"requested", "pending", "rejected"},
+}
+
+
 def get_db_connection() -> sqlite3.Connection:
     conn = sqlite3.connect(settings.DATABASE_PATH)
     conn.row_factory = sqlite3.Row
@@ -175,6 +193,11 @@ class ProductRepository:
         tags_str = json.dumps(data.get("tags", []))
         created_at = data.get("created_at") or datetime.now().isoformat()
         prod_status = data.get("status", "draft")
+        existing = cls.get_by_id(data["id"])
+        previous_status = existing.get("status", "draft") if existing else prod_status
+        if prod_status not in PRODUCT_STATUS_TRANSITIONS.get(previous_status, set()):
+            conn.close()
+            raise ValueError(f"Invalid product status transition: {previous_status} -> {prod_status}")
 
         cursor.execute("""
         INSERT INTO products (
@@ -416,6 +439,13 @@ class OrderRepository:
 
     @classmethod
     def update_status(cls, order_id: str, new_status: str) -> Optional[Dict[str, Any]]:
+        existing = cls.get_by_id(order_id)
+        if not existing:
+            return None
+        previous_status = existing.get("status", "pending")
+        if new_status not in ORDER_STATUS_TRANSITIONS.get(previous_status, set()):
+            raise ValueError(f"Invalid order status transition: {previous_status} -> {new_status}")
+
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("UPDATE orders SET status = ? WHERE id = ?", (new_status, order_id))

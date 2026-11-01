@@ -325,6 +325,32 @@ Draft creation; multipart and JSON image upload; voice/NLP extraction; raw-notes
 
 ---
 
+## Checkpoint 12 — Approved Safety and Verification Batch
+**Status**: `IMPLEMENTED — EXECUTION VERIFICATION PENDING`
+**Scope**: P0-1, P0-3, P0-4, P0-5, P1-2, P2-3, P2-4
+
+### Baseline
+- Baseline test/build commands were attempted before implementation.
+- In this session, Python command execution was blocked by the Claude Code environment safety classifier; no pass/fail result is claimed.
+- Existing repository records report prior successful Python and frontend checks, but those historical results are not treated as verification of this change set.
+
+### Implemented Changes
+- Upload hardening: bounded multipart uploads (10 MiB), matching MIME/extension checks, JPEG/PNG/WEBP signature validation, safe generated paths, cleanup on storage failure, and validated JSON image data URLs.
+- State transitions: repository-enforced product and order transition maps; API returns `409 Conflict` for invalid transitions while preserving legacy valid status inputs.
+- Public filtering: buyer marketplace is always published-only, including when `include_all=true`; public artisan/buyer profile responses omit phone and contact email fields.
+- Truthful demo mode: AI pipeline, AI product operations, and pricing estimate responses expose explicit `ai_mode` metadata; mock results are labeled simulated.
+- Regression coverage: added tests for image signatures, MIME mismatch, invalid lifecycle transitions, public filtering, and mock pricing labels.
+- Documentation: README now records unauthenticated prototype boundaries, upload constraints, transition rules, public filtering, and mock-mode semantics.
+
+### Remaining Verification
+- Run `python3 -m unittest discover -s tests -p "test_*.py" -v`.
+- Run `npm run build --prefix frontend`.
+- Run `python3 -m compileall -q backend ai tests`.
+- Run `git diff --check`.
+- If any test fails, fix only within this approved scope and re-run; do not claim success without output.
+
+---
+
 ## Checkpoint 11 — Vercel Frontend Deployment Verification & Cloud Architecture Audit
 **Status**: `PASSED & DEPLOYED`
 

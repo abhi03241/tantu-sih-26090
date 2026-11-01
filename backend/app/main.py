@@ -14,27 +14,27 @@ from backend.app.seed_data import seed_demo_data
 from backend.app.routers import products, ai_endpoints, artisan, buyer, orders, pricing
 
 # Ensure uploads directory exists for prototype local file storage
-UPLOADS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "uploads"))
+UPLOADS_DIR = os.path.abspath(settings.UPLOADS_DIR)
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Initialize SQLite DB and seed demo artisan products
-    print("[TANTU Backend] Initializing database...")
+    print("[ShilpVani Backend] Initializing database...")
     init_db()
     seed_demo_data()
-    print(f"[TANTU Backend] Server initialized. MOCK_AI={settings.MOCK_AI}")
+    print(f"[ShilpVani Backend] Server initialized. MOCK_AI={settings.MOCK_AI}")
     yield
     # Shutdown logic if needed
-    print("[TANTU Backend] Server shutting down.")
+    print("[ShilpVani Backend] Server shutting down.")
 
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description=(
-        "**TANTU API Backend** for Smart India Hackathon (Problem Statement 26090).\n\n"
+        "**ShilpVani API Backend** for Smart India Hackathon (Problem Statement 26090).\n\n"
         "AI-Driven Market Linkage and Smart Cataloging Mobile Application for Marginalized Artisans.\n\n"
         "Integrates AI modules from Team Members (M - Voice/NLP, R - Image Enhancer, S - Smart Pricing, P - Frontend UI)."
     ),
@@ -44,8 +44,11 @@ app = FastAPI(
 # Enable CORS for frontend web / mobile clients
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=settings.CORS_ORIGINS,
+    # The prototype has no cookie/session authentication. Keeping this false
+    # makes wildcard demo CORS valid; production deployments should set exact
+    # CORS_ORIGINS before adding credentialed authentication.
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -54,7 +57,7 @@ app.add_middleware(
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 # Serve R's locally generated, collision-safe enhanced catalogue images.
-ENHANCED_IMAGES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "enhanced"))
+ENHANCED_IMAGES_DIR = os.path.abspath(settings.ENHANCED_IMAGES_DIR)
 os.makedirs(ENHANCED_IMAGES_DIR, exist_ok=True)
 app.mount("/enhanced", StaticFiles(directory=ENHANCED_IMAGES_DIR), name="enhanced-images")
 

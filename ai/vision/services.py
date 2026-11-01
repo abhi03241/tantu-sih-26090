@@ -187,7 +187,10 @@ class RealImageService(BaseImageService):
                 enhanced_url = output_path
             else:
                 # If no output directory specified, save to default static / cache folder
-                default_static = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "enhanced"))
+                default_static = os.path.abspath(os.getenv(
+                    "ENHANCED_IMAGES_DIR",
+                    os.path.join(os.path.dirname(__file__), "..", "..", "data", "enhanced"),
+                ))
                 os.makedirs(default_static, exist_ok=True)
                 output_path = os.path.join(default_static, filename)
                 enhanced_pil.save(output_path, format="JPEG", quality=92, optimize=True)

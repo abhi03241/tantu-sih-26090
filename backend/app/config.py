@@ -7,7 +7,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 
 
 class Settings:
-    PROJECT_NAME: str = "TANTU - Artisans Market Linkage & Smart Cataloging API"
+    PROJECT_NAME: str = "ShilpVani - Artisans Market Linkage & Smart Cataloging API"
     VERSION: str = "1.0.0"
     SIH_PROBLEM_STATEMENT: str = "26090 - AI-Driven Market Linkage for Marginalized Artisans"
     
@@ -19,8 +19,21 @@ class Settings:
     # Mock AI toggle (Crucial for SIH demo resilience)
     MOCK_AI: bool = os.getenv("MOCK_AI", "true").lower() == "true"
     
-    # Database
+    # Prototype persistence. Cloud hosts can point all three paths at one
+    # persistent disk without changing the SQLite/file-storage architecture.
     DATABASE_PATH: str = os.getenv("DATABASE_PATH", os.path.join(os.path.dirname(__file__), "..", "tantu.db"))
+    UPLOADS_DIR: str = os.getenv(
+        "UPLOADS_DIR", os.path.join(os.path.dirname(__file__), "uploads")
+    )
+    ENHANCED_IMAGES_DIR: str = os.getenv(
+        "ENHANCED_IMAGES_DIR",
+        os.path.join(os.path.dirname(__file__), "..", "..", "data", "enhanced"),
+    )
+    CORS_ORIGINS: list[str] = [
+        origin.strip()
+        for origin in os.getenv("CORS_ORIGINS", "*").split(",")
+        if origin.strip()
+    ]
 
 
 settings = Settings()

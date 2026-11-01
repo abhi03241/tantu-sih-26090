@@ -106,7 +106,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 }
 ```
 * **Response Status**: `200 OK`
-* **Response Body**: Updated Product Object containing generated `enhanced_image_url`. Real local enhancements are served as frontend-renderable `/enhanced/{filename}` URLs.
+* **Response Body**: Updated Product Object containing generated `enhanced_image_url`. Local uploaded files run through the Pillow CV pipeline and are served as frontend-renderable `/enhanced/{filename}` URLs; failed processing returns an error rather than a placeholder image.
 
 ---
 
@@ -178,7 +178,8 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 #### 9. Buyer Product Feed
 * **Endpoint**: `GET /api/buyer/products?category={category}&q={search}`
 * **Response Status**: `200 OK`
-* **Response Body**: Array of products formatted for B2B/B2C marketplace showcase.
+* **Response Body**: Array of published products formatted for B2B/B2C marketplace showcase.
+* **Privacy rule**: the legacy `include_all=true` parameter is accepted for compatibility but cannot expose drafts or other unpublished records.
 
 ---
 
@@ -228,8 +229,9 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 #### 12. Update Order Status
 * **Endpoint**: `PATCH /api/orders/{id}/status?new_status={status}`
-* **Query Parameters**: `new_status` (`pending`, `accepted`, `fulfilled`, `rejected`)
+* **Query Parameters**: `new_status` (`pending`, `accepted`, `fulfilled`, `rejected`, `completed`, `requested`)
 * **JSON compatibility**: clients may instead send `{ "status": "accepted" }` in the request body. Invalid status values return `422 Unprocessable Entity`.
+* **Transition rule**: `pending → accepted → fulfilled → completed`; pending and accepted orders may be rejected. Invalid transitions return `409 Conflict`.
 * **Response Status**: `200 OK`
 * **Response Body**: Updated Order Request Object.
 
@@ -239,6 +241,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 #### 13. Create or Update Artisan Profile
 * **Endpoint**: `POST /api/artisan/profile`
+* **Public read note**: `GET /api/artisan/profile/{id}` omits the stored phone number from its response; this prototype has no authentication or authorization layer.
 * **Request Body**:
 ```json
 {
@@ -257,6 +260,7 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 #### 14. Create or Update Buyer Profile
 * **Endpoint**: `POST /api/buyer/profile`
+* **Public read note**: `GET /api/buyer/profile/{id}` omits the stored contact email from its response; this prototype has no authentication or authorization layer.
 * **Request Body**:
 ```json
 {
@@ -275,7 +279,8 @@ Every product entity returned by or passed to the TANTU backend conforms to this
 
 #### 15. Upload Product Image
 * **Endpoint**: `POST /api/products/{id}/upload-image`
-* **Request Type**: `multipart/form-data` (`file`: JPG, JPEG, PNG, WEBP), or JSON `{ "image_url": "https://..." }` / a `data:image/...` URL for browser-captured images.
+* **Request Type**: `multipart/form-data` (`file`: JPG, JPEG, PNG, WEBP), or JSON `{ "image_url": "https://..." }` / a validated `data:image/...` URL for browser-captured images.
+* **Validation**: multipart files are limited to 10 MiB and must have matching extension, MIME type, image signature, and successful Pillow decoding. Invalid content returns `400 Bad Request`; oversized content returns `413 Request Entity Too Large`.
 * **Response Status**: `200 OK` (or `400 Bad Request` if file format is unsupported)
 * **Response Body**: Updated Product Object containing local `image_url` path (e.g. `/uploads/prod-001_a1b2c3.png`).
 

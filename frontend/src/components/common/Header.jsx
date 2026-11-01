@@ -25,9 +25,9 @@ export default function Header() {
 
   const handleSpeechHelper = () => {
     if (role === 'artisan') {
-      speakText("शिल्पवाणी कारीगर मंच में आपका स्वागत है। नया उत्पाद जोड़ने के लिए नीचे दिए गए नारंगी बटन को दबाएं।");
+      speakText("ShilpVani कारीगर मंच में आपका स्वागत है। नया उत्पाद जोड़ने के लिए नीचे दिए गए नारंगी बटन को दबाएं।");
     } else {
-      speakText("शिल्पवाणी बाज़ार में आपका स्वागत है। भारत के ग्रामीण कारीगरों से सीधे थोक ऑर्डर करें।");
+      speakText("ShilpVani बाज़ार में आपका स्वागत है। भारत के ग्रामीण कारीगरों से सीधे थोक ऑर्डर करें।");
     }
   };
 
@@ -39,8 +39,8 @@ export default function Header() {
         </div>
         <div>
           <div className="brand-title">
-            <span>शिल्पवाणी</span>
-            <span style={{ fontSize: '1.05rem', color: 'var(--text-main)', fontWeight: 800 }}>ShilpVani</span>
+            <span>ShilpVani</span>
+            <span className="brand-title-hindi">शिल्पवाणी</span>
           </div>
           <div className="brand-subtitle">
             {backendOnline ? '🟢 Backend Live' : '🟡 AI Demo Active'}

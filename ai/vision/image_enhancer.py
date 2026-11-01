@@ -52,11 +52,6 @@ def enhance_artisan_image(
     service = get_image_enhancement_service(mock=mock)
     result = service.enhance_image(image_input=image_url, prompt=prompt, output_dir=output_dir)
 
-    # Fallback safety: If real mode failed (e.g. invalid URL during demo), fallback gracefully to mock
-    if result.get("status") == "error" and not mock:
-        fallback_service = MockImageService()
-        fallback_result = fallback_service.enhance_image(image_input=image_url, prompt=prompt, output_dir=output_dir)
-        fallback_result["warning"] = f"Real pipeline encountered an issue ({result.get('error')}); recovered via mock studio."
-        return fallback_result
-
+    # A failed real pipeline must remain an error. Returning a stock mock image
+    # would falsely imply that the submitted photograph was processed.
     return result

@@ -249,6 +249,9 @@ def extract_craft_title(text: str, material: str, category: str) -> str:
         ("basket", "Basket"),
         ("tokri", "Basket"),
         ("elephant", "Elephant Sculpture"),
+        ("लकड़ी की हाथी", "Elephant Sculpture"),
+        ("हाथी", "Elephant Sculpture"),
+        ("haathi", "Elephant Sculpture"),
         ("diya", "Festival Diya Set"),
         ("pot", "Clay Pot"),
         ("matka", "Earthen Pot"),
@@ -421,10 +424,40 @@ def generate_bilingual_descriptions(
     title: str,
     detected_lang: str
 ) -> Tuple[str, str]:
+    """Create polished, buyer-facing copy while keeping it grounded in the transcript.
+
+    The raw transcript remains available separately as ``raw_transcript``. It should
+    not be pasted into the public listing because voice transcripts are often
+    informal, repetitive, or mixed-language.
     """
-    Generates fluent, high-conversion descriptions in both English and Hindi.
-    Maintains parallel English and Hindi representations regardless of input language.
-    """
-    desc_en = f"{title} made from {material}. Artisan-provided details: {clean_text}"
-    desc_hi = f"{material} से बना {title}। कारीगर द्वारा दी गई जानकारी: {clean_text}"
+    details = []
+    lower = clean_text.lower()
+    if any(cue in lower for cue in ["handmade", "handcrafted", "haath se", "हाथ से", "buna", "woven", "बुना"]):
+        details.append("handcrafted using traditional artisan techniques")
+    else:
+        details.append("crafted by skilled artisans")
+
+    duration = extract_production_time(clean_text)
+    if duration:
+        details.append(f"with an estimated production time of {duration}")
+
+    english_details = ", ".join(details)
+    desc_en = (
+        f"{title} is a {category.lower()} piece made from {material}. "
+        f"It is {english_details}, making it suitable for curated retail collections and thoughtful gifting."
+    )
+
+    hindi_material = {
+        "Bamboo": "प्राकृतिक बाँस",
+        "Chanderi Silk": "चंदेरी सिल्क",
+        "Handwoven Cotton": "हाथ से बुना कॉटन",
+        "Natural Wood": "प्राकृतिक लकड़ी",
+        "Teak Wood": "सागौन की लकड़ी",
+        "Terracotta Clay": "टेराकोटा मिट्टी",
+    }.get(material, material)
+    time_hi = f" इसे तैयार करने में लगभग {duration} लगते हैं।" if duration else ""
+    desc_hi = (
+        f"यह {title} {hindi_material} से बना {category} शिल्प है। "
+        f"इसे कुशल कारीगरों द्वारा पारंपरिक तकनीकों से तैयार किया गया है।{time_hi}"
+    )
     return desc_en, desc_hi

@@ -23,7 +23,8 @@ export default function AddProductWizard() {
   const [currentStep, setCurrentStep] = useState(1);
 
   // CHECKPOINT 3: PHOTO STATE
-  const [photoUrl, setPhotoUrl] = useState(DEMO_SAMPLE_CRAFTS[0].imageUrl);
+  const [photoUrl, setPhotoUrl] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [photoError, setPhotoError] = useState('');
   const fileInputRef = useRef(null);    // gallery — no capture hint
@@ -32,7 +33,9 @@ export default function AddProductWizard() {
   // CHECKPOINT 4: VOICE & TEXT FALLBACK STATE
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
-  const [transcript, setTranscript] = useState(DEMO_SAMPLE_CRAFTS[0].voiceTranscriptHi);
+  // Empty by default so the workflow never presents a simulated transcript as
+  // if it came from the artisan's microphone. Demo samples populate this explicitly.
+  const [transcript, setTranscript] = useState('');
   const [textFallback, setTextFallback] = useState('');
   const [inputMode, setInputMode] = useState('voice'); // 'voice' | 'text'
   const [voiceError, setVoiceError] = useState('');
@@ -51,10 +54,12 @@ export default function AddProductWizard() {
 
   // CHECKPOINT 6: CATALOGUE REVIEW STATE
   const [generatedProduct, setGeneratedProduct] = useState(null);
+  const [rawMaterialCost, setRawMaterialCost] = useState('300');
+  const [laborHours, setLaborHours] = useState('16');
   const [viewEnhanced, setViewEnhanced] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({});
-  const [lastAction, setLastAction] = useState('publish'); // 'publish' | 'draft'
+  const [lastAction, setLastAction] = useState('publish'); // 'publish' | 'saved'
 
   useEffect(() => {
     return () => {
@@ -68,6 +73,7 @@ export default function AddProductWizard() {
   // -------------------------------------------------------------
   const handleSelectSample = (sample) => {
     setPhotoError('');
+    setSelectedFile(null);
     setPhotoUrl(sample.imageUrl);
     const transcriptMap = {
       en: sample.voiceTranscriptEn,
@@ -87,26 +93,48 @@ export default function AddProductWizard() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setPhotoError('कृपया केवल फोटो/इमेज फाइल चुनें');
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setPhotoError('कृपया केवल JPG, PNG या WEBP फोटो चुनें।');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setPhotoError('फोटो 10 MB से छोटी होनी चाहिए।');
+      e.target.value = '';
       return;
     }
 
     setPhotoLoading(true);
     const reader = new FileReader();
     reader.onload = (uploadEvent) => {
-      setPhotoUrl(uploadEvent.target.result);
-      setPhotoLoading(false);
-      showToast('फोटो लोड हो गया!', 'success');
+      const preview = new Image();
+      preview.onload = () => {
+        if (preview.width < 50 || preview.height < 50) {
+          setPhotoLoading(false);
+          setPhotoError('फोटो कम से कम 50 x 50 पिक्सेल की होनी चाहिए।');
+          return;
+        }
+        setSelectedFile(file);
+        setPhotoUrl(uploadEvent.target.result);
+        setPhotoLoading(false);
+        showToast('फोटो लोड हो गया!', 'success');
+      };
+      preview.onerror = () => {
+        setPhotoLoading(false);
+        setPhotoError('यह फोटो पढ़ी नहीं जा सकी। कृपया दूसरी फोटो चुनें।');
+      };
+      preview.src = uploadEvent.target.result;
     };
     reader.onerror = () => {
       setPhotoLoading(false);
-      setPhotoError('फोटो अपलोड करने में समस्या हुई। कृपया पुनः प्रयास करें।');
+      setPhotoError('फोटो पढ़ने में समस्या हुई। कृपया पुनः प्रयास करें।');
     };
     reader.readAsDataURL(file);
   };
 
   const handleRemovePhoto = () => {
+    setSelectedFile(null);
     setPhotoUrl('');
     setPhotoError('कृपया आगे बढ़ने के लिए एक फोटो चुनें या अपलोड करें।');
   };
@@ -133,7 +161,11 @@ export default function AddProductWizard() {
       if (speechRecognitionRef.current) {
         speechRecognitionRef.current.stop();
       }
-      showToast(t('recordedSuccess'), 'success');
+      if (transcript.trim()) {
+        showToast(t('recordedSuccess'), 'success');
+      } else {
+        setVoiceError('आवाज़ समझ में नहीं आई। कृपया फिर से बोलें या नीचे लिखकर विवरण दें।');
+      }
     } else {
       // Start recording
       setIsRecording(true);
@@ -166,7 +198,12 @@ export default function AddProductWizard() {
             console.warn("Speech recognition error:", err);
             setIsRecording(false);
             clearInterval(timerRef.current);
-            setVoiceError("माइक्रोफ़ोन एक्सेस नहीं मिला। आप नीचे लिखकर भी विवरण दर्ज कर सकते हैं।");
+            const message = err.error === 'not-allowed'
+              ? 'माइक्रोफ़ोन की अनुमति नहीं मिली। ब्राउज़र सेटिंग्स में अनुमति दें या नीचे लिखें।'
+              : err.error === 'no-speech'
+                ? 'कोई आवाज़ नहीं मिली। फिर से बोलें या नीचे लिखें।'
+                : 'आवाज़ पहचान में समस्या हुई। कृपया फिर से प्रयास करें या नीचे लिखें।';
+            setVoiceError(message);
           };
 
           speechRecognitionRef.current = recognition;
@@ -192,6 +229,10 @@ export default function AddProductWizard() {
   const effectiveNarrative = inputMode === 'text' ? textFallback : transcript;
 
   const handleProceedToAI = () => {
+    if (inputMode === 'voice' && !transcript.trim()) {
+      setVoiceError('पहले माइक से स्पष्ट विवरण बोलें, या लिखकर बताएं चुनें।');
+      return;
+    }
     if (!effectiveNarrative || !effectiveNarrative.trim()) {
       setVoiceError("कृपया बोलकर या लिखकर उत्पाद का कुछ विवरण दें।");
       return;
@@ -207,7 +248,7 @@ export default function AddProductWizard() {
     setCurrentStep(3);
     setAiError('');
     setAiProgress(10);
-    speakText("शिल्पवाणी AI आपके उत्पाद का विश्लेषण कर रहा है।");
+    speakText("ShilpVani AI आपके उत्पाद का विश्लेषण कर रहा है।");
 
     const baseProduct = {
       title: 'Handcrafted Artisan Craft',
@@ -231,54 +272,41 @@ export default function AddProductWizard() {
       // processing record first. This also gives the offline mock a real ID.
       const processingProduct = await productService.createProduct(baseProduct);
       const productId = processingProduct.id;
+      let imageUrl = photoUrl;
+      if (selectedFile) {
+        const uploaded = await productService.uploadImage(productId, selectedFile);
+        imageUrl = uploaded.image_url;
+        baseProduct.image_url = imageUrl;
+        setPhotoUrl(imageUrl);
+      }
 
-      // Stage 1: Understanding your product...
+      // Run the backend's single pipeline so the persisted lifecycle is
+      // draft -> processing -> ready rather than several unrelated writes.
+      // The backend performs the four stages as one real request, so the UI
+      // does not claim individual stages completed before the response arrives.
       updateStage(1, 'in-progress');
-      await delay(900);
-      setAiProgress(30);
-      updateStage(1, 'completed');
-
-      // Stage 2: Creating your catalogue...
-      updateStage(2, 'in-progress');
-      const voiceProcessed = await productService.processVoice(productId, {
+      const processed = await productService.processProduct(productId, {
         audio_transcript: effectiveNarrative,
-        language: language
+        image_url: imageUrl,
+        prompt: 'Clean studio backdrop with soft warm lighting',
+        language,
+        raw_material_cost: Number(rawMaterialCost),
+        labor_hours: Number(laborHours),
+        artisan_id: artisanProfile.id
       });
-      await delay(900);
-      setAiProgress(60);
-      updateStage(2, 'completed');
-
-      // Stage 3: Improving your product photo...
-      updateStage(3, 'in-progress');
-      const enhanced = await productService.enhanceImage(productId, {
-        image_url: photoUrl,
-        prompt: 'Clean studio backdrop with soft warm lighting'
-      });
-      await delay(900);
-      setAiProgress(85);
-      updateStage(3, 'completed');
-
-      // Stage 4: Preparing your price suggestion...
-      updateStage(4, 'in-progress');
-      const priced = await productService.calculatePrice(productId, {
-        raw_material_cost: 300,
-        labor_hours: 16
-      });
-      await delay(800);
+      if (processed.status === PRODUCT_STATUSES.FAILED) {
+        throw new Error(processed.errors?.vision || processed.errors?.pricing || 'प्रसंस्करण पूरा नहीं हुआ।');
+      }
       setAiProgress(100);
-      updateStage(4, 'completed');
+      [1, 2, 3, 4].forEach((stageId) => updateStage(stageId, 'completed'));
 
-      // Assemble final generated product
       const finalProduct = {
         ...baseProduct,
-        ...voiceProcessed,
-        ...enhanced,
-        ...priced,
-        image_url: photoUrl,
-        enhanced_image_url: enhanced.enhanced_image_url || photoUrl,
-        id: productId,
-        status: PRODUCT_STATUSES.READY,
-        created_at: new Date().toISOString()
+        ...(processed.product || processed),
+        id: processed.id || productId,
+        status: processed.status || PRODUCT_STATUSES.READY,
+        ai_mode: processed.ai_mode,
+        created_at: processed.product?.created_at || new Date().toISOString()
       };
 
       setGeneratedProduct(finalProduct);
@@ -304,11 +332,7 @@ export default function AddProductWizard() {
   // -------------------------------------------------------------
   const handlePublish = async () => {
     try {
-      const payload = {
-        ...generatedProduct,
-        status: PRODUCT_STATUSES.PUBLISHED
-      };
-      await productService.updateProduct(payload.id, payload);
+      await productService.publishProduct(generatedProduct.id);
       refreshData();
       setLastAction('publish');
       setCurrentStep(5);
@@ -326,16 +350,18 @@ export default function AddProductWizard() {
 
   const handleSaveDraft = async () => {
     try {
-      const payload = {
-        ...generatedProduct,
-        status: PRODUCT_STATUSES.DRAFT
-      };
-      await productService.updateProduct(payload.id, payload);
+      // The pipeline already saved this record as ready. Keep it private and
+      // preserve its valid status instead of attempting ready -> draft.
+      const { status, ...savedFields } = generatedProduct;
+      await productService.updateProduct(generatedProduct.id, {
+        ...savedFields,
+        status: status || PRODUCT_STATUSES.READY
+      });
       refreshData();
-      setLastAction('draft');
+      setLastAction('saved');
       setCurrentStep(5);
-      showToast("ड्राफ्ट सफलतापूर्वक सहेजा गया!", "info");
-      speakText("आपका शिल्प ड्राफ्ट के रूप में सहेज लिया गया है।");
+      showToast("कैटलॉग बाद के लिए सहेज लिया गया!", "info");
+      speakText("आपका शिल्प बाद के लिए सुरक्षित रूप से सहेज लिया गया है।");
     } catch (e) {
       showToast("ड्राफ्ट सहेजने में त्रुटि", "error");
     }
@@ -672,9 +698,9 @@ export default function AddProductWizard() {
           <div className="ai-processing-header">
             <div className="ai-sparkle-badge">
               <Sparkles size={15} />
-              <span>SHILPVANI MULTIMODAL AI PIPELINE</span>
+              <span>ShilpVani MULTIMODAL AI PIPELINE</span>
             </div>
-            <h2 className="ai-processing-title">शिल्पवाणी AI विश्लेषण जारी है...</h2>
+            <h2 className="ai-processing-title">ShilpVani AI विश्लेषण जारी है...</h2>
             <p className="ai-processing-sub">
               आपकी आवाज़ और फोटो से स्मार्ट कैटलॉग तैयार किया जा रहा है
             </p>
@@ -829,16 +855,39 @@ export default function AddProductWizard() {
                 <p className="story-text">"{generatedProduct.story}"</p>
               </div>
 
-              {/* Price Range */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  सामग्री लागत (₹)
+                  <input type="number" min="0" value={rawMaterialCost} onChange={(e) => setRawMaterialCost(e.target.value)} style={{ width: '100%', padding: '8px', marginTop: '4px', border: '1px solid var(--border-light)', borderRadius: '8px' }} />
+                </label>
+                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                  श्रम घंटे
+                  <input type="number" min="0" value={laborHours} onChange={(e) => setLaborHours(e.target.value)} style={{ width: '100%', padding: '8px', marginTop: '4px', border: '1px solid var(--border-light)', borderRadius: '8px' }} />
+                </label>
+              </div>
+              {/* Explainable price range */}
+              {generatedProduct.ai_mode?.is_simulated && (
+                <div style={{ fontSize: '0.72rem', color: '#92400E', background: '#FEF3C7', padding: '7px 10px', borderRadius: '8px', marginBottom: '8px' }}>
+                  यह डेमो मोड का अनुमान है, प्रशिक्षित ML prediction नहीं।
+                </div>
+              )}
               <div className="pricing-highlight-box">
                 <div>
-                  <div className="pricing-title">AI अनुमानित उचित दर</div>
-                  <div style={{ fontSize: '0.72rem', color: '#065F46' }}>कारीगर के लिए न्यायसंगत मूल्य</div>
+                  <div className="pricing-title">अनुमानित उचित दर</div>
+                  <div style={{ fontSize: '0.72rem', color: '#065F46' }}>
+                    {generatedProduct.confidence === 'demo' ? 'डेमो संदर्भ + लागत आधारित अनुमान' : 'लागत आधारित अनुमान'}
+                  </div>
                 </div>
                 <div className="pricing-range">
                   ₹{generatedProduct.suggested_price_min} - ₹{generatedProduct.suggested_price_max}
                 </div>
               </div>
+              {generatedProduct.breakdown && (
+                <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '12px', marginBottom: '16px', fontSize: '0.78rem', color: '#475569' }}>
+                  <strong>मूल्य का आधार:</strong> सामग्री ₹{generatedProduct.breakdown.raw_material_cost}, श्रम ₹{generatedProduct.breakdown.labor_cost}, ओवरहेड ₹{generatedProduct.breakdown.overhead}.<br />
+                  <span>{generatedProduct.reason || generatedProduct.recommendation}</span>
+                </div>
+              )}
 
               {/* Action Buttons: Publish, Save Draft, Edit */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -856,7 +905,7 @@ export default function AddProductWizard() {
                     onClick={handleSaveDraft}
                   >
                     <Save size={16} />
-                    <span>ड्राफ्ट सहेजें (Save Draft)</span>
+                    <span>बाद के लिए सहेजें (Save for Later)</span>
                   </button>
 
                   <button
@@ -874,7 +923,7 @@ export default function AddProductWizard() {
       )}
 
       {/* =========================================================================
-          CHECKPOINT 6 / PUBLISHED OR DRAFT CELEBRATION
+          CHECKPOINT 6 / PUBLISHED OR SAVED CATALOGUE
           ========================================================================= */}
       {currentStep === 5 && (
         <div style={{ textAlign: 'center', padding: '36px 16px' }}>
@@ -896,12 +945,12 @@ export default function AddProductWizard() {
           </div>
 
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
-            {lastAction === 'publish' ? 'बधाई हो! शिल्प प्रकाशित हो गया' : 'ड्राफ्ट सफलतापूर्वक सहेजा गया'}
+            {lastAction === 'publish' ? 'बधाई हो! शिल्प प्रकाशित हो गया' : 'कैटलॉग सुरक्षित रूप से सहेजा गया'}
           </h2>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: '1.5', maxWidth: '340px', margin: '0 auto 28px auto' }}>
             {lastAction === 'publish'
               ? 'आपका शिल्प अब बाज़ार में लाइव है और खरीदार थोक ऑर्डर भेज सकते हैं।'
-              : 'आप इसे कभी भी "मेरे शिल्प" में जाकर पूरा कर सकते हैं।'}
+              : 'यह कैटलॉग अभी निजी है। आप इसे "मेरे शिल्प" में देखकर बाद में प्रकाशित कर सकते हैं।'}
           </p>
 
           <button
@@ -916,8 +965,9 @@ export default function AddProductWizard() {
             className="btn-secondary-large"
             onClick={() => {
               setCurrentStep(1);
-              setPhotoUrl(DEMO_SAMPLE_CRAFTS[0].imageUrl);
-              setTranscript(DEMO_SAMPLE_CRAFTS[0].voiceTranscriptHi);
+              setPhotoUrl('');
+              setSelectedFile(null);
+              setTranscript('');
               setTextFallback('');
               setGeneratedProduct(null);
             }}

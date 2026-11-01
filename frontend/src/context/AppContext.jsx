@@ -8,16 +8,16 @@ const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
   // Localization & Persona
-  const [language, setLanguage] = useState(() => localStorage.getItem('tantu_language') || 'hi');
-  const [hasChosenLanguage, setHasChosenLanguage] = useState(() => !!localStorage.getItem('tantu_language'));
-  const [role, setRole] = useState(() => localStorage.getItem('tantu_role') || 'artisan'); // 'artisan' | 'buyer'
+  const [language, setLanguage] = useState(() => localStorage.getItem('shilpvani_language') || 'hi');
+  const [hasChosenLanguage, setHasChosenLanguage] = useState(() => !!localStorage.getItem('shilpvani_language'));
+  const [role, setRole] = useState(() => localStorage.getItem('shilpvani_role') || 'artisan'); // 'artisan' | 'buyer'
 
   // Navigation:
   // Artisan: 'home' | 'add-wizard' | 'my-products' | 'orders' | 'product-detail'
   // Buyer: 'marketplace' | 'buyer-product-detail' | 'buyer-orders'
   // Keep the persisted persona and its entry screen in sync on a page reload.
   const [currentScreen, setCurrentScreen] = useState(() =>
-    localStorage.getItem('tantu_role') === 'buyer' ? 'marketplace' : 'home'
+    localStorage.getItem('shilpvani_role') === 'buyer' ? 'marketplace' : 'home'
   );
   const [activeProductId, setActiveProductId] = useState(null);
 
@@ -122,7 +122,7 @@ export function AppProvider({ children }) {
   // Update language selection
   const selectLanguage = (code) => {
     setLanguage(code);
-    localStorage.setItem('tantu_language', code);
+    localStorage.setItem('shilpvani_language', code);
     const langObj = LANGUAGES.find(l => l.code === code);
     if (langObj) {
       speakText(langObj.greeting, code);
@@ -132,7 +132,7 @@ export function AppProvider({ children }) {
   // Switch Role
   const switchRole = (newRole) => {
     setRole(newRole);
-    localStorage.setItem('tantu_role', newRole);
+    localStorage.setItem('shilpvani_role', newRole);
     if (newRole === 'artisan') {
       setCurrentScreen('home');
     } else {

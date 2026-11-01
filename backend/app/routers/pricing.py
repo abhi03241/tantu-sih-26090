@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/pricing", tags=["Pricing Engine"])
 @router.post("/estimate", response_model=PricingCalculationResponse)
 def estimate_pricing(request: PricingRequest):
     """Return an AI-assisted suggested range without modifying a product."""
-    return get_pricing_service(mock=settings.MOCK_AI).calculate_price(
+    result = get_pricing_service(mock=settings.MOCK_AI).calculate_price(
         category=request.category or request.craft_type or "Handicraft",
         material=request.material or "Natural Material",
         production_time=request.production_time,
@@ -25,6 +25,12 @@ def estimate_pricing(request: PricingRequest):
         region=request.region,
         craft_type=request.craft_type,
     )
+    result["ai_mode"] = {
+        "mode": "mock" if settings.MOCK_AI else "real",
+        "is_simulated": settings.MOCK_AI,
+        "label": "Simulated demo estimate" if settings.MOCK_AI else "Live pricing service estimate",
+    }
+    return result
 
 
 @router.get("/reference-data")

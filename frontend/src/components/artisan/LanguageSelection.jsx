@@ -35,7 +35,7 @@ export default function LanguageSelection({ onComplete }) {
           <ShilpVaniLogo size={42} />
         </div>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--terracotta-dark)', marginBottom: '6px' }}>
-          शिल्पवाणी ShilpVani
+          ShilpVani
         </h1>
         <p style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '4px' }}>
           अपनी भाषा चुनें / Choose Language
@@ -106,7 +106,7 @@ export default function LanguageSelection({ onComplete }) {
 
       <div style={{ textAlign: 'center', marginTop: '14px' }}>
         <button
-          onClick={() => speakText("शिल्पवाणी में आपका स्वागत है। आगे बढ़ने के लिए अपनी भाषा चुनकर नारंगी बटन दबाएं।")}
+          onClick={() => speakText("ShilpVani में आपका स्वागत है। आगे बढ़ने के लिए अपनी भाषा चुनकर नारंगी बटन दबाएं।")}
           className="tts-speaker-btn"
         >
           <Volume2 size={16} />

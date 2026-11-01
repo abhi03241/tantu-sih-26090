@@ -32,12 +32,24 @@ class VisionService:
                 source_image = candidate
 
         try:
+            # Uploaded local files use the deterministic local CV pipeline even
+            # in MOCK_AI mode, so the artisan receives a real processed asset.
+            # Remote URLs remain in explicit mock mode without external AI keys.
+            use_mock = settings.MOCK_AI and not (
+                isinstance(source_image, str) and os.path.isfile(source_image)
+            )
             result = enhance_artisan_image(
                 image_url=source_image,
                 prompt=prompt,
-                mock=settings.MOCK_AI
+                mock=use_mock,
             )
+            result["processing_mode"] = "mock" if use_mock else "local_cv"
             return result
         except Exception as e:
-            logger.error(f"[VisionService] Error enhancing image: {e}. Falling back to mock Vision enhancement.")
-            return enhance_artisan_image(image_url=source_image, prompt=prompt, mock=True)
+            logger.error(f"[VisionService] Error enhancing image: {e}")
+            return {
+                "status": "error",
+                "original_image_url": image_url,
+                "enhanced_image_url": None,
+                "error": str(e),
+            }

@@ -176,6 +176,22 @@ export const productService = {
     }
   },
 
+  // Persist a browser-selected image through the backend's multipart validator.
+  async uploadImage(id, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request(`/api/products/${id}/upload-image`, {
+      method: 'POST',
+      headers: {},
+      body: formData
+    });
+  },
+
+  // Publish only after the backend has reached the ready state.
+  async publishProduct(id) {
+    return request(`/api/products/${id}/publish`, { method: 'PATCH' });
+  },
+
   // Update existing product
   async updateProduct(id, updateData) {
     try {
@@ -193,6 +209,15 @@ export const productService = {
       }
       return updateData;
     }
+  },
+
+  // End-to-end product processing endpoint. The backend persists the
+  // draft -> processing -> ready lifecycle in one transaction sequence.
+  async processProduct(id, payload = {}) {
+    return request(`/api/products/${id}/process`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
   },
 
   // Voice processing AI endpoint

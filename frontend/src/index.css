@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ShilpVani (शिल्पवाणी) - Rich Indian Artisanal Design System
+   ShilpVani - Rich Indian Artisanal Design System
    Modern, tactile, voice-first mobile-first interface for rural artisans & buyers
    ========================================================================== */
 
@@ -1339,6 +1339,26 @@ a {
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
+}
+
+/* Desktop keeps a readable marketplace width; narrow screens use compact controls. */
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 1180px;
+    min-height: 100vh;
+  }
+
+  .app-main-content {
+    padding: 28px 32px calc(104px + env(safe-area-inset-bottom));
+  }
+
+  .app-header {
+    padding: 14px 32px;
+  }
+
+  .bottom-nav {
+    max-width: 1180px;
+  }
 }
 
 /* Keep compact Android phones usable without compromising the desktop layout. */

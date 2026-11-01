@@ -4,7 +4,9 @@ Verifies: Create -> Upload Image -> Voice Input -> AI Processing -> Catalogue Ed
 """
 import sys
 import os
+import io
 import unittest
+from PIL import Image
 from fastapi.testclient import TestClient
 
 # Add project root to PYTHONPATH
@@ -41,7 +43,9 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
         self.assertEqual(prod["status"], "draft")
 
         # Step 2: Upload Product Image
-        img_bytes = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4"
+        img_buffer = io.BytesIO()
+        Image.new("RGB", (60, 60), (180, 120, 80)).save(img_buffer, format="PNG")
+        img_bytes = img_buffer.getvalue()
         files = {"file": ("bamboo_basket.png", img_bytes, "image/png")}
         res_upload = self.client.post(f"/api/products/{prod_id}/upload-image", files=files)
         self.assertEqual(res_upload.status_code, 200)
@@ -122,10 +126,13 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
 
         uploaded = self.client.post(
             f"/api/products/{product_id}/upload-image",
-            json={"image_url": "data:image/png;base64,aGVsbG8="},
+            json={"image_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="},
         )
         self.assertEqual(uploaded.status_code, 200)
-        self.assertEqual(uploaded.json()["image_url"], "data:image/png;base64,aGVsbG8=")
+        self.assertEqual(
+            uploaded.json()["image_url"],
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+        )
 
         order_payload = {
             "product_id": product_id,
@@ -134,6 +141,15 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
             "quantity": 25,
         }
         self.assertEqual(self.client.post("/api/orders/request", json=order_payload).status_code, 409)
+
+        processed = self.client.post(
+            f"/api/products/{product_id}/process",
+            json={"audio_transcript": "Bamboo basket made in two days."},
+        )
+        self.assertEqual(processed.status_code, 200)
+        self.assertEqual(processed.json()["status"], "ready")
+        self.assertIn("breakdown", processed.json()["product"])
+        self.assertIn("reason", processed.json()["product"])
 
         self.assertEqual(self.client.patch(f"/api/products/{product_id}/publish").status_code, 200)
         order = self.client.post("/api/orders/request", json=order_payload)
@@ -152,7 +168,40 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
         )
         self.assertEqual(invalid_quantity.status_code, 422)
 
-    def test_04_partial_failure_resilience(self):
+    def test_04_upload_content_and_size_validation(self):
+        created = self.client.post("/api/products", json={"title": "Upload validation test"})
+        product_id = created.json()["id"]
+
+        invalid_signature = {"file": ("photo.png", b"not-a-png", "image/png")}
+        rejected = self.client.post(f"/api/products/{product_id}/upload-image", files=invalid_signature)
+        self.assertEqual(rejected.status_code, 400)
+        self.assertIn("valid image", rejected.json()["detail"])
+
+        mismatched_type = {"file": ("photo.png", b"\xff\xd8\xff\x00", "image/jpeg")}
+        rejected_type = self.client.post(f"/api/products/{product_id}/upload-image", files=mismatched_type)
+        self.assertEqual(rejected_type.status_code, 400)
+        self.assertIn("extension and MIME", rejected_type.json()["detail"])
+
+    def test_05_invalid_state_transitions_and_public_filtering(self):
+        created = self.client.post("/api/products", json={"title": "State validation test"})
+        product_id = created.json()["id"]
+        self.assertEqual(self.client.patch(f"/api/products/{product_id}/publish").status_code, 409)
+        self.assertEqual(
+            self.client.put(f"/api/products/{product_id}", json={"status": "published"}).status_code,
+            409,
+        )
+
+        self.assertEqual(self.client.get("/api/buyer/products?include_all=true").status_code, 200)
+        buyer_ids = [product["id"] for product in self.client.get("/api/buyer/products?include_all=true").json()]
+        self.assertNotIn(product_id, buyer_ids)
+
+    def test_06_mock_results_are_labelled(self):
+        pricing = self.client.post("/api/pricing/estimate", json={"category": "Bamboo", "material": "Bamboo"})
+        self.assertEqual(pricing.status_code, 200)
+        self.assertEqual(pricing.json()["ai_mode"]["mode"], "mock")
+        self.assertTrue(pricing.json()["ai_mode"]["is_simulated"])
+
+    def test_07_partial_failure_resilience(self):
         """
         Verifies AI pipeline does not crash when partial steps experience warnings/errors.
         """
@@ -166,7 +215,7 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
         self.assertIn("product", result)
         self.assertEqual(result["status"], "ready")
 
-    def test_05_nlp_notes_and_pricing_inputs_persist(self):
+    def test_08_nlp_notes_and_pricing_inputs_persist(self):
         """Verify M and S inputs are carried through A's product lifecycle endpoints."""
         created = self.client.post("/api/products", json={"title": "Integration inputs test"})
         self.assertEqual(created.status_code, 201)
@@ -204,3 +253,4 @@ class TestTantuIntegrationPipeline(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

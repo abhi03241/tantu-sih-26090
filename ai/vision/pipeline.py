@@ -10,8 +10,16 @@ and high-resolution catalogue resizing for artisan handicraft photos.
 import io
 import math
 import os
+from collections import deque
 from typing import Tuple, List, Dict, Any, Optional, Union
 from PIL import Image, ImageOps, ImageEnhance, ImageFilter, ImageStat
+
+try:
+    import cv2
+    import numpy as np
+except ImportError:  # Optional dependency; Pillow fallback remains available.
+    cv2 = None
+    np = None
 
 
 SUPPORTED_FORMATS = {"JPEG", "JPG", "PNG", "WEBP", "BMP", "TIFF"}
@@ -66,6 +74,122 @@ def fix_exif_orientation(img: Image.Image) -> Image.Image:
         return ImageOps.exif_transpose(img) or img
     except Exception:
         return img
+
+
+def remove_connected_background(
+    img: Image.Image,
+    color_threshold: int = 42,
+    feather_radius: int = 2,
+) -> Tuple[Image.Image, bool]:
+    """
+    Remove a connected, near-uniform background touching the image edges.
+
+    This is a dependency-free foreground segmentation fallback for ordinary
+    phone photos with a contrasting backdrop. It deliberately only removes
+    regions connected to the border, so similarly coloured details inside the
+    craft are not removed just because of their colour.
+    """
+    rgb = img.convert("RGB")
+    small_size = min(256, max(rgb.size))
+    scale = small_size / max(rgb.size)
+    thumb = rgb.resize(
+        (max(1, round(rgb.width * scale)), max(1, round(rgb.height * scale))),
+        Image.Resampling.BILINEAR,
+    )
+    pixels = thumb.load()
+    width, height = thumb.size
+    border = [pixels[x, 0] for x in range(width)]
+    border += [pixels[x, height - 1] for x in range(width)]
+    border += [pixels[0, y] for y in range(height)]
+    border += [pixels[width - 1, y] for y in range(height)]
+    reference = tuple(round(sum(color[i] for color in border) / len(border)) for i in range(3))
+
+    def is_background(point):
+        x, y = point
+        if x < 0 or y < 0 or x >= width or y >= height:
+            return False
+        color = pixels[x, y]
+        distance = sum((color[i] - reference[i]) ** 2 for i in range(3)) ** 0.5
+        return distance <= color_threshold
+
+    queue = deque()
+    visited = set()
+    for x in range(width):
+        queue.extend(((x, 0), (x, height - 1)))
+    for y in range(height):
+        queue.extend(((0, y), (width - 1, y)))
+
+    while queue:
+        point = queue.popleft()
+        if point in visited or not is_background(point):
+            continue
+        visited.add(point)
+        x, y = point
+        queue.extend(((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)))
+
+    if not visited:
+        return img, False
+
+    # A uniformly coloured test/photo frame has no reliable foreground. Keep
+    # the original rather than turning the entire product transparent.
+    removed_fraction = len(visited) / float(width * height)
+    if removed_fraction > 0.90:
+        return img, False
+
+    mask = Image.new("L", thumb.size, 255)
+    mask_pixels = mask.load()
+    for x, y in visited:
+        mask_pixels[x, y] = 0
+    mask = mask.resize(rgb.size, Image.Resampling.BICUBIC)
+    if feather_radius:
+        mask = mask.filter(ImageFilter.GaussianBlur(feather_radius))
+
+    rgba = rgb.convert("RGBA")
+    rgba.putalpha(mask)
+    return rgba, True
+
+
+def remove_smart_background(img: Image.Image, feather_radius: int = 2) -> Tuple[Image.Image, bool]:
+    """Segment the centered craft from a busy workshop using GrabCut.
+
+    OpenCV is optional. When available it handles textured backgrounds better than
+    border-colour flood fill; on failure the caller can use the Pillow fallback.
+    """
+    if cv2 is None or np is None:
+        return img, False
+    try:
+        rgb = np.asarray(img.convert("RGB"))
+        height, width = rgb.shape[:2]
+        if width < 80 or height < 80:
+            return img, False
+        mask = np.zeros((height, width), np.uint8)
+        margin_x = max(4, int(width * 0.04))
+        margin_y = max(4, int(height * 0.03))
+        rect = (margin_x, margin_y, width - 2 * margin_x, height - 2 * margin_y)
+        bgd = np.zeros((1, 65), np.float64)
+        fgd = np.zeros((1, 65), np.float64)
+        cv2.grabCut(rgb, mask, rect, bgd, fgd, 7, cv2.GC_INIT_WITH_RECT)
+        foreground = np.where((mask == cv2.GC_FGD) | (mask == cv2.GC_PR_FGD), 255, 0).astype(np.uint8)
+        kernel = np.ones((5, 5), np.uint8)
+        foreground = cv2.morphologyEx(foreground, cv2.MORPH_OPEN, kernel)
+        foreground = cv2.morphologyEx(foreground, cv2.MORPH_CLOSE, kernel)
+
+        # Busy workshops can leave isolated false-positive blobs. Keep the main
+        # product silhouette (bucket + attached handle) and discard small islands.
+        count, labels, stats, _ = cv2.connectedComponentsWithStats(foreground, 8)
+        if count > 1:
+            largest = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+            foreground = np.where(labels == largest, 255, 0).astype(np.uint8)
+        foreground = cv2.morphologyEx(foreground, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
+        foreground = cv2.GaussianBlur(foreground, (0, 0), feather_radius)
+        coverage = float(np.count_nonzero(foreground)) / float(width * height)
+        if coverage < 0.05 or coverage > 0.92:
+            return img, False
+        rgba = Image.fromarray(rgb, mode="RGB").convert("RGBA")
+        rgba.putalpha(Image.fromarray(foreground, mode="L"))
+        return rgba, True
+    except Exception:
+        return img, False
 
 
 def convert_to_rgb(img: Image.Image, bg_color: Tuple[int, int, int] = (255, 255, 255)) -> Image.Image:
@@ -235,10 +359,15 @@ class ImagePipeline:
 
         # Step 2: EXIF & Format conversion
         oriented_img = fix_exif_orientation(raw_img)
-        rgb_img = convert_to_rgb(oriented_img)
+        foreground_img, background_removed = remove_smart_background(oriented_img)
+        if not background_removed:
+            foreground_img, background_removed = remove_connected_background(oriented_img)
+        rgb_img = convert_to_rgb(foreground_img)
         steps.append("format_converted")
+        if background_removed:
+            steps.append("background_removed")
 
-        # Step 3: Centering & Crop
+        # Step 3: Preserve aspect ratio with a bounded crop.
         cropped_img = detect_and_center_crop(rgb_img, target_aspect_ratio=self.target_aspect_ratio)
         steps.append("cropped")
 
@@ -256,5 +385,6 @@ class ImagePipeline:
 
         metadata["enhanced_size"] = list(final_img.size)
         metadata["aspect_ratio"] = f"{self.target_aspect_ratio}:1"
+        metadata["background_removed"] = background_removed
 
         return final_img, steps, metadata

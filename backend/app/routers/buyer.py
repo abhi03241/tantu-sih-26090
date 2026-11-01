@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Query, status, HTTPException
-from backend.app.schemas import ProductResponse, BuyerBase, BuyerResponse
+from backend.app.schemas import ProductResponse, BuyerBase, BuyerResponse, PublicBuyerProfileResponse
 from backend.app.database import ProductRepository, BuyerRepository, UserRepository
 
 router = APIRouter(prefix="/api/buyer", tags=["Buyer Marketplace Feed"])
@@ -10,20 +10,21 @@ router = APIRouter(prefix="/api/buyer", tags=["Buyer Marketplace Feed"])
 def get_buyer_products(
     category: Optional[str] = Query(None, description="Filter products by artisan category"),
     q: Optional[str] = Query(None, description="Search query across product titles and heritage stories"),
-    include_all: bool = Query(False, description="Set to true to include draft/unpublished products for testing")
+    include_all: bool = Query(False, description="Deprecated compatibility parameter; public feed remains published-only")
 ):
     """
     GET /api/buyer/products
     Retrieves published marketplace product feed tailored for urban B2B and retail buyers.
     Integrated with Team Member P's buyer UI and Team Member S's B2B marketplace feed.
     """
-    prod_status = None if include_all else "published"
-    products = ProductRepository.get_all(category=category, query=q, status=prod_status)
+    # This is a public marketplace boundary. Keep the legacy query parameter
+    # accepted for client compatibility, but never let it expose private drafts.
+    products = ProductRepository.get_all(category=category, query=q, status="published")
     return products
 
 
 
-@router.get("/profile/{buyer_id}", response_model=BuyerResponse)
+@router.get("/profile/{buyer_id}", response_model=PublicBuyerProfileResponse)
 def get_buyer_profile(buyer_id: str):
     """
     GET /api/buyer/profile/{buyer_id}
@@ -37,8 +38,7 @@ def get_buyer_profile(buyer_id: str):
         "user_id": buyer_id,
         "buyer_name": "FabIndia Procurement Team",
         "organization": "FabIndia Overseas Pvt Ltd",
-        "buyer_type": "B2B Retailer",
-        "contact_email": "procurement@fabindia.com"
+        "buyer_type": "B2B Retailer"
     }
 
 

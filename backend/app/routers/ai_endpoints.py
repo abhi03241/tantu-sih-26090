@@ -13,8 +13,17 @@ from backend.app.services.nlp_service import NLPService
 from backend.app.services.vision_service import VisionService
 from backend.app.services.pricing_service import PricingService
 from backend.app.services.orchestrator import ProductPipelineOrchestrator
+from backend.app.config import settings
 
 router = APIRouter(prefix="/api/products", tags=["AI Integration Layer (Orchestration & Services)"])
+
+
+def _ai_mode(label: str) -> dict:
+    return {
+        "mode": "mock" if settings.MOCK_AI else "real",
+        "is_simulated": settings.MOCK_AI,
+        "label": label,
+    }
 
 
 @router.post("/{id}/process", response_model=ProcessProductResponse)
@@ -37,10 +46,12 @@ def process_full_product_pipeline(id: str, request: ProcessProductRequest = None
         audio_transcript=req.audio_transcript,
         image_url=req.image_url,
         raw_material_cost=req.raw_material_cost,
+        labor_hours=req.labor_hours,
         prompt=req.prompt,
         language=req.language or "hi",
         artisan_id=req.artisan_id or "art-001"
     )
+    result["ai_mode"] = _ai_mode("Simulated demo pipeline" if settings.MOCK_AI else "Live AI pipeline")
     return result
 
 
@@ -97,6 +108,7 @@ def process_voice_and_update_product(id: str, request: VoiceProcessingRequest):
         updated = ProductRepository.save(product)
     else:
         updated = product
+    updated["ai_mode"] = _ai_mode("Simulated demo voice processing" if settings.MOCK_AI else "Live AI voice processing")
     return updated
 
 
@@ -121,8 +133,15 @@ def enhance_product_image(id: str, request: EnhanceImageRequest = None):
         prompt=prompt
     )
 
-    product["enhanced_image_url"] = ai_result.get("enhanced_image_url") or img_to_enhance
+    if ai_result.get("status") != "success" or not ai_result.get("enhanced_image_url"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=ai_result.get("error", "Image processing did not produce an enhanced image."),
+        )
+
+    product["enhanced_image_url"] = ai_result["enhanced_image_url"]
     updated = ProductRepository.save(product)
+    updated["ai_mode"] = _ai_mode("Simulated demo image enhancement" if settings.MOCK_AI else "Live image enhancement")
     return updated
 
 
@@ -170,6 +189,7 @@ def generate_product_catalogue(id: str, request: GenerateCatalogueRequest = None
         updated = ProductRepository.save(product)
     else:
         updated = product
+    updated["ai_mode"] = _ai_mode("Simulated demo catalogue generation" if settings.MOCK_AI else "Live catalogue generation")
     return updated
 
 
@@ -205,4 +225,5 @@ def calculate_product_price(id: str, request: PricingRequest = None):
     product["suggested_price_max"] = ai_result.get("suggested_price_max")
 
     updated = ProductRepository.save(product)
+    updated["ai_mode"] = _ai_mode("Simulated demo pricing" if settings.MOCK_AI else "Live pricing service")
     return updated

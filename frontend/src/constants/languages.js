@@ -14,7 +14,7 @@ export const LANGUAGES = [
     name: 'हिन्दी',
     englishName: 'Hindi',
     locale: 'hi-IN',
-    greeting: 'नमस्ते! शिल्पवाणी में आपका स्वागत है।',
+    greeting: 'नमस्ते! ShilpVani में आपका स्वागत है।',
     greetingEn: 'Welcome to ShilpVani'
   },
   {
@@ -30,7 +30,7 @@ export const LANGUAGES = [
     name: 'मराठी',
     englishName: 'Marathi',
     locale: 'mr-IN',
-    greeting: 'नमस्कार! शिल्पवाणी मध्ये आपले स्वागत आहे.',
+    greeting: 'नमस्कार! ShilpVani मध्ये आपले स्वागत आहे.',
     greetingEn: 'Welcome to ShilpVani'
   },
   {
@@ -62,7 +62,7 @@ export const LANGUAGES = [
 // UI String dictionary for high accessibility across all 7 supported languages
 export const TRANSLATIONS = {
   hi: {
-    appTitle: 'शिल्पवाणी ShilpVani',
+    appTitle: 'ShilpVani ShilpVani',
     tagline: 'कारीगरों के लिए स्मार्ट कैटलॉगिंग और बाज़ार मंच',
     artisanRole: 'कारीगर (Artisan)',
     buyerRole: 'खरीदार (Buyer)',
@@ -89,7 +89,7 @@ export const TRANSLATIONS = {
     step2Voice: '2. बोलकर बताएं',
     step2VoiceSub: 'माइक दबाकर 30 सेकंड में उत्पाद के बारे में बताएं',
     step3Ai: '3. AI प्रसंस्करण',
-    step3AiSub: 'शिल्पवाणी AI स्मार्ट कैटलॉग तैयार कर रहा है',
+    step3AiSub: 'ShilpVani AI स्मार्ट कैटलॉग तैयार कर रहा है',
     step4Catalog: '4. स्मार्ट कैटलॉग',
     step4CatalogSub: 'तैयार कैटलॉग जांचें और प्रकाशित करें',
     takePhoto: 'कैमरा खोलें',
@@ -130,7 +130,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI सटीकता'
   },
   en: {
-    appTitle: 'ShilpVani शिल्पवाणी',
+    appTitle: 'ShilpVani ShilpVani',
     tagline: 'AI Market Linkage & Smart Cataloging for Marginalized Artisans',
     artisanRole: 'Artisan View',
     buyerRole: 'Buyer View',
@@ -266,7 +266,7 @@ export const TRANSLATIONS = {
     aiConfidence: 'AI নির্ভুলতা'
   },
   mr: {
-    appTitle: 'शिल्पवाणी ShilpVani',
+    appTitle: 'ShilpVani ShilpVani',
     tagline: 'कारागिरांसाठी स्मार्ट कॅटलॉगिंग आणि बाजारपेठ मंच',
     artisanRole: 'कारागीर (Artisan)',
     buyerRole: 'खरेदीदार (Buyer)',
@@ -293,7 +293,7 @@ export const TRANSLATIONS = {
     step2Voice: '२. बोलून सांगा',
     step2VoiceSub: 'माइक दाबून ३० सेकंदात उत्पादनाबद्दल सांगा',
     step3Ai: '३. AI प्रक्रिया',
-    step3AiSub: 'शिल्पवाणी AI स्मार्ट कॅटलॉग तयार करत आहे',
+    step3AiSub: 'ShilpVani AI स्मार्ट कॅटलॉग तयार करत आहे',
     step4Catalog: '४. स्मार्ट कॅटलॉग',
     step4CatalogSub: 'तयार कॅटलॉग तपासा आणि प्रकाशित करा',
     takePhoto: 'कॅमेरा उघडा',

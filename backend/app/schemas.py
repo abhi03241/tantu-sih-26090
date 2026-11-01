@@ -6,6 +6,12 @@ ProductStatus = Literal["draft", "processing", "ready", "published", "failed"]
 OrderStatus = Literal["pending", "accepted", "fulfilled", "rejected", "completed", "requested"]
 
 
+class AIModeMetadata(BaseModel):
+    mode: Literal["mock", "real"]
+    is_simulated: bool
+    label: str
+
+
 # ==========================================
 # COMMON PRODUCT CONTRACT (M, R, S & Frontend)
 # ==========================================
@@ -25,6 +31,13 @@ class ProductBase(BaseModel):
     enhanced_image_url: Optional[str] = Field(None, example="https://images.unsplash.com/photo-1590736969955-71cc94801759?w=1200")
     suggested_price_min: Optional[float] = Field(None, example=650.0)
     suggested_price_max: Optional[float] = Field(None, example=950.0)
+    currency: Optional[str] = Field(None, example="INR")
+    confidence: Optional[str] = Field(None, example="demo")
+    pricing_label: Optional[str] = Field(None, example="Cost-plus suggested price range")
+    reason: Optional[str] = None
+    pricing_factors: Optional[dict] = None
+    breakdown: Optional[dict] = None
+    recommendation: Optional[str] = None
 
 
     # Extra helper fields for artisan context
@@ -79,6 +92,7 @@ class ProductUpdate(BaseModel):
 class ProductResponse(ProductBase):
     id: str = Field(..., example="prod-bamboo-001")
     created_at: Optional[str] = None
+    ai_mode: Optional[AIModeMetadata] = None
 
 
 # ==========================================
@@ -119,6 +133,24 @@ class BuyerBase(BaseModel):
 
 class BuyerResponse(BuyerBase):
     id: str
+
+
+class PublicArtisanProfileResponse(BaseModel):
+    id: str
+    user_id: str
+    artisan_name: str
+    craft_type: str
+    location: str
+    bio: Optional[str] = None
+    story_style: Optional[str] = None
+
+
+class PublicBuyerProfileResponse(BaseModel):
+    id: str
+    user_id: str
+    buyer_name: str
+    organization: Optional[str] = None
+    buyer_type: str
 
 
 # ==========================================
@@ -192,13 +224,15 @@ class PricingCalculationResponse(BaseModel):
     pricing_factors: Optional[dict] = None
     breakdown: Optional[dict] = None
     recommendation: Optional[str] = None
+    ai_mode: Optional[AIModeMetadata] = None
 
 
 class ProcessProductRequest(BaseModel):
     audio_transcript: Optional[str] = Field(None, example="Ye bamboo ki tokri hai. Isko banane mein do din lagte hain. Meri maa ne mujhe ye banana sikhaya tha.")
     image_url: Optional[str] = Field(None, example="https://images.unsplash.com/photo-1590736969955-71cc94801759")
     prompt: Optional[str] = Field(None, example="Clean white studio background with soft lighting")
-    raw_material_cost: Optional[float] = Field(None, example=250.0)
+    raw_material_cost: Optional[float] = Field(None, ge=0, example=250.0)
+    labor_hours: Optional[int] = Field(None, ge=0, example=16)
     language: Optional[str] = Field("hi", example="hi")
     artisan_id: Optional[str] = Field("art-001", example="art-001")
 
@@ -208,6 +242,7 @@ class ProcessProductResponse(BaseModel):
     status: str = Field("ready", example="ready")
     product: ProductResponse
     errors: Optional[dict] = Field(None, example=None)
+    ai_mode: Optional[AIModeMetadata] = None
 
 
 class ProductStatusResponse(BaseModel):

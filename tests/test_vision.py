@@ -56,6 +56,7 @@ class TestAIVisionModule(unittest.TestCase):
         self.assertIn("lighting_enhanced", steps)
         self.assertIn("background_cleaned", steps)
         self.assertIn("resized", steps)
+        self.assertFalse(meta["background_removed"])
 
     def test_02_valid_png(self):
         """Tests processing a valid PNG artisan image (with transparency/alpha)."""
@@ -68,6 +69,19 @@ class TestAIVisionModule(unittest.TestCase):
         self.assertEqual(enhanced.size, DEFAULT_TARGET_SIZE)
         self.assertEqual(enhanced.mode, "RGB")
         self.assertIn("format_converted", steps)
+
+    def test_02a_contrasting_connected_background_is_removed(self):
+        """A simple contrasting backdrop is removed without external models."""
+        img = Image.new("RGB", (200, 200), (245, 245, 245))
+        for x in range(60, 140):
+            for y in range(50, 150):
+                img.putpixel((x, y), (120, 70, 30))
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+
+        _, steps, meta = self.pipeline.process(buf.getvalue())
+        self.assertIn("background_removed", steps)
+        self.assertTrue(meta["background_removed"])
 
     def test_03_invalid_corrupted_image(self):
         """Tests that corrupted/garbage bytes raise ImageValidationError."""
@@ -180,11 +194,11 @@ class TestAIVisionModule(unittest.TestCase):
             self.assertNotEqual(res["original_image_url"], res["enhanced_image_url"])
 
     def test_13_failure_handling_and_fallback(self):
-        """Tests that invalid inputs trigger graceful fallback without crashing."""
+        """Tests that invalid inputs remain visible as real processing errors."""
         res = enhance_artisan_image(image_url="invalid_non_existent_file.xyz", mock=False)
-        self.assertEqual(res["status"], "success")
-        self.assertIn("warning", res)
-        self.assertIsNotNone(res["enhanced_image_url"])
+        self.assertEqual(res["status"], "error")
+        self.assertIn("error", res)
+        self.assertIsNone(res["enhanced_image_url"])
 
     def test_14_exif_orientation_is_normalized(self):
         """Phone-camera EXIF orientation is applied before catalogue cropping."""

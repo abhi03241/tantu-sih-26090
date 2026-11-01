@@ -11,6 +11,28 @@ const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL ||
   (isNativePlatform ? '' : 'http://localhost:8000');
 
+const normalizedBackendUrl = BACKEND_URL.replace(/\/$/, '');
+
+// FastAPI deliberately returns `/uploads/...` and `/enhanced/...` routes so
+// local clients can use them directly. A Vercel page has a different origin,
+// so hydrate just those API asset URLs before React renders them.
+function resolveAssetUrl(url) {
+  if (typeof url !== 'string' || !url.startsWith('/')) return url;
+  return normalizedBackendUrl ? `${normalizedBackendUrl}${url}` : url;
+}
+
+function hydrateAssetUrls(payload) {
+  if (Array.isArray(payload)) return payload.map(hydrateAssetUrls);
+  if (!payload || typeof payload !== 'object') return payload;
+
+  return Object.fromEntries(Object.entries(payload).map(([key, value]) => [
+    key,
+    key === 'image_url' || key === 'enhanced_image_url'
+      ? resolveAssetUrl(value)
+      : hydrateAssetUrls(value)
+  ]));
+}
+
 let isBackendReachable = null;
 
 export const checkBackendHealth = async () => {
@@ -35,11 +57,11 @@ export const getBackendStatus = () => isBackendReachable;
 export async function request(endpoint, options = {}) {
   const url = `${BACKEND_URL}${endpoint}`;
   const config = {
+    ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       ...options.headers
-    },
-    ...options
+    }
   };
 
   try {
@@ -49,7 +71,7 @@ export async function request(endpoint, options = {}) {
       throw new Error(`API Error ${res.status}: ${errorBody}`);
     }
     isBackendReachable = true;
-    return await res.json();
+    return hydrateAssetUrls(await res.json());
   } catch (error) {
     // Flag offline and bubble error up to caller so caller can use mock data fallback
     isBackendReachable = false;

@@ -27,6 +27,7 @@ class ProductPipelineOrchestrator:
         audio_transcript: Optional[str] = None,
         image_url: Optional[str] = None,
         raw_material_cost: Optional[float] = None,
+        labor_hours: Optional[int] = None,
         prompt: Optional[str] = None,
         language: str = "hi",
         artisan_id: str = "art-001"
@@ -67,7 +68,11 @@ class ProductPipelineOrchestrator:
             product["image_url"] = image_url
 
         product["status"] = "processing"
+        # Persist the intermediate state before the pipeline advances to ready.
+        # Repository validation requires draft -> processing -> ready.
+        ProductRepository.save(product)
         errors = {}
+        pricing_details = None
 
         # Step 2: Voice & Text NLP Processing
         if audio_transcript:
@@ -103,7 +108,9 @@ class ProductPipelineOrchestrator:
         try:
             img_target = product.get("image_url")
             vision_result = VisionService.enhance_image(image_url=img_target, prompt=prompt)
-            product["enhanced_image_url"] = vision_result.get("enhanced_image_url") or product.get("image_url")
+            if vision_result.get("status") != "success" or not vision_result.get("enhanced_image_url"):
+                raise ValueError(vision_result.get("error", "Image enhancement did not produce an output."))
+            product["enhanced_image_url"] = vision_result["enhanced_image_url"]
         except Exception as e:
             logger.error(f"[Orchestrator] Vision image enhancement failed: {e}")
             errors["vision"] = str(e)
@@ -115,16 +122,29 @@ class ProductPipelineOrchestrator:
                 material=product.get("material", "Natural Material"),
                 production_time=product.get("production_time"),
                 dimensions=product.get("dimensions"),
-                raw_material_cost=raw_material_cost
+                raw_material_cost=raw_material_cost,
+                labor_hours=labor_hours
             )
             product["suggested_price_min"] = pricing_result.get("suggested_price_min", product.get("suggested_price_min"))
             product["suggested_price_max"] = pricing_result.get("suggested_price_max", product.get("suggested_price_max"))
+            pricing_details = {
+                "currency": pricing_result.get("currency", "INR"),
+                "confidence": pricing_result.get("confidence", "demo"),
+                "pricing_label": pricing_result.get("pricing_label"),
+                "reason": pricing_result.get("reason"),
+                "pricing_factors": pricing_result.get("pricing_factors"),
+                "breakdown": pricing_result.get("breakdown"),
+                "recommendation": pricing_result.get("recommendation"),
+            }
         except Exception as e:
             logger.error(f"[Orchestrator] Pricing calculation failed: {e}")
             errors["pricing"] = str(e)
 
-        # Determine final status
+        # Determine final status. A missing enhanced image is a real pipeline
+        # failure, not a reason to show a successful catalogue.
         if errors.get("nlp") and not product.get("title"):
+            product["status"] = "failed"
+        elif errors.get("vision"):
             product["status"] = "failed"
         else:
             product["status"] = "ready"
@@ -136,7 +156,7 @@ class ProductPipelineOrchestrator:
         return {
             "id": saved_product["id"],
             "status": saved_product["status"],
-            "product": saved_product,
+            "product": {**saved_product, **(pricing_details or {})},
             "errors": errors if errors else None
         }
 

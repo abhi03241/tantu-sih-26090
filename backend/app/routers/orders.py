@@ -87,5 +87,8 @@ def update_order_status(
             detail="Provide a valid status in JSON body or as the 'new_status' query parameter"
         )
 
-    updated = OrderRepository.update_status(id, requested_status)
+    try:
+        updated = OrderRepository.update_status(id, requested_status)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
     return updated

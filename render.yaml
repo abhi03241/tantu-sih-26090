@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: college-project-api
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: MOCK_AI
+        value: "true"
+      - key: DATABASE_PATH
+        value: /var/data/tantu.db
+      - key: UPLOADS_DIR
+        value: /var/data/uploads
+      - key: ENHANCED_IMAGES_DIR
+        value: /var/data/enhanced
+    disk:
+      name: shilpvani-data
+      mountPath: /var/data
+      sizeGB: 1

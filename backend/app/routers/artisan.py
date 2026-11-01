@@ -1,7 +1,7 @@
 import uuid
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query, status
-from backend.app.schemas import ProductResponse, ArtisanProfileBase, ArtisanProfileResponse
+from backend.app.schemas import ProductResponse, ArtisanProfileBase, ArtisanProfileResponse, PublicArtisanProfileResponse
 from backend.app.database import ProductRepository, ArtisanProfileRepository, UserRepository
 
 router = APIRouter(prefix="/api/artisan", tags=["Artisan Dashboard"])
@@ -20,7 +20,7 @@ def get_artisan_products(
     return products
 
 
-@router.get("/profile/{artisan_id}", response_model=ArtisanProfileResponse)
+@router.get("/profile/{artisan_id}", response_model=PublicArtisanProfileResponse)
 def get_artisan_profile(artisan_id: str):
     """
     GET /api/artisan/profile/{artisan_id}
@@ -38,7 +38,6 @@ def get_artisan_profile(artisan_id: str):
         "craft_type": "Bamboo & Natural Fiber Crafting",
         "location": "Silchar, Cachar District, Assam",
         "bio": "Master artisan with 20+ years of experience crafting eco-friendly bamboo items.",
-        "phone": "+91-9876543210",
         "story_style": "Cultural Heritage"
     }
 

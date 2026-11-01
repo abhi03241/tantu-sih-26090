@@ -1,8 +1,12 @@
+import base64
+import binascii
+import io
 import os
 import uuid
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query, Request, status
 from pydantic import ValidationError
+from PIL import Image, UnidentifiedImageError
 from backend.app.schemas import (
     ProductCreate,
     ProductResponse,
@@ -11,11 +15,67 @@ from backend.app.schemas import (
     ImageUrlUploadRequest,
 )
 from backend.app.database import ProductRepository
+from backend.app.config import settings
 
 router = APIRouter(prefix="/api/products", tags=["Products"])
 
 ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
-UPLOADS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "uploads"))
+ALLOWED_IMAGE_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+UPLOADS_DIR = os.path.abspath(settings.UPLOADS_DIR)
+
+
+def _validate_image_content(content: bytes, content_type: str, extension: str) -> None:
+    """Validate size, declared type, and file signature before persistence."""
+    if not content:
+        raise HTTPException(status_code=400, detail="Uploaded image is empty.")
+    if len(content) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="Uploaded image exceeds the 10 MiB limit.")
+
+    normalized_type = content_type.split(";", 1)[0].strip().lower()
+    expected_types = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp"}
+    if normalized_type not in ALLOWED_IMAGE_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Unsupported image MIME type.")
+    if normalized_type != expected_types[extension]:
+        raise HTTPException(status_code=400, detail="Image extension and MIME type do not match.")
+
+    signatures = {
+        ".jpg": lambda value: value.startswith(b"\xff\xd8\xff"),
+        ".jpeg": lambda value: value.startswith(b"\xff\xd8\xff"),
+        ".png": lambda value: value.startswith(b"\x89PNG\r\n\x1a\n"),
+        ".webp": lambda value: len(value) >= 12 and value[:4] == b"RIFF" and value[8:12] == b"WEBP",
+    }
+    if not signatures[extension](content):
+        raise HTTPException(status_code=400, detail="Uploaded content is not a valid image of the declared type.")
+
+    try:
+        with Image.open(io.BytesIO(content)) as image:
+            image.verify()
+    except (UnidentifiedImageError, OSError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=f"Uploaded image cannot be decoded: {exc}")
+
+
+def _validate_image_url(image_url: str) -> str:
+    """Keep compatibility URLs bounded and limited to safe image schemes."""
+    if len(image_url) > MAX_UPLOAD_BYTES * 2:
+        raise HTTPException(status_code=413, detail="Image URL or data URL is too large.")
+    if image_url.startswith(("https://", "http://")):
+        return image_url
+    if image_url.startswith("data:image/") and "," in image_url:
+        header, encoded = image_url.split(",", 1)
+        if not encoded:
+            raise HTTPException(status_code=400, detail="Image data URL is empty.")
+        try:
+            decoded = base64.b64decode(encoded, validate=True)
+        except (ValueError, binascii.Error):
+            raise HTTPException(status_code=400, detail="Image data URL is not valid base64.")
+        mime = header.split(";", 1)[0].lower()
+        extension = {"data:image/jpeg": ".jpg", "data:image/png": ".png", "data:image/webp": ".webp"}.get(mime)
+        if not extension:
+            raise HTTPException(status_code=400, detail="Only JPEG, PNG, and WEBP images are supported.")
+        _validate_image_content(decoded, mime.removeprefix("data:"), extension)
+        return image_url
+    raise HTTPException(status_code=400, detail="Image URL must use HTTP(S) or a validated image data URL.")
 
 
 @router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
@@ -25,8 +85,8 @@ def create_product(product: ProductCreate):
     """
     product_dict = product.model_dump()
     product_dict["id"] = f"prod-{uuid.uuid4().hex[:8]}"
-    if not product_dict.get("status"):
-        product_dict["status"] = "draft"
+    # New records always begin private; publishing is an explicit lifecycle action.
+    product_dict["status"] = "draft"
     
     # Auto-fill fallback pricing if not provided
     if not product_dict.get("suggested_price_min"):
@@ -104,7 +164,7 @@ async def upload_product_image(id: str, request: Request):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Provide multipart field 'file' or a JSON body with a non-empty 'image_url'."
             )
-        product["image_url"] = payload.image_url
+        product["image_url"] = _validate_image_url(payload.image_url)
         return ProductRepository.save(product)
 
     form = await request.form()
@@ -115,7 +175,7 @@ async def upload_product_image(id: str, request: Request):
             detail="Multipart requests require a 'file' field."
         )
 
-    filename = file.filename
+    filename = os.path.basename(file.filename)
     ext = os.path.splitext(filename)[1].lower()
     if ext not in ALLOWED_IMAGE_EXTENSIONS:
         raise HTTPException(
@@ -123,19 +183,28 @@ async def upload_product_image(id: str, request: Request):
             detail=f"Unsupported file format '{ext}'. Allowed image types: JPG, JPEG, PNG, WEBP."
         )
 
+    content_type = getattr(file, "content_type", "") or ""
+    content = await file.read(MAX_UPLOAD_BYTES + 1)
+    _validate_image_content(content, content_type, ext)
+
     os.makedirs(UPLOADS_DIR, exist_ok=True)
     saved_filename = f"{id}_{uuid.uuid4().hex[:6]}{ext}"
-    saved_path = os.path.join(UPLOADS_DIR, saved_filename)
+    saved_path = os.path.abspath(os.path.join(UPLOADS_DIR, saved_filename))
+    if os.path.commonpath((UPLOADS_DIR, saved_path)) != UPLOADS_DIR:
+        raise HTTPException(status_code=400, detail="Unsafe upload path.")
 
-    content = await file.read()
-    with open(saved_path, "wb") as f:
-        f.write(content)
+    try:
+        with open(saved_path, "wb") as f:
+            f.write(content)
 
-    # Local URL reference
-    image_url = f"/uploads/{saved_filename}"
-    product["image_url"] = image_url
-    updated = ProductRepository.save(product)
-    return updated
+        # Local URL reference
+        image_url = f"/uploads/{saved_filename}"
+        product["image_url"] = image_url
+        return ProductRepository.save(product)
+    except OSError:
+        if os.path.exists(saved_path):
+            os.remove(saved_path)
+        raise HTTPException(status_code=500, detail="Unable to safely store the uploaded image.")
 
 
 @router.put("/{id}", response_model=ProductResponse)
@@ -155,7 +224,10 @@ def update_product(id: str, payload: ProductUpdate):
         if val is not None:
             existing[key] = val
 
-    updated = ProductRepository.save(existing)
+    try:
+        updated = ProductRepository.save(existing)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
     return updated
 
 
@@ -174,7 +246,10 @@ def publish_product(id: str):
         )
 
     existing["status"] = "published"
-    published = ProductRepository.save(existing)
+    try:
+        published = ProductRepository.save(existing)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
     return published
 
 
@@ -191,4 +266,3 @@ def delete_product(id: str):
         )
     ProductRepository.delete(id)
     return {"status": "success", "message": f"Product '{id}' deleted successfully"}
-
