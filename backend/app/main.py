@@ -11,8 +11,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 from backend.app.config import settings
 from backend.app.database import init_db
 from backend.app.seed_data import seed_demo_data
-from backend.app.routers import products, ai_endpoints, artisan, buyer, orders, pricing
-
+from backend.app.routers import (
+    products,
+    ai_endpoints,
+    artisan,
+    buyer,
+    orders,
+    pricing,
+    auth
+)
 # Ensure uploads directory exists for prototype local file storage
 UPLOADS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "uploads"))
 os.makedirs(UPLOADS_DIR, exist_ok=True)
@@ -66,7 +73,7 @@ app.include_router(artisan.router)
 app.include_router(buyer.router)
 app.include_router(orders.router)
 app.include_router(pricing.router)
-
+app.include_router(auth.router)
 
 @app.get("/", tags=["Health & Status"])
 def root_status():

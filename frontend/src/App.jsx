@@ -12,7 +12,8 @@ import ArtisanOrdersList from './components/artisan/ArtisanOrdersList';
 import BuyerHome from './components/buyer/BuyerHome';
 import BuyerProductDetail from './components/buyer/BuyerProductDetail';
 import BuyerOrdersList from './components/buyer/BuyerOrdersList';
-
+import Login from './components/auth/Login';
+import Auth from './components/auth/Auth';
 function MainAppShell() {
   const {
     hasChosenLanguage,
@@ -21,7 +22,8 @@ function MainAppShell() {
     currentScreen,
     navigateTo,
     activeProductId,
-    deviceFrame
+    deviceFrame,
+    setAuthenticatedRole
   } = useApp();
 
   // If user has not chosen language on first run, show Language Selection Screen
@@ -37,7 +39,29 @@ function MainAppShell() {
       </div>
     );
   }
-
+  // Show authentication if user has not logged in
+if (!localStorage.getItem('access_token')) {
+  return (
+    <Auth
+      onAuthSuccess={(user) => {
+        setAuthenticatedRole(user.role);
+      }}
+    />
+  );
+}
+  // LOGIN SCREEN
+if (currentScreen === 'login') {
+  return (
+    <div className={`app-viewport-wrapper ${deviceFrame ? 'device-mode' : ''}`}>
+      <div className="app-container">
+        <main style={{ padding: 0, flex: 1 }}>
+          <Login />
+        </main>
+        <Toast />
+      </div>
+    </div>
+  );
+}
   return (
     <div className={`app-viewport-wrapper ${deviceFrame ? 'device-mode' : ''}`}>
       <div className="app-container">

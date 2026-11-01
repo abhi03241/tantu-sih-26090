@@ -10,15 +10,22 @@ export function AppProvider({ children }) {
   // Localization & Persona
   const [language, setLanguage] = useState(() => localStorage.getItem('tantu_language') || 'hi');
   const [hasChosenLanguage, setHasChosenLanguage] = useState(() => !!localStorage.getItem('tantu_language'));
-  const [role, setRole] = useState(() => localStorage.getItem('tantu_role') || 'artisan'); // 'artisan' | 'buyer'
-
+const [role, setRole] = useState(() => {
+  const savedRole = localStorage.getItem('tantu_role');
+  return savedRole === 'buyer' ? 'buyer' : 'artisan';
+});
   // Navigation:
   // Artisan: 'home' | 'add-wizard' | 'my-products' | 'orders' | 'product-detail'
   // Buyer: 'marketplace' | 'buyer-product-detail' | 'buyer-orders'
   // Keep the persisted persona and its entry screen in sync on a page reload.
-  const [currentScreen, setCurrentScreen] = useState(() =>
-    localStorage.getItem('tantu_role') === 'buyer' ? 'marketplace' : 'home'
-  );
+const [currentScreen, setCurrentScreen] = useState(() => {
+  const token = localStorage.getItem('access_token');
+  const savedRole = localStorage.getItem('tantu_role');
+
+  if (!token) return 'login';
+
+  return savedRole === 'buyer' ? 'marketplace' : 'home';
+});
   const [activeProductId, setActiveProductId] = useState(null);
 
   // App Data
@@ -130,17 +137,40 @@ export function AppProvider({ children }) {
   };
 
   // Switch Role
-  const switchRole = (newRole) => {
-    setRole(newRole);
-    localStorage.setItem('tantu_role', newRole);
-    if (newRole === 'artisan') {
-      setCurrentScreen('home');
-    } else {
-      setCurrentScreen('marketplace');
-    }
-    showToast(newRole === 'artisan' ? 'कारीगर मोड चालू (Artisan Mode)' : 'खरीदार मोड चालू (Buyer Marketplace Mode)', 'info');
-  };
+  // Set role only after successful login or signup
+const setAuthenticatedRole = (userRole) => {
+  if (userRole !== 'artisan' && userRole !== 'buyer') {
+    showToast('Invalid account role.', 'error');
+    return;
+  }
 
+  setRole(userRole);
+  localStorage.setItem('tantu_role', userRole);
+
+  if (userRole === 'artisan') {
+    setCurrentScreen('home');
+  } else {
+    setCurrentScreen('marketplace');
+  }
+};
+
+// Prevent switching to another role without another account
+const switchRole = () => {
+  showToast(
+    'Your account has a fixed role. Please log in with a separate account to access another role.',
+    'info'
+  );
+};
+// Logout user
+const logout = () => {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('tantu_role');
+
+  setRole('artisan');
+  setCurrentScreen('login');
+
+  showToast('You have been logged out successfully.', 'success');
+};
   // Navigate to screen
   const navigateTo = (screen, productId = null) => {
     stopSpeech();
@@ -160,6 +190,8 @@ export function AppProvider({ children }) {
         setHasChosenLanguage,
         role,
         switchRole,
+        setAuthenticatedRole,
+        logout,
         currentScreen,
         navigateTo,
         activeProductId,

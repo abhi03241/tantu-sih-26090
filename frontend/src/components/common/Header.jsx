@@ -2,14 +2,22 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { LANGUAGES } from '../../constants/languages';
 import ShilpVaniLogo from './ShilpVaniLogo';
-import { Globe, Smartphone, Monitor, Volume2, Sparkles, ShoppingBag, Palette } from 'lucide-react';
-
+import {
+  Globe,
+  Smartphone,
+  Monitor,
+  Volume2,
+  ShoppingBag,
+  Palette,
+  LogOut
+} from 'lucide-react';
 export default function Header() {
   const {
     language,
     setLanguage,
     role,
     switchRole,
+    logout,
     backendOnline,
     deviceFrame,
     setDeviceFrame,
@@ -119,15 +127,23 @@ export default function Header() {
           )}
         </div>
 
-        {/* Role Switcher Pill */}
-        <button
-          className={`pill-btn role-badge ${role === 'buyer' ? 'buyer' : ''}`}
-          onClick={() => switchRole(role === 'artisan' ? 'buyer' : 'artisan')}
-          title="Switch persona between Artisan and Buyer"
-        >
-          {role === 'artisan' ? <Palette size={14} /> : <ShoppingBag size={14} />}
-          <span>{role === 'artisan' ? t('artisanRole').split(' ')[0] : t('buyerRole').split(' ')[0]}</span>
-        </button>
+        {/* Logout Button */}
+<button
+  className="pill-btn"
+  onClick={logout}
+  title="Logout from your account"
+  style={{
+    padding: '6px 10px',
+    color: '#DC2626',
+    border: '1px solid #FECACA',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '5px'
+  }}
+>
+  <LogOut size={15} />
+  <span>Logout</span>
+</button>
 
         {/* Device Frame Toggle (for presentation) */}
         <button

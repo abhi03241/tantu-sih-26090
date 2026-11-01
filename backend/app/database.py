@@ -12,103 +12,138 @@ def get_db_connection() -> sqlite3.Connection:
     return conn
 
 
+
 def init_db():
     """
-    Initializes SQLite tables for products, users, artisan profiles, buyers, and order requests.
+    Initializes SQLite tables for products, users,
+    artisan profiles, buyers, and order requests.
     """
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Create Products table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS products (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        description_english TEXT,
-        description_hindi TEXT,
-        category TEXT,
-        material TEXT,
-        dimensions TEXT,
-        production_time TEXT,
-        tags TEXT,
-        story TEXT,
-        sentiment TEXT,
-        narrative_type TEXT,
-        image_url TEXT,
-        enhanced_image_url TEXT,
-        suggested_price_min REAL,
-        suggested_price_max REAL,
-        artisan_id TEXT,
-        artisan_name TEXT,
-        location TEXT,
-        status TEXT DEFAULT 'draft',
-        created_at TEXT
-    )
-    """)
-
-    # Ensure status column exists for backwards compatibility
     try:
-        cursor.execute("ALTER TABLE products ADD COLUMN status TEXT DEFAULT 'draft'")
+        # 1. Create Products table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS products (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            description_english TEXT,
+            description_hindi TEXT,
+            category TEXT,
+            material TEXT,
+            dimensions TEXT,
+            production_time TEXT,
+            tags TEXT,
+            story TEXT,
+            sentiment TEXT,
+            narrative_type TEXT,
+            image_url TEXT,
+            enhanced_image_url TEXT,
+            suggested_price_min REAL,
+            suggested_price_max REAL,
+            artisan_id TEXT,
+            artisan_name TEXT,
+            location TEXT,
+            status TEXT DEFAULT 'draft',
+            created_at TEXT
+        )
+        """)
+
+        # 2. Ensure products status column exists
+        product_columns = {
+            row["name"]
+            for row in cursor.execute(
+                "PRAGMA table_info(products)"
+            ).fetchall()
+        }
+
+        if "status" not in product_columns:
+            cursor.execute("""
+                ALTER TABLE products
+                ADD COLUMN status TEXT DEFAULT 'draft'
+            """)
+
+        # 3. Create Users table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            phone TEXT,
+            role TEXT,
+            region TEXT,
+            password_hash TEXT,
+            created_at TEXT
+        )
+        """)
+
+        # 4. Migrate existing Users table
+        # Add password_hash only if it does not already exist
+        user_columns = {
+            row["name"]
+            for row in cursor.execute(
+                "PRAGMA table_info(users)"
+            ).fetchall()
+        }
+
+        if "password_hash" not in user_columns:
+            cursor.execute("""
+                ALTER TABLE users
+                ADD COLUMN password_hash TEXT
+            """)
+
+        # 5. Create Artisan Profiles table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS artisan_profiles (
+            id TEXT PRIMARY KEY,
+            user_id TEXT,
+            artisan_name TEXT,
+            craft_type TEXT,
+            location TEXT,
+            bio TEXT,
+            phone TEXT,
+            story_style TEXT
+        )
+        """)
+
+        # 6. Create Buyers table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS buyers (
+            id TEXT PRIMARY KEY,
+            user_id TEXT,
+            buyer_name TEXT,
+            organization TEXT,
+            buyer_type TEXT,
+            contact_email TEXT
+        )
+        """)
+
+        # 7. Create Order Requests table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id TEXT PRIMARY KEY,
+            product_id TEXT,
+            product_title TEXT,
+            artisan_id TEXT,
+            buyer_name TEXT,
+            buyer_contact TEXT,
+            quantity INTEGER,
+            notes TEXT,
+            price_offered REAL,
+            status TEXT,
+            created_at TEXT
+        )
+        """)
+
+        # 8. Save database changes
+        conn.commit()
+
     except Exception:
-        pass  # Column already exists
+        conn.rollback()
+        raise
 
-    # Create Users table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        phone TEXT,
-        role TEXT,
-        region TEXT,
-        created_at TEXT
-    )
-    """)
-
-    # Create Artisan Profiles table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS artisan_profiles (
-        id TEXT PRIMARY KEY,
-        user_id TEXT,
-        artisan_name TEXT,
-        craft_type TEXT,
-        location TEXT,
-        bio TEXT,
-        phone TEXT,
-        story_style TEXT
-    )
-    """)
-
-    # Create Buyers table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS buyers (
-        id TEXT PRIMARY KEY,
-        user_id TEXT,
-        buyer_name TEXT,
-        organization TEXT,
-        buyer_type TEXT,
-        contact_email TEXT
-    )
-    """)
-
-    # Create Order Requests table
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS orders (
-        id TEXT PRIMARY KEY,
-        product_id TEXT,
-        product_title TEXT,
-        artisan_id TEXT,
-        buyer_name TEXT,
-        buyer_contact TEXT,
-        quantity INTEGER,
-        notes TEXT,
-        price_offered REAL,
-        status TEXT,
-        created_at TEXT
-    )
-    """)
-
-    conn.commit()
-    conn.close()
+    finally:
+        conn.close()
 
 
 class ProductRepository:

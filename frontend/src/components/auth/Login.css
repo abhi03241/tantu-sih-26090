@@ -1,0 +1,216 @@
+
+.login-screen {
+  width: 100%;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 12px;
+  background: linear-gradient(
+    145deg,
+    #fffaf2,
+    #fff1df,
+    #ffffff
+  );
+}
+
+.login-card {
+  width: 100%;
+  max-width: 390px;
+  padding: 28px 20px;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 26px;
+  box-shadow: var(--shadow-lg);
+}
+
+.login-brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.login-logo {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  border-radius: 22px;
+  background: var(--primary-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-brand h1 {
+  color: var(--terracotta-dark);
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.login-hindi {
+  color: var(--terracotta);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.login-tagline {
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.login-heading {
+  margin-bottom: 20px;
+}
+
+.login-heading h2 {
+  font-size: 23px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.login-heading p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.login-role-section {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.login-role-card {
+  width: 100%;
+  min-height: 90px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  border: 1.5px solid var(--border-light);
+  border-radius: 17px;
+  background: #ffffff;
+}
+
+.login-role-card:hover {
+  border-color: var(--terracotta);
+  background: var(--primary-50);
+}
+
+.login-role-card.selected {
+  border: 2px solid var(--terracotta);
+  background: #fff7ed;
+}
+
+.login-role-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+}
+
+.artisan-icon {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.buyer-icon {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.login-role-info {
+  flex: 1;
+}
+
+.login-role-info h3 {
+  font-size: 15px;
+  font-weight: 750;
+  color: var(--text-main);
+}
+
+.login-role-info p {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.login-check {
+  color: var(--terracotta);
+  flex-shrink: 0;
+}
+
+.login-continue-btn {
+  width: 100%;
+  min-height: 55px;
+  margin-top: 25px;
+  padding: 12px 20px;
+  border-radius: 15px;
+  background: linear-gradient(
+    135deg,
+    var(--terracotta),
+    var(--primary-600)
+  );
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 750;
+  box-shadow: var(--shadow-md);
+}
+
+.login-continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.login-voice-btn {
+  width: 100%;
+  margin-top: 18px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--terracotta-dark);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-light);
+}
+
+.login-footer p {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.login-footer small {
+  display: block;
+  margin-top: 7px;
+  font-size: 10px;
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+@media (max-width: 360px) {
+  .login-card {
+    padding: 22px 14px;
+  }
+
+  .login-role-card {
+    padding: 12px 10px;
+  }
+}
