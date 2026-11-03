@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Sparkles, Plus, MapPin, Volume2, ArrowRight, Eye, CheckCircle2, ChevronRight, Package, Inbox } from 'lucide-react';
+import { Sparkles, Mic, MapPin, Volume2, ArrowRight, ChevronRight, Inbox } from 'lucide-react';
 
 export default function ArtisanHome() {
   const { artisanProfile, products, orders, navigateTo, speakText, t } = useApp();
@@ -19,7 +19,7 @@ export default function ArtisanHome() {
 
   return (
     <div>
-      {/* Artisan Hero Banner */}
+      {/* Artisan greeting card */}
       <div className="artisan-hero-card">
         <div className="artisan-avatar-row">
           <div className="artisan-profile-badge">
@@ -27,12 +27,13 @@ export default function ArtisanHome() {
             <div>
               <div className="artisan-name">{artisanProfile.name}</div>
               <div className="artisan-location">
-                <MapPin size={13} color="#EA580C" />
+                <MapPin size={13} />
                 <span>{artisanProfile.location}</span>
               </div>
             </div>
           </div>
           <button
+            type="button"
             className="tts-speaker-btn"
             onClick={handleReadGuide}
             title="Read summary aloud"
@@ -42,20 +43,30 @@ export default function ArtisanHome() {
           </button>
         </div>
 
-        <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: '1.45', marginTop: '4px' }}>
+        {artisanProfile.craft && (
+          <span className="vk-tag vk-tag-gold">{artisanProfile.craft}</span>
+        )}
+
+        <p className="ah-welcome">
           {t('welcomeBack')}
         </p>
       </div>
 
-      {/* Giant CTA: Add Product via Voice & Photo */}
+      {/* Main call to action: add a product with voice & photo */}
       <div
         className="big-action-card"
         onClick={() => navigateTo('add-wizard')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            navigateTo('add-wizard');
+          }
+        }}
         role="button"
         tabIndex={0}
       >
         <div className="big-action-icon-circle">
-          <Plus size={36} strokeWidth={3} />
+          <Mic size={30} />
         </div>
         <h2 className="big-action-title">
           {t('addNewCraft')}
@@ -64,111 +75,105 @@ export default function ArtisanHome() {
           {t('addNewCraftSub')}
         </p>
         <div className="big-action-btn-pill">
-          <Sparkles size={18} color="#C84B20" />
+          <Sparkles size={18} />
           <span>{t('startNow')}</span>
           <ArrowRight size={18} />
         </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Metrics */}
       <div className="metrics-row">
-        <div className="metric-card" onClick={() => navigateTo('my-products')} style={{ cursor: 'pointer' }}>
+        <div className="metric-card is-clickable" onClick={() => navigateTo('my-products')}>
           <div className="metric-value">{myProducts.length}</div>
           <div className="metric-label">{t('totalProducts')}</div>
         </div>
 
-        <div className="metric-card" onClick={() => navigateTo('orders')} style={{ cursor: 'pointer' }}>
-          <div className="metric-value" style={{ color: pendingOrders.length > 0 ? '#EA580C' : 'var(--text-main)' }}>
+        <div className="metric-card is-clickable" onClick={() => navigateTo('orders')}>
+          <div className={`metric-value ${pendingOrders.length > 0 ? 'is-alert' : ''}`}>
             {pendingOrders.length}
           </div>
           <div className="metric-label">{t('activeOrders')}</div>
         </div>
 
         <div className="metric-card">
-          <div className="metric-value" style={{ color: '#059669', fontSize: '1.15rem' }}>
+          <div className="metric-value is-money">
             ₹{(totalEarningsEst || 45000).toLocaleString('en-IN')}
           </div>
           <div className="metric-label">{t('estEarnings')}</div>
         </div>
       </div>
 
-      {/* Order Inquiries Alert if any */}
+      {/* New order alert */}
       {pendingOrders.length > 0 && (
-        <div
+        <button
+          type="button"
+          className="ah-alert"
           onClick={() => navigateTo('orders')}
-          style={{
-            background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
-            border: '1.5px solid #F59E0B',
-            borderRadius: '16px',
-            padding: '14px 16px',
-            marginBottom: '22px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            cursor: 'pointer'
-          }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF' }}>
+          <span className="ah-alert-main">
+            <span className="ah-alert-icon">
               <Inbox size={20} />
-            </div>
-            <div>
-              <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#92400E' }}>
+            </span>
+            <span>
+              <span className="ah-alert-title">
                 {pendingOrders.length} नया थोक ऑर्डर अनुरोध आया है!
-              </div>
-              <div style={{ fontSize: '0.78rem', color: '#B45309' }}>
+              </span>
+              <span className="ah-alert-sub">
                 {pendingOrders[0].buyer_name} ({pendingOrders[0].quantity} इकाइयाँ)
-              </div>
-            </div>
-          </div>
-          <ChevronRight size={18} color="#92400E" />
-        </div>
+              </span>
+            </span>
+          </span>
+          <ChevronRight size={18} />
+        </button>
       )}
 
-      {/* Recent Uploads Section */}
+      {/* Recent uploads */}
       <div className="section-header-row">
         <h3 className="section-title">{t('recentUploads')}</h3>
-        <button className="section-link" onClick={() => navigateTo('my-products')}>
+        <button type="button" className="section-link" onClick={() => navigateTo('my-products')}>
           {t('viewAll')} ({myProducts.length})
         </button>
       </div>
 
-      <div className="products-grid">
+      <div className="ah-list">
         {myProducts.slice(0, 3).map((product) => (
           <div
             key={product.id}
-            className="artisan-product-card"
+            className="ah-item"
+            role="button"
+            tabIndex={0}
             onClick={() => navigateTo('product-detail', product.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigateTo('product-detail', product.id);
+              }
+            }}
           >
-            <div className="product-img-wrapper">
-              <img
-                src={product.enhanced_image_url || product.image_url}
-                alt={product.title}
-                className="product-img"
-              />
-              <span className="badge-ai-enhanced">
-                <Sparkles size={12} />
-                <span>AI Enhanced</span>
-              </span>
-              <span className="badge-category">{product.category}</span>
-            </div>
+            <img
+              src={product.enhanced_image_url || product.image_url}
+              alt={product.title}
+            />
 
-            <div className="product-card-body">
-              <h4 className="product-card-title">{product.title}</h4>
+            <div className="ah-item-body">
+              {product.category && (
+                <span className="vk-eyebrow ah-item-cat">{product.category}</span>
+              )}
+              <h4 className="ah-item-title">{product.title}</h4>
               {product.description_hindi && (
-                <p className="product-card-hindi">{product.description_hindi}</p>
+                <p className="ah-item-hindi">{product.description_hindi}</p>
               )}
 
-              <div className="product-card-footer">
+              <div className="ah-item-foot">
                 <div className="price-tag-wrap">
                   <span className="price-label">{t('suggestedPrice')}</span>
-                  <span className="price-value">
+                  <span className="ah-item-price">
                     ₹{product.suggested_price_min || 650} - ₹{product.suggested_price_max || 950}
                   </span>
                 </div>
-                <button className="btn-card-action">
+                <span className="btn-card-action">
                   <span>विवरण देखें</span>
-                </button>
+                </span>
               </div>
             </div>
           </div>

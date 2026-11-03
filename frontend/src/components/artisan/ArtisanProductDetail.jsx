@@ -61,7 +61,7 @@ export default function ArtisanProductDetail({ productId, onBack }) {
             className={`toggle-btn ${viewEnhanced ? 'active' : ''}`}
             onClick={() => setViewEnhanced(true)}
           >
-            <Sparkles size={14} color="#EA580C" />
+            <Sparkles size={14} color="#244B3C" />
             <span>{t('viewEnhanced')}</span>
           </button>
           <button
@@ -99,15 +99,15 @@ export default function ArtisanProductDetail({ productId, onBack }) {
           {/* Specs Row */}
           <div className="spec-pills-row">
             <span className="spec-pill">
-              <Layers size={13} color="#EA580C" />
+              <Layers size={13} color="#244B3C" />
               <span>{product.material}</span>
             </span>
             <span className="spec-pill">
-              <Ruler size={13} color="#EA580C" />
+              <Ruler size={13} color="#244B3C" />
               <span>{product.dimensions || '30cm x 30cm'}</span>
             </span>
             <span className="spec-pill">
-              <Clock size={13} color="#EA580C" />
+              <Clock size={13} color="#244B3C" />
               <span>{product.production_time || '3 days'}</span>
             </span>
           </div>
@@ -119,8 +119,8 @@ export default function ArtisanProductDetail({ productId, onBack }) {
                 <span
                   key={i}
                   style={{
-                    background: '#F1F5F9',
-                    color: '#475569',
+                    background: '#E8F0E9',
+                    color: '#244B3C',
                     padding: '4px 10px',
                     borderRadius: '8px',
                     fontSize: '0.74rem',
@@ -136,11 +136,11 @@ export default function ArtisanProductDetail({ productId, onBack }) {
           {/* Heritage Story & Sentiment */}
           <div className="catalog-story-box">
             <div className="story-heading">
-              <Heart size={14} color="#D97706" />
+              <Heart size={14} color="#C59B45" />
               <span>{t('heritageStory')}</span>
             </div>
             <p className="story-text">"{product.story}"</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '0.75rem', color: '#92400E', fontWeight: 600 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', fontSize: '0.75rem', color: '#7B5901', fontWeight: 600 }}>
               <span>शैली: {product.narrative_type || 'Cultural Heritage'}</span>
               <span>संवेदना: {product.sentiment || 'Warm, authentic'}</span>
             </div>
@@ -150,7 +150,7 @@ export default function ArtisanProductDetail({ productId, onBack }) {
           <div className="pricing-highlight-box">
             <div>
               <div className="pricing-title">{t('suggestedPrice')}</div>
-              <div style={{ fontSize: '0.75rem', color: '#065F46' }}>
+              <div style={{ fontSize: '0.75rem', color: '#244B3C' }}>
                 पारदर्शी व उचित कारीगर दर
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function ArtisanProductDetail({ productId, onBack }) {
                     style={{
                       background: 'var(--primary-50)',
                       border: '1px solid var(--primary-200)',
-                      borderRadius: '12px',
+                      borderRadius: '8px',
                       padding: '10px 14px',
                       display: 'flex',
                       alignItems: 'center',
@@ -195,9 +195,9 @@ export default function ArtisanProductDetail({ productId, onBack }) {
                         fontSize: '0.72rem',
                         fontWeight: 700,
                         padding: '3px 8px',
-                        borderRadius: '999px',
-                        background: ord.status === 'accepted' ? '#D1FAE5' : '#FEF3C7',
-                        color: ord.status === 'accepted' ? '#065F46' : '#92400E'
+                        borderRadius: '4px',
+                        background: ord.status === 'accepted' ? '#E8F0E9' : '#F6EDD6',
+                        color: ord.status === 'accepted' ? '#244B3C' : '#7B5901'
                       }}
                     >
                       {ord.status === 'accepted' ? 'स्वीकृत' : 'लंबित'}
@@ -217,7 +217,7 @@ export default function ArtisanProductDetail({ productId, onBack }) {
               navigateTo('buyer-product-detail', product.id);
             }}
           >
-            <ShoppingBag size={18} color="#EA580C" />
+            <ShoppingBag size={18} color="#244B3C" />
             <span>खरीदार के रूप में देखें (View as Buyer)</span>
           </button>
         </div>

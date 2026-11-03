@@ -1,0 +1,1075 @@
+/* ==========================================================================
+   ShilpVani - "Vriksh Contemporary" design system (from Google Stitch)
+   --------------------------------------------------------------------------
+   This file is loaded AFTER index.css (see main.jsx), so it re-themes the
+   app by overriding the design tokens and the shared classes that already
+   exist. No JSX class names are renamed in Stage 1.
+
+   Sections
+     1. Design tokens (colours, fonts, radius, shadow)
+     2. Base + app shell
+     3. Header and bottom navigation
+     4. Buttons, chips, badges
+     5. Cards (artisan hero, metrics, product cards)
+     6. Search, modal, toast
+     7. New reusable helper classes (vk-*) used by later stages
+   ========================================================================== */
+
+
+/* ---------- 1. DESIGN TOKENS ------------------------------------------- */
+:root {
+  /* The old orange "primary" scale now maps to the forest-green scale, so every
+     existing var(--primary-xxx) in your CSS/JSX turns green automatically. */
+  --primary-50:  #F5F7F3;
+  --primary-100: #E8F0E9;
+  --primary-200: #C9DDD2;
+  --primary-300: #A6D0BC;
+  --primary-400: #6E9A86;
+  --primary-500: #3F6656;
+  --primary-600: #2F5A49;
+  --primary-700: #244B3C;   /* Stitch primary accent */
+  --primary-800: #1B392E;   /* Stitch primary hover  */
+  --primary-900: #0A3426;
+
+  /* Old artisanal accents -> green / gold */
+  --terracotta:      #244B3C;
+  --terracotta-dark: #1B392E;
+  --saffron:         #C59B45;
+  --saffron-light:   #F6EDD6;
+  --turmeric:        #C59B45;
+  --royal-indigo:    #242B27;
+  --indigo-dark:     #244B3C;
+  --emerald-green:   #3F7D5F;
+  --emerald-light:   #E3F1E8;
+  --brass-gold:      #C59B45;
+
+  /* Stitch-only tokens (used by the new vk-* classes) */
+  --vk-canvas:       #F5F7F3;
+  --vk-surface:      #FFFFFF;
+  --vk-hairline:     #E5E9E5;
+  --vk-ink:          #242B27;
+  --vk-ink-soft:     #737B75;
+  --vk-gold:         #C59B45;
+  --vk-gold-deep:    #7B5901;
+  --vk-gold-wash:    #F6EDD6;
+  --vk-green:        #244B3C;
+  --vk-green-hover:  #1B392E;
+  --vk-green-wash:   #E8F0E9;
+  --vk-danger:       #BA1A1A;
+  --vk-danger-wash:  #FFDAD6;
+
+  /* Neutrals */
+  --bg-sand:       #F5F7F3;
+  --bg-card:       #FFFFFF;
+  --bg-card-hover: #F5F7F3;
+  --text-main:     #242B27;
+  --text-muted:    #5A625D;
+  --text-light:    #737B75;
+  --border-light:  #E5E9E5;
+  --border-focus:  #244B3C;
+
+  /* Flat architecture: almost no shadow */
+  --shadow-sm:   none;
+  --shadow-md:   0 4px 20px -2px rgba(36, 43, 39, 0.05);
+  --shadow-lg:   0 4px 20px -2px rgba(36, 43, 39, 0.08);
+  --shadow-xl:   0 8px 28px -4px rgba(36, 43, 39, 0.10);
+  --shadow-glow: none;
+
+  /* Radius: 4px controls, 8px cards. --radius-full stays 9999px but is only
+     meant for true circles (avatars, mic buttons); pill shapes are overridden below. */
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-full: 9999px;
+
+  /* Typography: Plus Jakarta Sans (headings) + Inter (body) + Noto (Indic scripts) */
+  --font-sans:    'Inter', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-hindi:   'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans', sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Noto Sans', sans-serif;
+}
+
+
+/* ---------- 2. BASE + APP SHELL ---------------------------------------- */
+html, body {
+  /* Latin letters use Inter; Devanagari etc. fall back to the Noto fonts. */
+  font-family: 'Inter', var(--font-hindi), var(--font-sans);
+  background-color: var(--vk-canvas);
+  color: var(--vk-ink);
+}
+
+h1, h2, h3, h4,
+.brand-title, .section-title, .artisan-name, .big-action-title, .wizard-title,
+.modal-title, .product-card-title, .metric-value, .price-value, .buyer-hero-title {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--vk-green);
+  outline-offset: 2px;
+}
+
+.app-viewport-wrapper {
+  background: #EDF1ED;
+}
+
+.app-viewport-wrapper.device-mode {
+  background: #1B2420;
+}
+
+.app-container {
+  background: var(--vk-canvas);
+  box-shadow: 0 0 0 1px var(--vk-hairline);
+}
+
+.device-mode .app-container {
+  border-color: #242B27;
+}
+
+.app-main-content {
+  padding: 16px 20px calc(96px + env(safe-area-inset-bottom)) 20px;
+}
+
+
+/* ---------- 3. HEADER + BOTTOM NAVIGATION ------------------------------ */
+.app-header {
+  background: rgba(245, 247, 243, 0.92);
+  border-bottom: 1px solid var(--vk-hairline);
+  box-shadow: 0 4px 20px -2px rgba(36, 43, 39, 0.05);
+  padding: 10px 20px;
+}
+
+.brand-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  box-shadow: none;
+  color: var(--vk-green);
+}
+
+.brand-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--vk-green);
+}
+
+.brand-subtitle {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--vk-gold-deep);
+}
+
+.pill-btn {
+  border-radius: 4px;
+  border: 1px solid var(--vk-hairline);
+  background: var(--vk-surface);
+  color: var(--vk-ink);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.pill-btn:hover {
+  background: var(--vk-canvas);
+  border-color: var(--vk-green);
+}
+
+.pill-btn.role-badge {
+  background: var(--vk-green-wash);
+  color: var(--vk-green);
+  border-color: var(--primary-300);
+}
+
+.pill-btn.role-badge.buyer {
+  background: var(--vk-gold-wash);
+  color: var(--vk-gold-deep);
+  border-color: var(--vk-gold);
+}
+
+.bottom-nav {
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid var(--vk-hairline);
+  box-shadow: 0 -4px 20px -2px rgba(36, 43, 39, 0.05);
+}
+
+.nav-item {
+  border-radius: 4px;
+  color: var(--vk-ink-soft);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.nav-item.active {
+  color: var(--vk-green);
+}
+
+.nav-item.active .nav-icon-wrap {
+  background: var(--vk-green);
+  color: #FFFFFF;
+  transform: none;
+}
+
+.nav-icon-wrap {
+  border-radius: 4px;
+}
+
+.nav-center-action {
+  background: var(--vk-green);
+  border: 3px solid var(--vk-canvas);
+  box-shadow: 0 4px 20px -2px rgba(36, 43, 39, 0.25);
+  border-radius: 4px;
+}
+
+.nav-center-action:hover {
+  background: var(--vk-green-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px -2px rgba(36, 43, 39, 0.30);
+}
+
+
+/* ---------- 4. BUTTONS, CHIPS, BADGES ---------------------------------- */
+.btn-primary-large {
+  min-height: 48px;
+  border-radius: 4px;
+  background: var(--vk-green);
+  border: 1px solid var(--vk-green);
+  box-shadow: none;
+  font-size: 0.98rem;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary-large:hover {
+  background: var(--vk-green-hover);
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary-large {
+  min-height: 48px;
+  border-radius: 4px;
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  color: var(--vk-ink);
+}
+
+.btn-secondary-large:hover {
+  background: var(--vk-canvas);
+  border-color: var(--vk-green);
+}
+
+.btn-card-action {
+  background: var(--vk-surface);
+  color: var(--vk-green);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 4px;
+}
+
+.btn-card-action:hover {
+  border-color: var(--vk-green);
+  background: var(--vk-canvas);
+}
+
+.category-chip {
+  border-radius: 4px;
+  border: 1px solid var(--vk-hairline);
+  background: var(--vk-surface);
+  color: var(--vk-ink);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  padding: 7px 14px;
+}
+
+.category-chip.active {
+  background: var(--vk-green);
+  border-color: var(--vk-green);
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+/* Small text badges on product images */
+.badge-category {
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  color: var(--vk-gold-deep);
+  border-radius: 4px;
+  backdrop-filter: none;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.badge-ai-enhanced {
+  background: var(--vk-green);
+  color: #FFFFFF;
+  border-radius: 4px;
+  backdrop-filter: none;
+}
+
+.tts-speaker-btn {
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 4px;
+  color: var(--vk-green);
+  box-shadow: none;
+}
+
+.tts-speaker-btn.speaking {
+  background: var(--vk-green);
+  color: #FFFFFF;
+}
+
+
+/* ---------- 5. CARDS ---------------------------------------------------- */
+.artisan-hero-card {
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+}
+
+.artisan-hero-card::after {
+  display: none;
+}
+
+.artisan-img {
+  border: 1px solid var(--vk-hairline);
+  outline: 2px solid var(--vk-green-wash);
+}
+
+/* The large "Add craft" call-to-action becomes a flat forest-green panel */
+.big-action-card {
+  background: var(--vk-green);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.big-action-card:hover {
+  background: var(--vk-green-hover);
+  transform: none;
+  box-shadow: none;
+}
+
+.big-action-icon-circle {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 4px;
+  backdrop-filter: none;
+}
+
+.big-action-btn-pill {
+  background: #FFFFFF;
+  color: var(--vk-green);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.metric-card {
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.metric-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.artisan-product-card {
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.artisan-product-card:hover {
+  transform: none;
+  box-shadow: 0 4px 20px -2px rgba(36, 43, 39, 0.08);
+  border-color: var(--vk-green);
+}
+
+.product-img-wrapper {
+  background: var(--vk-green-wash);
+}
+
+.product-card-footer {
+  border-top: 1px solid var(--vk-hairline);
+}
+
+.price-label {
+  letter-spacing: 0.08em;
+}
+
+.price-value {
+  color: var(--vk-ink);
+}
+
+.section-link {
+  color: var(--vk-green);
+}
+
+.section-link:hover {
+  text-decoration: underline;
+}
+
+/* Wizard step indicators (shared) */
+.step-dot {
+  border-radius: 4px;
+  background: var(--vk-hairline);
+}
+
+.step-dot.active {
+  background: var(--vk-green);
+  box-shadow: none;
+}
+
+.step-line {
+  background: var(--vk-hairline);
+}
+
+
+/* ---------- 6. SEARCH, MODAL, TOAST ------------------------------------ */
+.search-input {
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid var(--vk-hairline);
+  box-shadow: none;
+}
+
+.search-input:focus {
+  border-color: var(--vk-green);
+  box-shadow: none;
+}
+
+.modal-backdrop {
+  background: rgba(36, 43, 39, 0.24);
+  backdrop-filter: none;
+}
+
+.modal-content-sheet {
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -4px 20px -2px rgba(36, 43, 39, 0.10);
+}
+
+.modal-close-btn {
+  border-radius: 4px;
+  background: var(--vk-canvas);
+  border: 1px solid var(--vk-hairline);
+}
+
+.toast-floating {
+  background: var(--vk-ink);
+  border-radius: 4px;
+  box-shadow: 0 4px 20px -2px rgba(36, 43, 39, 0.25);
+}
+
+
+/* ---------- 7. REUSABLE HELPERS FOR LATER STAGES ------------------------ */
+/* Small gold uppercase label above a heading */
+.vk-eyebrow {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vk-gold-deep);
+}
+
+/* White container with a hairline border */
+.vk-card {
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* Quiet sage panel */
+.vk-panel {
+  background: var(--vk-green-wash);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* Text tag (material, region, etc.) */
+.vk-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--vk-canvas);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 4px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vk-ink-soft);
+}
+
+/* Gold outlined "verified / GI" tag */
+.vk-tag-gold {
+  background: var(--vk-surface);
+  border-color: var(--vk-gold);
+  color: var(--vk-gold-deep);
+}
+
+/* Buttons */
+.vk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 4px;
+  border: 1px solid var(--vk-green);
+  background: var(--vk-green);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.vk-btn:hover {
+  background: var(--vk-green-hover);
+}
+
+.vk-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.vk-btn-outline {
+  background: var(--vk-surface);
+  color: var(--vk-ink);
+  border-color: var(--vk-hairline);
+}
+
+.vk-btn-outline:hover {
+  background: var(--vk-canvas);
+  border-color: var(--vk-green);
+}
+
+.vk-btn-block {
+  width: 100%;
+}
+
+/* Form controls */
+.vk-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 4px;
+  color: var(--vk-ink);
+  font-size: 16px;
+}
+
+.vk-input::placeholder {
+  color: var(--vk-ink-soft);
+}
+
+.vk-input:focus {
+  border-color: var(--vk-green);
+}
+
+/* Small status dot + text, e.g. "In Studio" */
+.vk-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--vk-ink-soft);
+}
+
+.vk-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vk-green);
+}
+
+.vk-status.is-made-to-order::before {
+  background: var(--vk-gold);
+}
+
+
+/* ---------- 8. HEADER + NAV (Stage 2) ---------------------------------- */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.header-brand .brand-title {
+  display: block;
+  font-size: 1.1rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.brand-divider {
+  width: 1px;
+  height: 16px;
+  background: #C1C8C3;
+}
+
+.brand-role {
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vk-gold-deep);
+}
+
+.header-actions {
+  gap: 6px;
+}
+
+.header-actions .pill-btn {
+  height: 36px;
+  padding: 0 10px;
+  justify-content: center;
+}
+
+.header-actions .pill-btn.speaking {
+  background: var(--vk-green);
+  border-color: var(--vk-green);
+  color: #FFFFFF;
+}
+
+.header-logout {
+  color: var(--vk-danger);
+  border-color: #F0B8B2;
+}
+
+.header-logout:hover {
+  background: var(--vk-danger-wash);
+  border-color: var(--vk-danger);
+}
+
+/* Language dropdown */
+.lang-menu-wrap {
+  position: relative;
+}
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  width: 200px;
+  padding: 6px;
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px -2px rgba(36, 43, 39, 0.12);
+}
+
+.lang-menu-title {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--vk-hairline);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--vk-ink-soft);
+}
+
+.lang-menu-list {
+  max-height: 240px;
+  overflow-y: auto;
+  padding-top: 4px;
+}
+
+.lang-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--vk-ink);
+}
+
+.lang-menu-item small {
+  font-size: 0.68rem;
+  color: var(--vk-ink-soft);
+}
+
+.lang-menu-item:hover {
+  background: var(--vk-canvas);
+}
+
+.lang-menu-item.active {
+  background: var(--vk-green-wash);
+  color: var(--vk-green);
+  font-weight: 700;
+}
+
+/* Pending orders badge on the bottom nav */
+.nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vk-gold-deep);
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  border-radius: 9px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+
+/* ---------- 10. ARTISAN HOME (Stage 5) --------------------------------- */
+.artisan-location svg {
+  color: var(--vk-green);
+}
+
+.ah-welcome {
+  margin-top: 12px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.big-action-card .big-action-title,
+.big-action-card .big-action-sub {
+  color: #FFFFFF;
+}
+
+.metric-card.is-clickable {
+  cursor: pointer;
+}
+
+.metric-card.is-clickable:hover {
+  border-color: var(--vk-green);
+}
+
+.metric-value.is-alert {
+  color: var(--vk-gold-deep);
+}
+
+.metric-value.is-money {
+  font-size: 1.1rem;
+  color: var(--vk-green);
+}
+
+/* New order alert */
+.ah-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 22px;
+  padding: 12px 14px;
+  text-align: left;
+  background: var(--vk-gold-wash);
+  border: 1px solid var(--vk-gold);
+  border-radius: 8px;
+  color: var(--vk-gold-deep);
+  cursor: pointer;
+}
+
+.ah-alert:hover {
+  background: #F1E4BF;
+}
+
+.ah-alert-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ah-alert-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vk-gold-deep);
+  color: #FFFFFF;
+  border-radius: 4px;
+}
+
+.ah-alert-title,
+.ah-alert-sub {
+  display: block;
+}
+
+.ah-alert-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #5D4200;
+}
+
+.ah-alert-sub {
+  margin-top: 2px;
+  font-size: 0.76rem;
+  color: var(--vk-gold-deep);
+}
+
+/* Recent uploads list */
+.ah-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ah-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ah-item:hover,
+.ah-item:focus-visible {
+  border-color: var(--vk-green);
+}
+
+.ah-item img {
+  width: 88px;
+  height: 110px;
+  flex-shrink: 0;
+  object-fit: cover;
+  background: var(--vk-green-wash);
+  border-radius: 4px;
+}
+
+.ah-item-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ah-item-cat {
+  font-size: 0.56rem;
+}
+
+.ah-item-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--vk-ink);
+}
+
+.ah-item-hindi {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.ah-item-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ah-item-price {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--vk-ink);
+}
+
+.ah-item-foot .btn-card-action {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+
+
+/* ---------- 11. REMAINING SCREENS (Stage 6) ---------------------------- */
+/* Add-product wizard: photo upload */
+.upload-dropzone {
+  background: var(--vk-surface);
+  border: 1.5px dashed var(--primary-300);
+  border-radius: 8px;
+}
+
+.upload-dropzone:hover {
+  background: var(--vk-canvas);
+  border-color: var(--vk-green);
+}
+
+.photo-preview-box {
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+/* Wizard: voice recorder */
+.voice-recorder-container {
+  background: var(--vk-surface);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+}
+
+.mic-circle-btn {
+  background: var(--vk-green);
+  box-shadow: none;
+}
+
+.mic-circle-btn.recording {
+  background: var(--vk-danger);
+}
+
+.mic-pulse-wave {
+  border-color: rgba(36, 75, 60, 0.4);
+}
+
+/* Wizard: AI processing panel (deep green instead of navy) */
+.ai-processing-container {
+  background: var(--vk-green);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.ai-sparkle-badge {
+  background: rgba(197, 155, 69, 0.2);
+  border: 1px solid rgba(197, 155, 69, 0.5);
+  border-radius: 4px;
+  color: #F3D58B;
+}
+
+.ai-processing-sub,
+.stage-desc {
+  color: #A6D0BC;
+}
+
+.ai-stage-item {
+  border-radius: 8px;
+}
+
+.ai-stage-item.completed {
+  background: rgba(166, 208, 188, 0.14);
+  border-color: rgba(166, 208, 188, 0.35);
+}
+
+.ai-stage-item.in-progress {
+  background: rgba(197, 155, 69, 0.16);
+  border-color: rgba(197, 155, 69, 0.5);
+  box-shadow: none;
+}
+
+.stage-icon-box {
+  border-radius: 4px;
+  color: #A6D0BC;
+}
+
+.ai-stage-item.completed .stage-icon-box {
+  background: #A6D0BC;
+  color: var(--primary-900);
+}
+
+.ai-stage-item.in-progress .stage-icon-box {
+  background: var(--vk-gold);
+  color: #FFFFFF;
+}
+
+.ai-overall-progress-bar {
+  border-radius: 4px;
+}
+
+.ai-progress-fill {
+  background: var(--vk-gold);
+}
+
+/* Catalogue preview (wizard + product detail screens) */
+.catalog-display-card {
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.comparison-toggle-bar {
+  background: var(--vk-green-wash);
+}
+
+.toggle-btn {
+  border-radius: 4px;
+}
+
+.toggle-btn.active {
+  background: var(--vk-surface);
+  color: var(--vk-green);
+}
+
+.catalog-title {
+  font-family: var(--font-display);
+}
+
+.spec-pill {
+  background: var(--vk-canvas);
+  border-radius: 4px;
+}
+
+.catalog-story-box {
+  background: var(--vk-gold-wash);
+  border-left: 3px solid var(--vk-gold);
+  border-radius: 0 4px 4px 0;
+}
+
+.story-heading {
+  color: var(--vk-gold-deep);
+}
+
+.pricing-highlight-box {
+  background: var(--vk-green-wash);
+  border: 1px solid var(--vk-hairline);
+  border-radius: 8px;
+}
+
+.pricing-title {
+  color: var(--vk-ink-soft);
+}
+
+.pricing-range {
+  color: var(--vk-green);
+}

@@ -52,7 +52,7 @@ export default function BulkOrderModal({ product, onClose }) {
       <div className="modal-content-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header-row">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: 34, height: 34, borderRadius: '10px', background: 'var(--primary-100)', color: 'var(--primary-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 34, height: 34, borderRadius: '4px', background: 'var(--primary-100)', color: 'var(--primary-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ShoppingBag size={18} />
             </div>
             <div>
@@ -72,7 +72,7 @@ export default function BulkOrderModal({ product, onClose }) {
             alignItems: 'center',
             gap: '12px',
             background: 'var(--bg-sand)',
-            borderRadius: '14px',
+            borderRadius: '8px',
             padding: '10px 12px',
             marginBottom: '16px'
           }}
@@ -80,7 +80,7 @@ export default function BulkOrderModal({ product, onClose }) {
           <img
             src={product.enhanced_image_url || product.image_url}
             alt={product.title}
-            style={{ width: '48px', height: '48px', borderRadius: '10px', objectFit: 'cover' }}
+            style={{ width: '48px', height: '48px', borderRadius: '4px', objectFit: 'cover' }}
           />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: '0.88rem', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -118,7 +118,7 @@ export default function BulkOrderModal({ product, onClose }) {
                   textAlign: 'center',
                   fontSize: '1.2rem',
                   fontWeight: 800,
-                  borderRadius: '12px',
+                  borderRadius: '8px',
                   border: '1.5px solid var(--border-light)'
                 }}
               />
@@ -174,7 +174,7 @@ export default function BulkOrderModal({ product, onClose }) {
                 width: '100%',
                 height: '42px',
                 padding: '8px 14px',
-                borderRadius: '12px',
+                borderRadius: '8px',
                 border: '1.5px solid var(--border-light)',
                 fontWeight: 700
               }}
@@ -192,7 +192,7 @@ export default function BulkOrderModal({ product, onClose }) {
                 required
                 value={buyerName}
                 onChange={(e) => setBuyerName(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '12px', border: '1.5px solid var(--border-light)', fontSize: '0.85rem' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1.5px solid var(--border-light)', fontSize: '0.85rem' }}
               />
             </div>
             <div>
@@ -204,7 +204,7 @@ export default function BulkOrderModal({ product, onClose }) {
                 required
                 value={buyerContact}
                 onChange={(e) => setBuyerContact(e.target.value)}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: '12px', border: '1.5px solid var(--border-light)', fontSize: '0.85rem' }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1.5px solid var(--border-light)', fontSize: '0.85rem' }}
               />
             </div>
           </div>
@@ -219,16 +219,16 @@ export default function BulkOrderModal({ product, onClose }) {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Festival gifting timeline, custom tags..."
-              style={{ width: '100%', padding: '8px 12px', borderRadius: '12px', border: '1.5px solid var(--border-light)', fontSize: '0.85rem' }}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1.5px solid var(--border-light)', fontSize: '0.85rem' }}
             />
           </div>
 
           {/* Valuation Summary Box */}
           <div
             style={{
-              background: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-              borderRadius: '14px',
+              background: '#F5F7F3',
+              border: '1px solid #E5E9E5',
+              borderRadius: '8px',
               padding: '12px 16px',
               display: 'flex',
               alignItems: 'center',
@@ -241,7 +241,7 @@ export default function BulkOrderModal({ product, onClose }) {
                 ₹{estimatedTotal.toLocaleString('en-IN')}
               </div>
             </div>
-            <div style={{ fontSize: '0.72rem', color: '#059669', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
+            <div style={{ fontSize: '0.72rem', color: '#244B3C', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
               <ShieldCheck size={14} />
               <span>Direct to Artisan</span>
             </div>
@@ -253,7 +253,7 @@ export default function BulkOrderModal({ product, onClose }) {
             disabled={isSubmitting}
             className="btn-primary-large"
             style={{
-              background: 'linear-gradient(135deg, var(--indigo-dark) 0%, #1E293B 100%)',
+              background: '#244B3C',
               marginTop: '6px',
               opacity: isSubmitting ? 0.7 : 1
             }}

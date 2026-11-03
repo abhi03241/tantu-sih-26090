@@ -24,6 +24,7 @@ export default function BottomNav() {
           className="nav-center-action"
           onClick={() => navigateTo('add-wizard')}
           title="Add New Craft via AI"
+          aria-label="Add new craft"
         >
           <Plus size={28} strokeWidth={2.8} />
         </button>
@@ -41,33 +42,13 @@ export default function BottomNav() {
         <button
           className={`nav-item ${currentScreen === 'orders' ? 'active' : ''}`}
           onClick={() => navigateTo('orders')}
-          style={{ position: 'relative' }}
         >
           <div className="nav-icon-wrap">
             <Inbox size={20} />
           </div>
           <span>{t('orders')}</span>
           {pendingOrdersCount > 0 && (
-            <span
-              style={{
-                position: 'absolute',
-                top: 4,
-                right: 14,
-                background: '#DC2626',
-                color: '#FFFFFF',
-                borderRadius: '999px',
-                fontSize: '0.65rem',
-                fontWeight: 800,
-                width: 18,
-                height: 18,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '2px solid #FFFFFF'
-              }}
-            >
-              {pendingOrdersCount}
-            </span>
+            <span className="nav-badge">{pendingOrdersCount}</span>
           )}
         </button>
       </nav>

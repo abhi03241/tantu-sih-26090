@@ -53,7 +53,7 @@ export default function BuyerProductDetail({ productId, onBack }) {
             className={`toggle-btn ${viewEnhanced ? 'active' : ''}`}
             onClick={() => setViewEnhanced(true)}
           >
-            <Sparkles size={14} color="#EA580C" />
+            <Sparkles size={14} color="#244B3C" />
             <span>AI Studio Lighting</span>
           </button>
           <button
@@ -82,9 +82,9 @@ export default function BuyerProductDetail({ productId, onBack }) {
           {/* Artisan Provenance Card */}
           <div
             style={{
-              background: 'linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 100%)',
-              border: '1px solid #FED7AA',
-              borderRadius: '16px',
+              background: '#F6EDD6',
+              border: '1px solid #C59B45',
+              borderRadius: '8px',
               padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
@@ -101,12 +101,12 @@ export default function BuyerProductDetail({ productId, onBack }) {
                   {product.artisan_name || 'Artisan Lakshmi Devi'}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <MapPin size={12} color="#EA580C" />
+                  <MapPin size={12} color="#244B3C" />
                   <span>{product.location || 'Silchar, Assam'}</span>
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', fontWeight: 700, color: '#059669', background: '#D1FAE5', padding: '4px 8px', borderRadius: '999px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', fontWeight: 700, color: '#244B3C', background: '#E8F0E9', padding: '4px 8px', borderRadius: '4px' }}>
               <ShieldCheck size={13} />
               <span>Verified Artisan</span>
             </div>
@@ -124,15 +124,15 @@ export default function BuyerProductDetail({ productId, onBack }) {
           {/* Specifications */}
           <div className="spec-pills-row">
             <span className="spec-pill">
-              <Layers size={13} color="#EA580C" />
+              <Layers size={13} color="#244B3C" />
               <span>{product.material}</span>
             </span>
             <span className="spec-pill">
-              <Ruler size={13} color="#EA580C" />
+              <Ruler size={13} color="#244B3C" />
               <span>{product.dimensions || '30cm x 30cm'}</span>
             </span>
             <span className="spec-pill">
-              <Clock size={13} color="#EA580C" />
+              <Clock size={13} color="#244B3C" />
               <span>{product.production_time || '3 days'}</span>
             </span>
           </div>
@@ -144,8 +144,8 @@ export default function BuyerProductDetail({ productId, onBack }) {
                 <span
                   key={i}
                   style={{
-                    background: '#F1F5F9',
-                    color: '#475569',
+                    background: '#E8F0E9',
+                    color: '#244B3C',
                     padding: '4px 10px',
                     borderRadius: '8px',
                     fontSize: '0.74rem',
@@ -161,11 +161,11 @@ export default function BuyerProductDetail({ productId, onBack }) {
           {/* Cultural Heritage Story */}
           <div className="catalog-story-box">
             <div className="story-heading">
-              <Heart size={14} color="#D97706" />
+              <Heart size={14} color="#C59B45" />
               <span>Artisan Heritage Story ({product.narrative_type || 'Cultural Heritage'})</span>
             </div>
             <p className="story-text">"{product.story}"</p>
-            <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#92400E', fontWeight: 600 }}>
+            <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#7B5901', fontWeight: 600 }}>
               Sentiment: {product.sentiment || 'Warm, authentic, heritage-focused'}
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function BuyerProductDetail({ productId, onBack }) {
           <div className="pricing-highlight-box">
             <div>
               <div className="pricing-title">Fair Market Wholesale Range</div>
-              <div style={{ fontSize: '0.75rem', color: '#065F46' }}>
+              <div style={{ fontSize: '0.75rem', color: '#244B3C' }}>
                 100% direct remuneration to rural artisan
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function BuyerProductDetail({ productId, onBack }) {
           {/* Primary Action Button */}
           <button
             className="btn-primary-large"
-            style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', boxShadow: '0 8px 20px rgba(15, 23, 42, 0.4)' }}
+            style={{ background: '#244B3C', boxShadow: 'none' }}
             onClick={() => setIsBulkModalOpen(true)}
           >
             <ShoppingBag size={20} />

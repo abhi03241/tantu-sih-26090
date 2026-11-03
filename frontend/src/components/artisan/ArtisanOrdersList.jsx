@@ -59,7 +59,7 @@ export default function ArtisanOrdersList() {
 
       {/* Orders List */}
       {filteredOrders.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid var(--border-light)' }}>
+        <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
           <Inbox size={40} color="#94A3B8" style={{ marginBottom: '10px' }} />
           <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>कोई ऑर्डर अनुरोध नहीं मिला</h3>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
@@ -77,8 +77,8 @@ export default function ArtisanOrdersList() {
                 key={order.id}
                 style={{
                   background: '#FFFFFF',
-                  border: isPending ? '1.5px solid #FED7AA' : '1px solid var(--border-light)',
-                  borderRadius: '18px',
+                  border: isPending ? '1.5px solid #C59B45' : '1px solid var(--border-light)',
+                  borderRadius: '8px',
                   padding: '16px 18px',
                   boxShadow: 'var(--shadow-sm)',
                   position: 'relative'
@@ -94,9 +94,9 @@ export default function ArtisanOrdersList() {
                         fontSize: '0.72rem',
                         fontWeight: 700,
                         padding: '3px 10px',
-                        borderRadius: '999px',
-                        background: isPending ? '#FEF3C7' : '#D1FAE5',
-                        color: isPending ? '#B45309' : '#065F46',
+                        borderRadius: '4px',
+                        background: isPending ? '#F6EDD6' : '#E8F0E9',
+                        color: isPending ? '#7B5901' : '#244B3C',
                         marginBottom: '6px'
                       }}
                     >
@@ -109,7 +109,7 @@ export default function ArtisanOrdersList() {
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#059669' }}>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#244B3C' }}>
                       ₹{totalValue.toLocaleString('en-IN')}
                     </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-light)' }}>
@@ -121,7 +121,7 @@ export default function ArtisanOrdersList() {
                 <div
                   style={{
                     background: 'var(--bg-sand)',
-                    borderRadius: '12px',
+                    borderRadius: '8px',
                     padding: '10px 14px',
                     fontSize: '0.82rem',
                     marginBottom: '12px'

@@ -22,13 +22,13 @@ export default function LanguageSelection({ onComplete }) {
           style={{
             width: '68px',
             height: '68px',
-            borderRadius: '22px',
-            background: 'linear-gradient(135deg, var(--terracotta) 0%, var(--turmeric) 100%)',
+            borderRadius: '8px',
+            background: 'var(--primary-700)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#FFFFFF',
-            boxShadow: '0 8px 20px rgba(200, 75, 32, 0.3)',
+            boxShadow: 'none',
             marginBottom: '16px'
           }}
         >
@@ -55,10 +55,10 @@ export default function LanguageSelection({ onComplete }) {
               style={{
                 background: isSelected ? 'var(--primary-50)' : '#FFFFFF',
                 border: isSelected ? '2px solid var(--terracotta)' : '1.5px solid var(--border-light)',
-                borderRadius: '16px',
+                borderRadius: '8px',
                 padding: '16px 12px',
                 textAlign: 'center',
-                boxShadow: isSelected ? '0 4px 12px rgba(200, 75, 32, 0.15)' : 'var(--shadow-sm)',
+                boxShadow: isSelected ? 'none' : 'var(--shadow-sm)',
                 position: 'relative',
                 transition: 'all 0.2s ease'
               }}

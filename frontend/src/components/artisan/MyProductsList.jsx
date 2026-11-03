@@ -67,7 +67,7 @@ export default function MyProductsList() {
 
       {/* Products Grid */}
       {filtered.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid var(--border-light)' }}>
+        <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
           <div style={{ width: 50, height: 50, borderRadius: '50%', background: 'var(--primary-50)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-600)', marginBottom: '12px' }}>
             <Layers size={24} />
           </div>

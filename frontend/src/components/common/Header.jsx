@@ -7,18 +7,15 @@ import {
   Smartphone,
   Monitor,
   Volume2,
-  ShoppingBag,
-  Palette,
   LogOut
 } from 'lucide-react';
+
 export default function Header() {
   const {
     language,
     setLanguage,
     role,
-    switchRole,
     logout,
-    backendOnline,
     deviceFrame,
     setDeviceFrame,
     speakText,
@@ -41,85 +38,67 @@ export default function Header() {
 
   return (
     <header className="app-header">
-      <div className="header-brand" onClick={() => navigateTo(role === 'artisan' ? 'home' : 'marketplace')} style={{ cursor: 'pointer' }}>
-        <div className="brand-icon-box">
-          <ShilpVaniLogo size={24} />
-        </div>
-        <div>
-          <div className="brand-title">
-            <span>शिल्पवाणी</span>
-            <span style={{ fontSize: '1.05rem', color: 'var(--text-main)', fontWeight: 800 }}>ShilpVani</span>
-          </div>
-          <div className="brand-subtitle">
-            {backendOnline ? '🟢 Backend Live' : '🟡 AI Demo Active'}
-          </div>
-        </div>
-      </div>
+      {/* Brand: click goes to the role's home screen */}
+      <button
+        type="button"
+        className="header-brand"
+        onClick={() => navigateTo(role === 'artisan' ? 'home' : 'marketplace')}
+        aria-label="ShilpVani home"
+      >
+        <ShilpVaniLogo size={28} />
+        <span className="brand-title">ShilpVani</span>
+        <span className="brand-divider" aria-hidden="true" />
+        <span className="brand-role">
+          {role === 'artisan' ? 'Crafts' : 'Market'}
+        </span>
+      </button>
 
       <div className="header-actions">
         {/* Audio helper for low literacy */}
         <button
+          type="button"
           className={`pill-btn ${ttsSpeaking ? 'speaking' : ''}`}
           onClick={handleSpeechHelper}
           title={t('listenToScreen')}
-          style={{ padding: '6px 10px' }}
+          aria-label="Listen to this screen"
         >
-          <Volume2 size={16} color={ttsSpeaking ? '#EA580C' : '#57534E'} />
+          <Volume2 size={16} />
         </button>
 
         {/* Language Picker */}
-        <div style={{ position: 'relative' }}>
+        <div className="lang-menu-wrap">
           <button
+            type="button"
             className="pill-btn"
             onClick={() => setLangMenuOpen(!langMenuOpen)}
             title="Change Language"
+            aria-haspopup="listbox"
+            aria-expanded={langMenuOpen}
           >
             <Globe size={15} />
             <span>{currentLangObj.name}</span>
           </button>
 
           {langMenuOpen && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '110%',
-                right: 0,
-                background: '#FFFFFF',
-                borderRadius: '16px',
-                boxShadow: 'var(--shadow-lg)',
-                border: '1px solid var(--border-light)',
-                width: '180px',
-                padding: '8px',
-                zIndex: 100
-              }}
-            >
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, padding: '6px 10px', color: 'var(--text-light)', borderBottom: '1px solid var(--border-light)' }}>
+            <div className="lang-menu" role="listbox">
+              <div className="lang-menu-title">
                 भाषा चुनें (Select Language)
               </div>
-              <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
+              <div className="lang-menu-list">
                 {LANGUAGES.map((l) => (
                   <button
                     key={l.code}
+                    type="button"
+                    role="option"
+                    aria-selected={language === l.code}
+                    className={`lang-menu-item ${language === l.code ? 'active' : ''}`}
                     onClick={() => {
                       setLanguage(l.code);
                       setLangMenuOpen(false);
                     }}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                      fontWeight: language === l.code ? 700 : 500,
-                      background: language === l.code ? 'var(--primary-100)' : 'transparent',
-                      color: language === l.code ? 'var(--primary-800)' : 'var(--text-main)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}
                   >
                     <span>{l.name}</span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-light)' }}>{l.englishName}</span>
+                    <small>{l.englishName}</small>
                   </button>
                 ))}
               </div>
@@ -128,29 +107,24 @@ export default function Header() {
         </div>
 
         {/* Logout Button */}
-<button
-  className="pill-btn"
-  onClick={logout}
-  title="Logout from your account"
-  style={{
-    padding: '6px 10px',
-    color: '#DC2626',
-    border: '1px solid #FECACA',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '5px'
-  }}
->
-  <LogOut size={15} />
-  <span>Logout</span>
-</button>
+        <button
+          type="button"
+          className="pill-btn header-logout"
+          onClick={logout}
+          title="Logout from your account"
+          aria-label="Logout"
+        >
+          <LogOut size={15} />
+          <span>Logout</span>
+        </button>
 
         {/* Device Frame Toggle (for presentation) */}
         <button
+          type="button"
           className="pill-btn"
           onClick={() => setDeviceFrame(!deviceFrame)}
           title={deviceFrame ? "Full view" : "Mobile device frame view"}
-          style={{ padding: '6px 8px' }}
+          aria-label="Toggle mobile frame view"
         >
           {deviceFrame ? <Monitor size={15} /> : <Smartphone size={15} />}
         </button>

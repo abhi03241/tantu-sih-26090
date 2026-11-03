@@ -388,7 +388,7 @@ export default function AddProductWizard() {
           </div>
 
           {photoError && (
-            <div style={{ background: '#FEE2E2', border: '1px solid #F87171', color: '#991B1B', padding: '10px 14px', borderRadius: '12px', fontSize: '0.82rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: '#FEE2E2', border: '1px solid #F87171', color: '#991B1B', padding: '10px 14px', borderRadius: '8px', fontSize: '0.82rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={16} />
               <span>{photoError}</span>
             </div>
@@ -406,14 +406,14 @@ export default function AddProductWizard() {
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button
                     onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                    style={{ background: 'rgba(255, 255, 255, 0.95)', color: '#0F172A', padding: '5px 12px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
+                    style={{ background: 'rgba(255, 255, 255, 0.95)', color: '#244B3C', padding: '5px 12px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     <RefreshCw size={12} />
                     <span>बदलें (Replace)</span>
                   </button>
                   <button
                     onClick={handleRemovePhoto}
-                    style={{ background: 'rgba(220, 38, 38, 0.95)', color: '#FFFFFF', padding: '5px 10px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
+                    style={{ background: 'rgba(220, 38, 38, 0.95)', color: '#FFFFFF', padding: '5px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     <Trash2 size={12} />
                     <span>हटाएं</span>
@@ -426,7 +426,7 @@ export default function AddProductWizard() {
               className="upload-dropzone"
               onClick={() => fileInputRef.current && fileInputRef.current.click()}
             >
-              <Camera size={44} color="#EA580C" style={{ marginBottom: '8px' }} />
+              <Camera size={44} color="#244B3C" style={{ marginBottom: '8px' }} />
               <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>
                 फोटो खींचें या अपलोड करें
               </div>
@@ -462,7 +462,7 @@ export default function AddProductWizard() {
               onClick={() => cameraInputRef.current && cameraInputRef.current.click()}
               disabled={photoLoading}
             >
-              <Camera size={20} color="#EA580C" />
+              <Camera size={20} color="#244B3C" />
               <span>{photoLoading ? 'लोड हो रहा...' : t('takePhoto')}</span>
             </button>
 
@@ -471,7 +471,7 @@ export default function AddProductWizard() {
               onClick={() => fileInputRef.current && fileInputRef.current.click()}
               disabled={photoLoading}
             >
-              <Upload size={20} color="#EA580C" />
+              <Upload size={20} color="#244B3C" />
               <span>{photoLoading ? 'लोड हो रहा...' : t('uploadPhoto')}</span>
             </button>
           </div>
@@ -517,13 +517,13 @@ export default function AddProductWizard() {
           </div>
 
           {/* Voice / Text Mode Toggle */}
-          <div style={{ display: 'flex', background: 'var(--primary-100)', padding: '4px', borderRadius: '14px', marginBottom: '18px' }}>
+          <div style={{ display: 'flex', background: 'var(--primary-100)', padding: '4px', borderRadius: '8px', marginBottom: '18px' }}>
             <button
               onClick={() => setInputMode('voice')}
               style={{
                 flex: 1,
                 padding: '8px 12px',
-                borderRadius: '10px',
+                borderRadius: '4px',
                 fontSize: '0.82rem',
                 fontWeight: 700,
                 background: inputMode === 'voice' ? '#FFFFFF' : 'transparent',
@@ -542,7 +542,7 @@ export default function AddProductWizard() {
               style={{
                 flex: 1,
                 padding: '8px 12px',
-                borderRadius: '10px',
+                borderRadius: '4px',
                 fontSize: '0.82rem',
                 fontWeight: 700,
                 background: inputMode === 'text' ? '#FFFFFF' : 'transparent',
@@ -559,7 +559,7 @@ export default function AddProductWizard() {
           </div>
 
           {voiceError && (
-            <div style={{ background: '#FEF3C7', border: '1px solid #F59E0B', color: '#92400E', padding: '10px 14px', borderRadius: '12px', fontSize: '0.82rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: '#F6EDD6', border: '1px solid #C59B45', color: '#7B5901', padding: '10px 14px', borderRadius: '8px', fontSize: '0.82rem', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <AlertCircle size={16} />
               <span>{voiceError}</span>
             </div>
@@ -627,7 +627,7 @@ export default function AddProductWizard() {
             </div>
           ) : (
             /* Text Fallback Container */
-            <div style={{ background: '#FFFFFF', border: '1.5px solid var(--border-light)', borderRadius: '20px', padding: '18px 16px', marginBottom: '20px' }}>
+            <div style={{ background: '#FFFFFF', border: '1.5px solid var(--border-light)', borderRadius: '8px', padding: '18px 16px', marginBottom: '20px' }}>
               <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '6px', display: 'block' }}>
                 उत्पाद के बारे में संक्षेप में लिखें (हिन्दी या अंग्रेजी):
               </label>
@@ -636,7 +636,7 @@ export default function AddProductWizard() {
                 value={textFallback}
                 onChange={(e) => setTextFallback(e.target.value)}
                 placeholder="उदा. यह हाथ से बुना बांस का झूला / टोकरी है। असम के सिलचर में प्राकृतिक बांस से 3 दिन में बना है।"
-                style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid var(--border-light)', fontSize: '0.9rem' }}
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1.5px solid var(--border-light)', fontSize: '0.9rem' }}
               />
             </div>
           )}
@@ -756,7 +756,7 @@ export default function AddProductWizard() {
                 className={`toggle-btn ${viewEnhanced ? 'active' : ''}`}
                 onClick={() => setViewEnhanced(true)}
               >
-                <Sparkles size={14} color="#EA580C" />
+                <Sparkles size={14} color="#244B3C" />
                 <span>AI स्टूडियो लाइटिंग फोटो</span>
               </button>
               <button
@@ -793,15 +793,15 @@ export default function AddProductWizard() {
               {/* Specs */}
               <div className="spec-pills-row">
                 <span className="spec-pill">
-                  <Layers size={13} color="#EA580C" />
+                  <Layers size={13} color="#244B3C" />
                   <span>{generatedProduct.material}</span>
                 </span>
                 <span className="spec-pill">
-                  <Ruler size={13} color="#EA580C" />
+                  <Ruler size={13} color="#244B3C" />
                   <span>{generatedProduct.dimensions || '30cm x 30cm'}</span>
                 </span>
                 <span className="spec-pill">
-                  <Clock size={13} color="#EA580C" />
+                  <Clock size={13} color="#244B3C" />
                   <span>{generatedProduct.production_time || '3 days'}</span>
                 </span>
               </div>
@@ -812,7 +812,7 @@ export default function AddProductWizard() {
                   {generatedProduct.tags.map((tag, i) => (
                     <span
                       key={i}
-                      style={{ background: '#F1F5F9', color: '#475569', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 600 }}
+                      style={{ background: '#E8F0E9', color: '#244B3C', padding: '3px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600 }}
                     >
                       #{tag}
                     </span>
@@ -823,7 +823,7 @@ export default function AddProductWizard() {
               {/* Story */}
               <div className="catalog-story-box">
                 <div className="story-heading">
-                  <Heart size={14} color="#D97706" />
+                  <Heart size={14} color="#C59B45" />
                   <span>कारीगर की विरासत कथा ({generatedProduct.narrative_type || 'Cultural Heritage'})</span>
                 </div>
                 <p className="story-text">"{generatedProduct.story}"</p>
@@ -833,7 +833,7 @@ export default function AddProductWizard() {
               <div className="pricing-highlight-box">
                 <div>
                   <div className="pricing-title">AI अनुमानित उचित दर</div>
-                  <div style={{ fontSize: '0.72rem', color: '#065F46' }}>कारीगर के लिए न्यायसंगत मूल्य</div>
+                  <div style={{ fontSize: '0.72rem', color: '#244B3C' }}>कारीगर के लिए न्यायसंगत मूल्य</div>
                 </div>
                 <div className="pricing-range">
                   ₹{generatedProduct.suggested_price_min} - ₹{generatedProduct.suggested_price_max}
@@ -883,12 +883,12 @@ export default function AddProductWizard() {
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              background: lastAction === 'publish' ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+              background: lastAction === 'publish' ? '#244B3C' : '#244B3C',
               color: '#FFFFFF',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 10px 25px rgba(16, 185, 129, 0.35)',
+              boxShadow: 'none',
               marginBottom: '20px'
             }}
           >
@@ -947,7 +947,7 @@ export default function AddProductWizard() {
                   type="text"
                   value={editFormData.title || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid var(--border-light)' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid var(--border-light)' }}
                 />
               </div>
 
@@ -959,7 +959,7 @@ export default function AddProductWizard() {
                   rows={2}
                   value={editFormData.description_hindi || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, description_hindi: e.target.value })}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid var(--border-light)' }}
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid var(--border-light)' }}
                 />
               </div>
 
@@ -972,7 +972,7 @@ export default function AddProductWizard() {
                     type="text"
                     value={editFormData.material || ''}
                     onChange={(e) => setEditFormData({ ...editFormData, material: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid var(--border-light)' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid var(--border-light)' }}
                   />
                 </div>
                 <div>
@@ -983,7 +983,7 @@ export default function AddProductWizard() {
                     type="text"
                     value={editFormData.dimensions || ''}
                     onChange={(e) => setEditFormData({ ...editFormData, dimensions: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid var(--border-light)' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid var(--border-light)' }}
                   />
                 </div>
               </div>
@@ -997,7 +997,7 @@ export default function AddProductWizard() {
                     type="number"
                     value={editFormData.suggested_price_min || ''}
                     onChange={(e) => setEditFormData({ ...editFormData, suggested_price_min: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid var(--border-light)' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid var(--border-light)' }}
                   />
                 </div>
                 <div>
@@ -1008,7 +1008,7 @@ export default function AddProductWizard() {
                     type="number"
                     value={editFormData.suggested_price_max || ''}
                     onChange={(e) => setEditFormData({ ...editFormData, suggested_price_max: e.target.value })}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '12px', border: '1.5px solid var(--border-light)' }}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1.5px solid var(--border-light)' }}
                   />
                 </div>
               </div>

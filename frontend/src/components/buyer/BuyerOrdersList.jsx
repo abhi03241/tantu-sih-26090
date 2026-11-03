@@ -15,7 +15,7 @@ export default function BuyerOrdersList() {
       </div>
 
       {orders.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '20px', border: '1px solid var(--border-light)' }}>
+        <div style={{ textAlign: 'center', padding: '40px 16px', background: '#FFFFFF', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
           <ShoppingBag size={40} color="#94A3B8" style={{ marginBottom: '10px' }} />
           <h3 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '6px' }}>No orders placed yet</h3>
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
@@ -37,8 +37,8 @@ export default function BuyerOrdersList() {
                 key={order.id}
                 style={{
                   background: '#FFFFFF',
-                  border: isPending ? '1.5px solid #E2E8F0' : '1.5px solid #A7F3D0',
-                  borderRadius: '18px',
+                  border: isPending ? '1.5px solid #E5E9E5' : '1.5px solid #C9DDD2',
+                  borderRadius: '8px',
                   padding: '16px 18px',
                   boxShadow: 'var(--shadow-sm)'
                 }}
@@ -53,9 +53,9 @@ export default function BuyerOrdersList() {
                         fontSize: '0.72rem',
                         fontWeight: 700,
                         padding: '3px 10px',
-                        borderRadius: '999px',
-                        background: isPending ? '#FEF3C7' : '#D1FAE5',
-                        color: isPending ? '#B45309' : '#065F46',
+                        borderRadius: '4px',
+                        background: isPending ? '#F6EDD6' : '#E8F0E9',
+                        color: isPending ? '#7B5901' : '#244B3C',
                         marginBottom: '6px'
                       }}
                     >
@@ -80,7 +80,7 @@ export default function BuyerOrdersList() {
                 <div
                   style={{
                     background: 'var(--bg-sand)',
-                    borderRadius: '12px',
+                    borderRadius: '8px',
                     padding: '10px 14px',
                     fontSize: '0.82rem',
                     marginBottom: '12px'
@@ -96,7 +96,7 @@ export default function BuyerOrdersList() {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Offered Price:</span>
-                    <span style={{ fontWeight: 700, color: '#059669' }}>₹{order.price_offered} / unit</span>
+                    <span style={{ fontWeight: 700, color: '#244B3C' }}>₹{order.price_offered} / unit</span>
                   </div>
                   {order.notes && (
                     <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed var(--border-light)', color: 'var(--text-muted)', fontStyle: 'italic' }}>
